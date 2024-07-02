@@ -1,6 +1,8 @@
 package codesquad.message.response;
 
-import codesquad.message.InvalidResponseFormatException;
+import codesquad.http.message.InvalidResponseFormatException;
+import codesquad.http.message.response.HttpResponseMessage;
+import codesquad.http.message.response.HttpStatus;
 import codesquad.message.mock.MockTimer;
 import codesquad.utils.Timer;
 import org.junit.jupiter.api.BeforeEach;

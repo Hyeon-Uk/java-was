@@ -1,4 +1,4 @@
-package codesquad.message.response;
+package codesquad.http.message.response;
 
 public enum HttpStatus {
     OK(200,"OK"),CREATE(201,"Created"),ACCEPTED(202,"Accepted"),NO_CONTENT(204,"No Content"),

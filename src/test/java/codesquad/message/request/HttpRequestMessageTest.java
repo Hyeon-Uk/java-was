@@ -1,6 +1,8 @@
 package codesquad.message.request;
 
-import codesquad.message.InvalidRequestFormatException;
+import codesquad.http.message.InvalidRequestFormatException;
+import codesquad.http.message.request.HttpMethod;
+import codesquad.http.message.request.HttpRequestMessage;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

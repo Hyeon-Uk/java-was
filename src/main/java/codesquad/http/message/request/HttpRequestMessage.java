@@ -1,6 +1,6 @@
-package codesquad.message.request;
+package codesquad.http.message.request;
 
-import codesquad.message.InvalidRequestFormatException;
+import codesquad.http.message.InvalidRequestFormatException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,12 +18,13 @@ public class HttpRequestMessage {
             String startLine = lines[0];
             setStartLine(startLine);
             setHost(lines[1].split(":",2)[1]);
-            for(int lineNumber = 2; lineNumber < lines.length; lineNumber++) {
+            for(int lineNumber = 2; lineNumber < lines.length && !"".equals(lines[lineNumber].trim()); lineNumber++) {
                 String line = lines[lineNumber];
                 String[] strs = line.split(":");
                 headers.put(strs[0].trim(),strs[1].trim());
             }
         }catch(Exception e){
+            e.printStackTrace();
             throw new InvalidRequestFormatException();
         }
     }

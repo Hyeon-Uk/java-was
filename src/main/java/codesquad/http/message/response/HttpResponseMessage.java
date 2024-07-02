@@ -1,6 +1,6 @@
-package codesquad.message.response;
+package codesquad.http.message.response;
 
-import codesquad.message.InvalidResponseFormatException;
+import codesquad.http.message.InvalidResponseFormatException;
 import codesquad.utils.Timer;
 
 import java.text.SimpleDateFormat;
