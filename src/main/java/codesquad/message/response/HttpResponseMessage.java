@@ -43,7 +43,7 @@ public class HttpResponseMessage {
             responseMessage.body = body;
             return this;
         }
-        public HttpResponseMessage build(){
+        public HttpResponseMessage build() throws InvalidResponseFormatException {
             validation();
 
             // SimpleDateFormat을 사용하여 HTTP date 포맷을 만듭니다.

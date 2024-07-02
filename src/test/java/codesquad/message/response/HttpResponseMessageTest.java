@@ -27,7 +27,7 @@ public class HttpResponseMessageTest {
     }
 
     @Test
-    public void verifyResponseMessage(){
+    public void verifyResponseMessage() throws InvalidResponseFormatException {
         //given
         HttpStatus status = HttpStatus.OK;
         String body = "<h1>helloworld</h1>";
