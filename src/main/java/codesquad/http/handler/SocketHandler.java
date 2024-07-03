@@ -31,7 +31,7 @@ public class SocketHandler implements Runnable {
 
             HttpResponseMessage response = handle(request);
 
-            socket.getOutputStream().write(response.toString().getBytes());
+            socket.getOutputStream().write(response.parseMessage());
             socket.getOutputStream().flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,21 +76,13 @@ public class SocketHandler implements Runnable {
     private boolean isFileRequest(String uri){
         return uri.lastIndexOf('.') != -1;
     }
-    private String extractFileData(String uri) throws Exception {
+    private byte[] extractFileData(String uri) throws Exception {
         String substring = uri.substring(1, uri.length());
         File file = new File(resourceBasePath.concat(substring));
-        System.out.println("file.exists() = " + file.exists());
-        System.out.println("file.getAbsolutePath() = " + file.getAbsolutePath());
-        System.out.println("file.toString() = " + file.toString());
 
-        FileReader fr = new FileReader(file.getAbsolutePath(), StandardCharsets.UTF_8);
-        BufferedReader br = new BufferedReader(fr);
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        while((line = br.readLine()) != null){
-            sb.append(line).append(System.lineSeparator());
-        }
-        return sb.toString();
+        FileInputStream fis =  new FileInputStream(file);
+
+        return fis.readAllBytes();
     }
 
     private String getContentType(String path){
@@ -104,6 +96,7 @@ public class SocketHandler implements Runnable {
             case "html" -> "text/html";
             case "css" -> "text/css";
             case "svg" -> "image/svg+xml";
+            case "ico" -> "image/x-icon";
             default -> "*/*";
         };
     }
