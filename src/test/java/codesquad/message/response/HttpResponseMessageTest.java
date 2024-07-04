@@ -44,8 +44,7 @@ public class HttpResponseMessageTest {
                 Content-Type: application/json; charset=utf-8
                 Date: Tue, 02 Jul 2024 13:15:30 GMT
                 
-                <h1>helloworld</h1>
-                """;
+                <h1>helloworld</h1>""";
 
         //when
         HttpResponseMessage response = new HttpResponseMessage.Builder(mockTimer)
@@ -58,9 +57,9 @@ public class HttpResponseMessageTest {
         assertAll("response message validation",
                 ()->assertEquals(contentTypeValue,response.getHeader(contentType)),
                 ()->assertEquals(status,response.getStatus()),
-                ()->assertEquals(body,response.getBody()),
+                ()->assertEquals(body,response.getBodyString()),
                 ()->assertEquals(Integer.toString(body.length()),response.getHeader("Content-Length")),
-                ()->assertEquals(expectedMessage,response.toString())
+                ()->assertEquals(expectedMessage,new String(response.parseMessage()))
                 );
     }
 

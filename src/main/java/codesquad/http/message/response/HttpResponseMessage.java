@@ -40,9 +40,7 @@ public class HttpResponseMessage {
             if(body == null){
                 body = "";
             }
-            responseMessage.header.put("Content-Length", Integer.toString(body.getBytes().length));
-            responseMessage.body = body.getBytes();
-            return this;
+            return this.body(body.getBytes());
         }
         public Builder body(byte[] body){
             if(body == null){
@@ -81,6 +79,10 @@ public class HttpResponseMessage {
 
     public byte[] getBody() {
         return body;
+    }
+
+    public String getBodyString(){
+        return new String(body);
     }
 
     private byte[] parseHeader(){
