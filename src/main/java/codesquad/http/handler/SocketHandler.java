@@ -34,19 +34,14 @@ public class SocketHandler implements Runnable {
 
             socket.getOutputStream().write(response.parseMessage());
             socket.getOutputStream().flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new RuntimeException(e);
-        } catch (InvalidRequestFormatException | InvalidResponseFormatException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch(Exception e){
-          e.printStackTrace();
-          throw new RuntimeException(e);
         } finally{
             try {
                 socket.close();
             } catch (IOException e) {
+                logger.error("Socket close exception",e.getMessage());
                 throw new RuntimeException(e);
             }
         }
@@ -64,7 +59,6 @@ public class SocketHandler implements Runnable {
             case TRACE -> null;
             case CONNECT -> null;
         };
-        return response;
     }
 
     private HttpResponseMessage optionsSomething(HttpRequestMessage request) throws InvalidResponseFormatException {
