@@ -7,7 +7,8 @@ public class RequestHandlerMapper {
     private final static RequestHandler staticResourceHandler = new StaticResourceHandler();
     private static final Map<String, RequestHandler> mappers = Map.of(
             STATIC_RESOURCE_KEY, staticResourceHandler,
-            "/", staticResourceHandler
+            "/", new MainHandler(),
+            "/create",new RegisterHandler()
     );
 
     public RequestHandler getRequestHandler(String path) {

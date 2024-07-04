@@ -23,6 +23,10 @@ public class HttpResponseMessage {
         this.header = new HttpHeader(header);
         this.body = new HttpBody();
     }
+    public void sendRedirect(String redirectPath){
+        setHeader("Location",redirectPath);
+        setStatus(HttpStatus.MOVED_PERMANENTLY);
+    }
     public void setStatus(HttpStatus status){
         this.startLine.setStatus(status);
     }

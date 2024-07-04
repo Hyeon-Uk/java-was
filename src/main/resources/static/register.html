@@ -62,9 +62,9 @@
 </div>
 <script>
     function registerUser() {
-        const userId = document.querySelector('input[placeholder="enter your id"]').value;
-        const nickname = document.querySelector('input[placeholder="enter your nickname"]').value;
-        const password = document.querySelector('input[placeholder="enter your password"]').value;
+        const userId = document.querySelector('input[placeholder="아이디를 입력해주세요"]').value;
+        const nickname = document.querySelector('input[placeholder="닉네임을 입력해주세요"]').value;
+        const password = document.querySelector('input[placeholder="비밀번호를 입력해주세요"]').value;
 
         const url = `/create?userId=${encodeURIComponent(userId)}&nickname=${encodeURIComponent(nickname)}&password=${encodeURIComponent(password)}`;
         fetch(url, {
