@@ -2,6 +2,8 @@ package codesquad.http.message.request;
 
 import codesquad.http.message.InvalidRequestFormatException;
 
+import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +13,7 @@ public class HttpRequestMessage {
     private String httpVersion;
     private String host;
     private final Map<String,String> headers = new HashMap<>();
+    private final Map<String,String> parameters = new HashMap<>();
 
     public HttpRequestMessage(String message) throws InvalidRequestFormatException {
         try {
@@ -33,7 +36,38 @@ public class HttpRequestMessage {
         String[] strs = startLine.split(" ");
         setMethod(strs[0]);
         setUri(strs[1]);
+        setQueryString(uri);
         setHttpVersion(strs[2]);
+    }
+
+    private Map<String,String> extractQueryString(String queryString){
+        Map<String,String> queryStringMap = new HashMap<>();
+        String[] queries = queryString.split("&");
+        for(String query : queries){
+            String[] keyValue = Arrays.stream(query.split("="))
+                    .map(URLDecoder::decode)
+                    .toArray(String[]::new);
+
+            if(keyValue.length == 1){
+                queryStringMap.put(keyValue[0].trim(),"");
+            }
+            else if(keyValue.length == 2){
+                queryStringMap.put(keyValue[0].trim(),keyValue[1].trim());
+            }
+        }
+        return queryStringMap;
+    }
+
+    private void setQueryString(String uri){
+        String[] split = uri.split("\\?");
+        if(split.length <= 1) return;
+        String queryStrings = split[1];
+        Map<String, String> queryStringMap = extractQueryString(queryStrings);
+        this.parameters.putAll(queryStringMap);
+    }
+
+    public String getQueryString(String parameter){
+        return parameters.get(parameter);
     }
 
     private void setMethod(String method) {
