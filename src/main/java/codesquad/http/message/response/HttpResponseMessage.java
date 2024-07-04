@@ -1,106 +1,51 @@
 package codesquad.http.message.response;
+import codesquad.http.message.vo.HttpBody;
+import codesquad.http.message.vo.HttpHeader;
 
-import codesquad.http.message.HttpHeader;
-import codesquad.http.message.InvalidResponseFormatException;
-import codesquad.utils.Timer;
-
-import java.io.ByteArrayOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class HttpResponseMessage {
     private final HttpResponseStartLine startLine;
     private final HttpHeader header;
-    private byte[] body;
+    private final HttpBody body;
 
-    private HttpResponseMessage(Builder builder){
-        this(new HttpResponseStartLine(builder.httpVersion,builder.status), new HttpHeader(builder.headerMap),builder.body);
-    }
-
-    private HttpResponseMessage(HttpResponseStartLine startLine,HttpHeader header,byte[] body) {
+    public HttpResponseMessage(HttpResponseStartLine startLine,HttpHeader header,HttpBody body){
         this.startLine = startLine;
         this.header = header;
         this.body = body;
     }
 
-    public static class Builder{
-        private final HttpStatus status;
-        private final Map<String,String> headerMap;
-        private final String httpVersion;
-        private byte[] body;
-        public Builder(HttpStatus status, Map<String,String> headerMap, Timer timer) {
-            if(headerMap == null || status == null) throw new InvalidResponseFormatException();
-
-            this.status = status;
-            this.headerMap = headerMap;
-            this.httpVersion = "HTTP/1.1";
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            this.headerMap.put("Date",dateFormat.format(timer.getCurrentTime()));
-        }
-        public Builder body(byte[] body) {
-            if(body == null){
-                body = new byte[0];
-            }
-            this.body = body;
-            this.headerMap.put("Content-Length",Integer.toString(body.length));
-            return this;
-        }
-        public Builder body(String body){
-            if(body == null){
-                body = "";
-            }
-            body(body.getBytes());
-            return this;
-        }
-        public HttpResponseMessage build(){
-            return new HttpResponseMessage(this);
-        }
-    }
-
-    public String getHttpVersion() {
-        return startLine.getHttpVersion();
-    }
-
-    public HttpStatus getStatus() {
-        return startLine.getStatus();
-    }
-
-    public String getHeader(String header) {
-        return this.header.getHeader(header);
-    }
-
-    public byte[] getBody() {
-        return body;
-    }
-
-    public String getBodyString(){
-        return new String(body);
-    }
-
     private byte[] parseStartLine(){
         return startLine.parseStartLine();
     }
-
+    private byte[] parseHeaders(){
+        return header.allHeaders().entrySet().stream()
+                .map(entry -> {
+                    StringJoiner joiner = new StringJoiner(", ");
+                    entry.getValue().forEach(value -> joiner.add(value));
+                    return entry.getKey() + ": " + joiner.toString();
+                })
+                .reduce("", (acc, line) -> acc + line + System.lineSeparator()).getBytes();
+    }
     private byte[] parseBody(){
-        return body;
+        return body.getBody();
     }
-
-    private byte[] concatByteArray(byte[] ...args){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        if(args != null){
-            Arrays.stream(args).filter(Objects::nonNull)
-                    .forEach(baos::writeBytes);
-        }
-        return baos.toByteArray();
+    private byte[] mergeByteArray(byte[] array1,byte[] array2){
+        byte[] result = new byte[array1.length+array2.length];
+        System.arraycopy(array1, 0, result, 0, array1.length);
+        System.arraycopy(array2, 0, result, array1.length, array2.length);
+        return result;
     }
+    private byte[] concatByteArray(byte[] ...array){
+        return Arrays.stream(array)
+                .reduce(new byte[0],this::mergeByteArray);
+    }
+    public byte[] parse(){
+        byte[] startLine = parseStartLine();
+        byte[] headers = parseHeaders();
+        byte[] body = parseBody();
 
-    public byte[] parseMessage(){
-        byte[] startLineBytes = parseStartLine();
-        byte[] headerBytes = header.parseHeader();
-        byte[] bodyBytes = parseBody();
-
-        return concatByteArray(startLineBytes,headerBytes,bodyBytes);
+        return concatByteArray(startLine,headers,body);
     }
 }

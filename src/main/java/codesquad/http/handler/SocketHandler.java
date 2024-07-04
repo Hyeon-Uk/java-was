@@ -3,8 +3,11 @@ package codesquad.http.handler;
 import codesquad.http.message.InvalidResponseFormatException;
 import codesquad.http.message.parser.HttpRequestParser;
 import codesquad.http.message.request.HttpRequestMessage;
+import codesquad.http.message.response.HttpResponseMaker;
 import codesquad.http.message.response.HttpResponseMessage;
 import codesquad.http.message.response.HttpStatus;
+import codesquad.http.message.vo.HttpBody;
+import codesquad.http.message.vo.HttpHeader;
 import codesquad.utils.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SocketHandler implements Runnable {
@@ -24,17 +28,20 @@ public class SocketHandler implements Runnable {
         this.socket = socket;
         this.requestParser = requestParser;
         this.timer = timer;
+        System.out.println("created!");
     }
 
     @Override
     public void run() {
+        System.out.println("execute!");
         try(BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
+            System.out.println("enter thread");
             String requestMessage = readRequestMessage(br);
             HttpRequestMessage request = requestParser.parse(requestMessage);
 
             HttpResponseMessage response = handle(request);
 
-            socket.getOutputStream().write(response.parseMessage());
+            socket.getOutputStream().write(response.parse());
             socket.getOutputStream().flush();
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -64,10 +71,9 @@ public class SocketHandler implements Runnable {
     }
 
     private HttpResponseMessage optionsSomething(HttpRequestMessage request) throws InvalidResponseFormatException {
-        Map<String,String> header = new HashMap<>();
-        header.put("Access-Control-Allow-Origin","*/*");
-        return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
-                .build();
+        Map<String, List<String>> header = new HashMap<>();
+        header.put("Access-Control-Allow-Origin",List.of("*/*"));
+        return new HttpResponseMaker(timer).build(HttpStatus.OK,new HttpHeader(header),new HttpBody(new byte[0]));
     }
 
     private boolean isFileRequest(String uri){
@@ -100,19 +106,21 @@ public class SocketHandler implements Runnable {
 
     private HttpResponseMessage getSomething(HttpRequestMessage request) throws Exception {
         if(isFileRequest(request.getUri())){
-            Map<String,String> header = new HashMap<>();
-            header.put("Content-Type",getContentType(request.getUri()));
-            return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
-                    .body(extractFileData(request.getUri()))
-                    .build();
+            Map<String,List<String>> header = new HashMap<>();
+            header.put("Content-Type",List.of(getContentType(request.getUri())));
+//            return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
+//                    .body(extractFileData(request.getUri()))
+//                    .build();
+            return new HttpResponseMaker(timer).build(HttpStatus.OK,new HttpHeader(header),new HttpBody(extractFileData(request.getUri())));
         }
         else{
             //일단은
-            Map<String,String> header = new HashMap<>();
-            header.put("Content-Type",getContentType(request.getUri()));
-            return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
-                    .body("<h1>hello world!</h1>")
-                    .build();
+            Map<String,List<String>> header = new HashMap<>();
+            header.put("Content-Type",List.of(getContentType(request.getUri())));
+//            return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
+//                    .body("<h1>hello world!</h1>")
+//                    .build();
+            return new HttpResponseMaker(timer).build(HttpStatus.OK,new HttpHeader(header),new HttpBody("<h1>hello world~!</h1>"));
         }
     }
 

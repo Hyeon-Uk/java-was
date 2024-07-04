@@ -17,26 +17,25 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
-    private HttpHeaderParser headerParser(){
+    private static HttpHeaderParser headerParser(){
         return new HttpHeaderParser();
     }
-    private HttpBodyParser bodyParser(){
+    private static HttpBodyParser bodyParser(){
         return new HttpBodyParser();
     }
-    private HttpQueryStringParser queryStringParser(){
+    private static HttpQueryStringParser queryStringParser(){
         return new HttpQueryStringParser();
     }
-    private HttpRequestStartLineParser startLineParser(){
+    private static HttpRequestStartLineParser startLineParser(){
         return new HttpRequestStartLineParser();
     }
-    private HttpRequestParser requestParser(HttpRequestStartLineParser startLineParser,
+    private static HttpRequestParser requestParser(HttpRequestStartLineParser startLineParser,
                                                   HttpQueryStringParser queryStringParser,
                                                   HttpHeaderParser headerParser,
                                                   HttpBodyParser bodyParser){
         return new HttpRequestParser(startLineParser,headerParser,bodyParser,queryStringParser);
     }
-
-    public Main() throws IOException {
+    public static void main(String[] args) throws IOException {
         int port = 8080;
         ServerSocket serverSocket = new ServerSocket(port); // 8080 포트에서 서버를 엽니다.
         logger.info("Listening for connection on port {}...",port);
@@ -46,7 +45,9 @@ public class Main {
         while (true) { // 무한 루프를 돌며 클라이언트의 연결을 기다립니다.
             Socket clientSocket = null;
             try { // 클라이언트 연결을 수락합니다.
+                System.out.println("waiting..");
                 clientSocket = serverSocket.accept();
+                System.out.println("accept!");
                 SocketHandler handler = new SocketHandler(clientSocket,requestParser,timer);
                 threadPoolExecutor.execute(handler);
             } catch(Exception e){
@@ -57,13 +58,9 @@ public class Main {
                         clientSocket.close();
                     } catch (IOException e) {
                         logger.error("Socket close exception",e.getMessage());
-                        throw new RuntimeException(e);
                     }
                 }
             }
         }
-    }
-    public static void main(String[] args) throws IOException {
-        new Main();
     }
 }
