@@ -1,6 +1,5 @@
 package codesquad.http.handler;
 
-import codesquad.http.message.InvalidRequestFormatException;
 import codesquad.http.message.InvalidResponseFormatException;
 import codesquad.http.message.request.HttpRequestMessage;
 import codesquad.http.message.response.HttpResponseMessage;
@@ -48,7 +47,7 @@ public class SocketHandler implements Runnable {
     }
 
     private HttpResponseMessage handle(HttpRequestMessage request) throws Exception {
-        HttpResponseMessage response = switch(request.getMethod()){
+        return switch(request.getMethod()){
             case GET -> getSomething(request);
             case POST -> null;
             case PUT -> null;
@@ -72,7 +71,7 @@ public class SocketHandler implements Runnable {
         return uri.lastIndexOf('.') != -1;
     }
     private byte[] extractFileData(String uri) throws Exception {
-        String substring = uri.substring(1, uri.length());
+        String substring = uri.substring(1);
         File file = new File(resourceBasePath.concat(substring));
 
         FileInputStream fis =  new FileInputStream(file);
