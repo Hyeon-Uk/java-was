@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SocketHandler implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(SocketHandler.class);
@@ -66,9 +68,9 @@ public class SocketHandler implements Runnable {
     }
 
     private HttpResponseMessage optionsSomething(HttpRequestMessage request) throws InvalidResponseFormatException {
-        return new HttpResponseMessage.Builder(timer)
-                .status(HttpStatus.OK)
-                .header("Access-Control-Allow-Origin","*/*")
+        Map<String,String> header = new HashMap<>();
+        header.put("Access-Control-Allow-Origin","*/*");
+        return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
                 .build();
     }
 
@@ -102,17 +104,17 @@ public class SocketHandler implements Runnable {
 
     private HttpResponseMessage getSomething(HttpRequestMessage request) throws Exception {
         if(isFileRequest(request.getUri())){
-            return new HttpResponseMessage.Builder(timer)
-                    .status(HttpStatus.OK)
-                    .header("Content-Type",getContentType(request.getUri()))
+            Map<String,String> header = new HashMap<>();
+            header.put("Content-Type",getContentType(request.getUri()));
+            return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
                     .body(extractFileData(request.getUri()))
                     .build();
         }
         else{
             //일단은
-            return new HttpResponseMessage.Builder(timer)
-                    .status(HttpStatus.OK)
-                    .header("Content-Type","text/html")
+            Map<String,String> header = new HashMap<>();
+            header.put("Content-Type",getContentType(request.getUri()));
+            return new HttpResponseMessage.Builder(HttpStatus.OK,header,timer)
                     .body("<h1>hello world!</h1>")
                     .build();
         }

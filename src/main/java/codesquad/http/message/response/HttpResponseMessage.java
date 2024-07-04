@@ -1,5 +1,6 @@
 package codesquad.http.message.response;
 
+import codesquad.http.message.HttpHeader;
 import codesquad.http.message.InvalidResponseFormatException;
 import codesquad.utils.Timer;
 
@@ -8,73 +9,66 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class HttpResponseMessage {
-    private String httpVersion;
-    private HttpStatus status;
-    private final Map<String,String> header = new HashMap<>();
+    private final HttpResponseStartLine startLine;
+    private final HttpHeader header;
     private byte[] body;
 
-    private HttpResponseMessage() {
-        this.httpVersion = "HTTP/1.1";
+    private HttpResponseMessage(Builder builder){
+        this(new HttpResponseStartLine(builder.httpVersion,builder.status), new HttpHeader(builder.headerMap),builder.body);
+    }
+
+    private HttpResponseMessage(HttpResponseStartLine startLine,HttpHeader header,byte[] body) {
+        this.startLine = startLine;
+        this.header = header;
+        this.body = body;
     }
 
     public static class Builder{
-        private HttpResponseMessage responseMessage;
-        private Timer timer;
-        public Builder(Timer timer){
-            responseMessage = new HttpResponseMessage();
-            this.timer = timer;
+        private final HttpStatus status;
+        private final Map<String,String> headerMap;
+        private final String httpVersion;
+        private byte[] body;
+        public Builder(HttpStatus status, Map<String,String> headerMap, Timer timer) {
+            if(headerMap == null || status == null) throw new InvalidResponseFormatException();
+
+            this.status = status;
+            this.headerMap = headerMap;
+            this.httpVersion = "HTTP/1.1";
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            this.headerMap.put("Date",dateFormat.format(timer.getCurrentTime()));
         }
-        public Builder status(HttpStatus status){
-            responseMessage.status = status;
-            return this;
-        }
-        public Builder header(String key,String value){
-            responseMessage.header.put(key, value);
-            return this;
-        }
-        public Builder headers(Map<String,String> headers){
-            responseMessage.header.putAll(headers);
+        public Builder body(byte[] body) {
+            if(body == null){
+                body = new byte[0];
+            }
+            this.body = body;
+            this.headerMap.put("Content-Length",Integer.toString(body.length));
             return this;
         }
         public Builder body(String body){
             if(body == null){
                 body = "";
             }
-            return this.body(body.getBytes());
-        }
-        public Builder body(byte[] body){
-            if(body == null){
-                body = new byte[0];
-            }
-            responseMessage.header.put("Content-Length", Integer.toString(body.length));
-            responseMessage.body = body;
+            body(body.getBytes());
             return this;
         }
-
-        public HttpResponseMessage build() throws InvalidResponseFormatException {
-            validation();
-
-            // SimpleDateFormat을 사용하여 HTTP date 포맷을 만듭니다.
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            responseMessage.header.put("Date",dateFormat.format(timer.getCurrentTime()));
-            return responseMessage;
-        }
-        private void validation() throws InvalidResponseFormatException {
-            if( !(this.timer != null && this.responseMessage.getStatus() != null)) throw new InvalidResponseFormatException();
+        public HttpResponseMessage build(){
+            return new HttpResponseMessage(this);
         }
     }
 
     public String getHttpVersion() {
-        return httpVersion;
+        return startLine.getHttpVersion();
     }
 
     public HttpStatus getStatus() {
-        return status;
+        return startLine.getStatus();
     }
 
     public String getHeader(String header) {
-        return this.header.get(header);
+        return this.header.getHeader(header);
     }
 
     public byte[] getBody() {
@@ -85,35 +79,12 @@ public class HttpResponseMessage {
         return new String(body);
     }
 
-    private byte[] parseHeader(){
-        StringBuilder sb = new StringBuilder()
-                .append(httpVersion).append(' ').append(status.getCode()).append(' ').append(status.getMessage()).append(System.lineSeparator());
-
-        for(Map.Entry<String,String> header : header.entrySet().stream().sorted((o1,o2)->o1.getKey().compareTo(o2.getKey())).toList()){
-            sb.append(header.getKey()).append(':').append(' ').append(header.getValue()).append(System.lineSeparator());
-        }
-
-        sb.append(System.lineSeparator());
-
-        return sb.toString().getBytes();
+    private byte[] parseStartLine(){
+        return startLine.parseStartLine();
     }
+
     private byte[] parseBody(){
         return body;
-    }
-
-    @Override
-    public String toString(){
-        StringBuilder sb = new StringBuilder()
-                .append(httpVersion).append(' ').append(status.getCode()).append(' ').append(status.getMessage()).append(System.lineSeparator());
-
-        for(Map.Entry<String,String> header : header.entrySet().stream().sorted((o1,o2)->o1.getKey().compareTo(o2.getKey())).toList()){
-            sb.append(header.getKey()).append(':').append(' ').append(header.getValue()).append(System.lineSeparator());
-        }
-
-        sb.append(System.lineSeparator());
-        sb.append(body).append(System.lineSeparator());
-
-        return sb.toString();
     }
 
     private byte[] concatByteArray(byte[] ...args){
@@ -126,9 +97,10 @@ public class HttpResponseMessage {
     }
 
     public byte[] parseMessage(){
-        byte[] headerBytes = parseHeader();
+        byte[] startLineBytes = parseStartLine();
+        byte[] headerBytes = header.parseHeader();
         byte[] bodyBytes = parseBody();
 
-        return concatByteArray(headerBytes,bodyBytes);
+        return concatByteArray(startLineBytes,headerBytes,bodyBytes);
     }
 }

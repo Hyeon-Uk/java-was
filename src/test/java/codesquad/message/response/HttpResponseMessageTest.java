@@ -47,9 +47,7 @@ public class HttpResponseMessageTest {
                 <h1>helloworld</h1>""";
 
         //when
-        HttpResponseMessage response = new HttpResponseMessage.Builder(mockTimer)
-                .status(status)
-                .headers(header)
+        HttpResponseMessage response = new HttpResponseMessage.Builder(status,header,mockTimer)
                 .body(body)
                 .build();
 
@@ -66,8 +64,7 @@ public class HttpResponseMessageTest {
     @Test
     public void wrongResponseMessageWithoutStatusCode(){
         assertThrows(InvalidResponseFormatException.class,()->{
-           new HttpResponseMessage.Builder(mockTimer)
-                   .status(null)
+           new HttpResponseMessage.Builder(null,null,mockTimer)
                    .build();
         });
     }
@@ -75,8 +72,7 @@ public class HttpResponseMessageTest {
     @Test
     public void wrongResponseMessageWithoutTimer(){
         assertThrows(InvalidResponseFormatException.class,()->{
-            new HttpResponseMessage.Builder(null)
-                    .status(HttpStatus.OK)
+            new HttpResponseMessage.Builder(HttpStatus.OK,null,mockTimer)
                     .build();
         });
     }
