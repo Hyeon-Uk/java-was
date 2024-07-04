@@ -45,7 +45,6 @@ public class SocketHandler implements Runnable {
             response.setHeader("Date", getFormattedDate());
             response.setHeader("Content-Length", Integer.toString(response.getBody().length));
             byte[] parse = response.parse();
-            System.out.println("new String(parse) = " + new String(parse));
             socket.getOutputStream().write(parse);
             socket.getOutputStream().flush();
         } catch (Exception e) {
