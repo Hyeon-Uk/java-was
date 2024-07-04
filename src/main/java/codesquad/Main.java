@@ -1,6 +1,7 @@
 package codesquad;
 
 import codesquad.http.handler.SocketHandler;
+import codesquad.http.message.parser.*;
 import codesquad.utils.SystemTimer;
 import codesquad.utils.Timer;
 import org.slf4j.Logger;
@@ -16,17 +17,37 @@ import java.util.concurrent.TimeUnit;
 
 public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
-    public static void main(String[] args) throws IOException {
+    private HttpHeaderParser headerParser(){
+        return new HttpHeaderParser();
+    }
+    private HttpBodyParser bodyParser(){
+        return new HttpBodyParser();
+    }
+    private HttpQueryStringParser queryStringParser(){
+        return new HttpQueryStringParser();
+    }
+    private HttpRequestStartLineParser startLineParser(){
+        return new HttpRequestStartLineParser();
+    }
+    private HttpRequestParser requestParser(HttpRequestStartLineParser startLineParser,
+                                                  HttpQueryStringParser queryStringParser,
+                                                  HttpHeaderParser headerParser,
+                                                  HttpBodyParser bodyParser){
+        return new HttpRequestParser(startLineParser,headerParser,bodyParser,queryStringParser);
+    }
+
+    public Main() throws IOException {
         int port = 8080;
         ServerSocket serverSocket = new ServerSocket(port); // 8080 포트에서 서버를 엽니다.
         logger.info("Listening for connection on port {}...",port);
         Timer timer = new SystemTimer();
+        HttpRequestParser requestParser = requestParser(startLineParser(),queryStringParser(),headerParser(),bodyParser());
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10,100,10, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));
         while (true) { // 무한 루프를 돌며 클라이언트의 연결을 기다립니다.
             Socket clientSocket = null;
             try { // 클라이언트 연결을 수락합니다.
                 clientSocket = serverSocket.accept();
-                SocketHandler handler = new SocketHandler(clientSocket,timer);
+                SocketHandler handler = new SocketHandler(clientSocket,requestParser,timer);
                 threadPoolExecutor.execute(handler);
             } catch(Exception e){
                 logger.error(e.getMessage());
@@ -41,5 +62,8 @@ public class Main {
                 }
             }
         }
+    }
+    public static void main(String[] args) throws IOException {
+        new Main();
     }
 }

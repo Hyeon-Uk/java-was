@@ -1,6 +1,7 @@
 package codesquad.http.handler;
 
 import codesquad.http.message.InvalidResponseFormatException;
+import codesquad.http.message.parser.HttpRequestParser;
 import codesquad.http.message.request.HttpRequestMessage;
 import codesquad.http.message.response.HttpResponseMessage;
 import codesquad.http.message.response.HttpStatus;
@@ -18,8 +19,10 @@ public class SocketHandler implements Runnable {
     private final static String resourceBasePath = System.getProperty("user.dir").concat("/src/main/resources/static/");
     private final Socket socket;
     private final Timer timer;
-    public SocketHandler(Socket socket,Timer timer) {
+    private final HttpRequestParser requestParser;
+    public SocketHandler(Socket socket,HttpRequestParser requestParser,Timer timer) {
         this.socket = socket;
+        this.requestParser = requestParser;
         this.timer = timer;
     }
 
@@ -27,7 +30,7 @@ public class SocketHandler implements Runnable {
     public void run() {
         try(BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
             String requestMessage = readRequestMessage(br);
-            HttpRequestMessage request = new HttpRequestMessage(requestMessage);
+            HttpRequestMessage request = requestParser.parse(requestMessage);
 
             HttpResponseMessage response = handle(request);
 
