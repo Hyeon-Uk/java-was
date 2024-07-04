@@ -3,6 +3,9 @@ package codesquad.http.message.parser;
 import codesquad.http.message.vo.HttpHeader;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpHeaderParserTest {
@@ -36,6 +39,25 @@ class HttpHeaderParserTest {
                 () -> assertTrue(parse.getHeaders("hello").contains("world")),
                 () -> assertTrue(parse.getHeaders("hello").contains("and")),
                 () -> assertTrue(parse.getHeaders("hello").contains("java"))
+        );
+    }
+
+    @Test
+    void allHeadersTest() {
+        //given
+        String[] headerLine = {"id: secret","hello: world, and, java"};
+
+        //when
+        HttpHeader parse = parser.parse(headerLine);
+
+        Map<String, List<String>> headers = parse.allHeaders();
+
+        //then
+        assertAll("multiValue",
+                () -> assertTrue(headers.get("hello").contains("world")),
+                () -> assertTrue(headers.get("hello").contains("and")),
+                () -> assertTrue(headers.get("hello").contains("java")),
+                () -> assertTrue(headers.get("id").contains("secret"))
         );
     }
 

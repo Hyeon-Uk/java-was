@@ -16,7 +16,9 @@ public class HttpHeader {
     public List<String> getHeaders(String key){
         return header.getOrDefault(key,new ArrayList<>());
     }
-
+    public Map<String,List<String>> allHeaders(){
+        return this.header;
+    }
     public void setHeader(String key,String value){
         List<String> values = header.getOrDefault(key,new ArrayList<>());
         values.add(value);
