@@ -1,14 +1,29 @@
 package codesquad.http.message.vo;
 
 public class HttpBody {
-    private final byte[] body;
-    public HttpBody(String body){
+    private byte[] body;
+
+    public HttpBody(String body) {
         this(body.getBytes());
     }
-    public HttpBody(byte[] body){
+
+    public HttpBody(byte[] body) {
         this.body = body;
     }
-    public byte[] getBody(){
+
+    public HttpBody() {
+        this.body = new byte[0];
+    }
+
+    public byte[] getBody() {
         return body;
+    }
+
+    public void setBody(byte[] body) {
+        this.body = body;
+    }
+
+    public void setBody(String body) {
+        setBody(body.getBytes());
     }
 }
