@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class SocketHandler implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(SocketHandler.class);
