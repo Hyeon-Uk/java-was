@@ -1,0 +1,64 @@
+package codesquad.http.message.parser;
+
+import codesquad.http.message.vo.HttpHeader;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class HttpHeaderParserTest {
+    private final HttpHeaderParser parser = new HttpHeaderParser();
+
+    @Test
+    void withSingleValue() {
+        //given
+        String[] headerLine = {"hello: world", "welcome: java"};
+
+        //when
+        HttpHeader parse = parser.parse(headerLine);
+
+        //then
+        assertAll("singleValue",
+                () -> assertTrue(parse.getHeaders("hello").contains("world")),
+                () -> assertTrue(parse.getHeaders("welcome").contains("java"))
+        );
+    }
+
+    @Test
+    void withMultiValues() {
+        //given
+        String[] headerLine = {"hello: world, and, java"};
+
+        //when
+        HttpHeader parse = parser.parse(headerLine);
+
+        //then
+        assertAll("multiValue",
+                () -> assertTrue(parse.getHeaders("hello").contains("world")),
+                () -> assertTrue(parse.getHeaders("hello").contains("and")),
+                () -> assertTrue(parse.getHeaders("hello").contains("java"))
+        );
+    }
+
+    @Test
+    void withEmptyValue() {
+        //given
+        String[] headerLine = {"hello: "};
+
+        //when
+        HttpHeader parse = parser.parse(headerLine);
+
+        //then
+        assertEquals(0,parse.getHeaders("hello").size());
+    }
+
+    @Test
+    void getHeaderWithNotExistedKey() {
+        //given
+
+        //when
+        HttpHeader parse = parser.parse(new String[]{});
+
+        //then
+        assertEquals(0, parse.getHeaders("notExistsKey").size());
+    }
+}
