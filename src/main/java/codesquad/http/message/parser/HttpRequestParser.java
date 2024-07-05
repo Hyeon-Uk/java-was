@@ -6,6 +6,7 @@ import codesquad.http.message.vo.HttpBody;
 import codesquad.http.message.vo.HttpHeader;
 import codesquad.http.message.vo.HttpRequestStartLine;
 
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class HttpRequestParser {
         String startLine = headerLines[0];
         HttpRequestStartLine httpRequestStartLine = httpRequestStartLineParser.parse(startLine);
 
-        Map<String,String> queryString = httpQueryStringParser.parse(httpRequestStartLine.getUri());
+        Map<String,String> queryString = httpQueryStringParser.parse(URLDecoder.decode(startLine.split(" ")[1]));
 
         String[] headers = Arrays.copyOfRange(headerLines,1,headerLines.length);
         HttpHeader httpHeader = httpHeaderParser.parse(headers);

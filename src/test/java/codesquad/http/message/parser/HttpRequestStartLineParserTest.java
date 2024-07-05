@@ -41,7 +41,7 @@ class HttpRequestStartLineParserTest {
         //then
         assertAll("startLineWithURLEncodedString",
                 () -> assertEquals(HttpMethod.GET, parse.getMethod()),
-                () -> assertEquals("/?hello=world", parse.getUri()),
+                () -> assertEquals("/", parse.getUri()),
                 () -> assertEquals("HTTP/1.1", parse.getHttpVersion())
         );
     }
