@@ -10,7 +10,7 @@ public class RegisterHandler implements RequestHandler{
     private final Logger logger = LoggerFactory.getLogger(RegisterHandler.class);
     @Override
     public void getHandle(HttpRequestMessage req, HttpResponseMessage res) {
-        String id = req.getQueryString("id");
+        String id = req.getQueryString("userId");
         String nickname = req.getQueryString("nickname");
         String password = req.getQueryString("password");
 
