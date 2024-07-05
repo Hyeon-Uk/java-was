@@ -35,7 +35,7 @@ public class HttpResponseStartLine {
 
     protected byte[] parseStartLine() {
         StringBuilder sb = new StringBuilder();
-        sb.append(httpVersion).append(' ').append(status.getCode()).append(' ').append(status.getMessage()).append('\n');
+        sb.append(httpVersion).append(' ').append(status.getCode()).append(' ').append(status.getMessage()).append("\r\n");
         return sb.toString().getBytes();
     }
 }

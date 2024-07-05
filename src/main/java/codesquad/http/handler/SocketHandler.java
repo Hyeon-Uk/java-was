@@ -42,10 +42,7 @@ public class SocketHandler implements Runnable {
             RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
             handler.handle(request, response);
 
-            response.setHeader("Date", getFormattedDate());
-            response.setHeader("Content-Length", Integer.toString(response.getBody().length));
-            byte[] parse = response.parse();
-            System.out.println("new String(parse) = " + new String(parse));
+            byte[] parse = response.parse(timer);
             socket.getOutputStream().write(parse);
             socket.getOutputStream().flush();
         } catch (Exception e) {
@@ -57,13 +54,6 @@ public class SocketHandler implements Runnable {
                 logger.error("Socket Close Exception");
             }
         }
-    }
-
-    private String getFormattedDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        return dateFormat.format(timer.getCurrentTime());
     }
 
     private String readRequestMessage(BufferedReader br) throws IOException {

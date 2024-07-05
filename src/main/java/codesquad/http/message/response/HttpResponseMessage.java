@@ -1,16 +1,17 @@
 package codesquad.http.message.response;
+import codesquad.http.message.request.HttpMethod;
 import codesquad.http.message.vo.HttpBody;
 import codesquad.http.message.vo.HttpHeader;
+import codesquad.utils.Timer;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class HttpResponseMessage {
     private final HttpResponseStartLine startLine;
     private final HttpHeader header;
     private final HttpBody body;
+    private final String NEW_LINE = "\r\n";
 
     public HttpResponseMessage(HttpResponseStartLine startLine,HttpHeader header,HttpBody body){
         this.startLine = startLine;
@@ -35,6 +36,7 @@ public class HttpResponseMessage {
     }
     public void setBody(byte[] body){
         this.body.setBody(body);
+        this.header.setHeader("Content-Length",String.valueOf(body.length));
     }
     public void setBody(String body){
         setBody(body.getBytes());
@@ -42,8 +44,19 @@ public class HttpResponseMessage {
     public byte[] getBody(){
         return this.body.getBody();
     }
+    public List<String> getHeaders(String key){
+        return this.header.getHeaders(key);
+    }
+    public HttpStatus getStatus(){
+        return this.startLine.getStatus();
+    }
+
     private byte[] parseStartLine(){
-        return startLine.parseStartLine();
+        StringBuilder sb = new StringBuilder();
+        sb.append(startLine.getHttpVersion())
+                .append(' ').append(startLine.getStatus().getCode())
+                .append(' ').append(startLine.getStatus().getMessage()).append(NEW_LINE);
+        return sb.toString().getBytes();
     }
     private byte[] parseHeaders(){
         return header.allHeaders().entrySet().stream()
@@ -52,7 +65,7 @@ public class HttpResponseMessage {
                     entry.getValue().forEach(joiner::add);
                     return entry.getKey() + ": " + joiner.toString();
                 })
-                .reduce("", (acc, line) -> acc + line + System.lineSeparator()).getBytes();
+                .reduce("", (acc, line) -> acc + line + NEW_LINE).getBytes();
     }
     private byte[] parseBody(){
         return body.getBody();
@@ -67,12 +80,19 @@ public class HttpResponseMessage {
         return Arrays.stream(array)
                 .reduce(new byte[0],this::mergeByteArray);
     }
-    public byte[] parse(){
+    public byte[] parse(Timer timer){
+        setHeader("Date",getFormattedDate(timer));
         byte[] startLine = parseStartLine();
         byte[] headers = parseHeaders();
-        byte[] emptyLine = "\r\n".getBytes();
+        byte[] emptyLine = NEW_LINE.getBytes();
         byte[] body = parseBody();
 
         return concatByteArray(startLine,headers,emptyLine,body);
+    }
+    private String getFormattedDate(Timer timer) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        return dateFormat.format(timer.getCurrentTime());
     }
 }
