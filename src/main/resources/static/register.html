@@ -67,19 +67,7 @@
         const password = document.querySelector('input[placeholder="비밀번호를 입력해주세요"]').value;
 
         const url = `/create?userId=${encodeURIComponent(userId)}&nickname=${encodeURIComponent(nickname)}&password=${encodeURIComponent(password)}`;
-        fetch(url, {
-            method: 'GET'
-        })
-            .then(response => {
-                if (response.ok) {
-                    window.location.href = url;
-                } else {
-                    throw new Error('Network response was not ok.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        window.location.href = url;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
