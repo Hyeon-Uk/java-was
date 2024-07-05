@@ -1,4 +1,5 @@
 package codesquad.http.message.response;
+import codesquad.http.exception.HttpException;
 import codesquad.http.message.request.HttpMethod;
 import codesquad.http.message.vo.HttpBody;
 import codesquad.http.message.vo.HttpHeader;
@@ -12,7 +13,12 @@ public class HttpResponseMessage {
     private final HttpHeader header;
     private final HttpBody body;
     private final String NEW_LINE = "\r\n";
-
+    public HttpResponseMessage(HttpException httpException){
+        this.startLine = new HttpResponseStartLine("HTTP/1.1",httpException.getStatus());
+        this.header = new HttpHeader();
+        this.body = new HttpBody();
+        setBody(httpException.getErrorMessage());
+    }
     public HttpResponseMessage(HttpResponseStartLine startLine,HttpHeader header,HttpBody body){
         this.startLine = startLine;
         this.header = header;

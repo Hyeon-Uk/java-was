@@ -1,5 +1,7 @@
 package codesquad.http.handler;
 
+import codesquad.http.exception.HttpBadRequestException;
+
 import java.util.Map;
 
 public class RequestHandlerMapper {
@@ -21,7 +23,7 @@ public class RequestHandlerMapper {
                 .filter(entry -> entry.getKey().equals(path))
                 .map(Map.Entry::getValue)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(path.concat(" : request can not found")));
+                .orElseThrow(() -> new HttpBadRequestException(path.concat(" : request can not found")));
     }
 
     private boolean isStaticFileRequest(String path) {

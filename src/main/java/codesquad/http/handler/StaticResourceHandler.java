@@ -1,5 +1,7 @@
 package codesquad.http.handler;
 
+import codesquad.http.exception.Http4XXException;
+import codesquad.http.exception.HttpNotFoundException;
 import codesquad.http.message.request.HttpRequestMessage;
 import codesquad.http.message.response.HttpResponseMessage;
 import codesquad.http.message.response.HttpStatus;
@@ -15,7 +17,7 @@ public class StaticResourceHandler implements RequestHandler {
             res.setBody(resourceBasePath.readAllBytes());
             res.setStatus(HttpStatus.OK);
         } catch (IOException e) {
-            throw new IllegalArgumentException("could't find this static file");
+            throw new HttpNotFoundException("could't find this static file");
         }
     }
 }

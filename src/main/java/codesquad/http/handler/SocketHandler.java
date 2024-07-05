@@ -1,5 +1,7 @@
 package codesquad.http.handler;
 
+import codesquad.http.exception.HttpException;
+import codesquad.http.exception.HttpInternalServerErrorException;
 import codesquad.http.message.parser.HttpRequestParser;
 import codesquad.http.message.request.HttpRequestMessage;
 import codesquad.http.message.response.HttpResponseMessage;
@@ -11,8 +13,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SocketHandler implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(SocketHandler.class);
@@ -33,25 +36,43 @@ public class SocketHandler implements Runnable {
 
     @Override
     public void run() {
+        HttpResponseMessage errorResponse = null;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
-            String requestMessage = readRequestMessage(br);
-            Map<String, List<String>> header = new HashMap<>();
-            HttpRequestMessage request = requestParser.parse(requestMessage);
-            HttpResponseMessage response = new HttpResponseMessage(request.getHttpVersion(), header);
-
-            RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
-            handler.handle(request, response);
-
-            byte[] parse = response.parse(timer);
-            socket.getOutputStream().write(parse);
-            socket.getOutputStream().flush();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        } finally {
             try {
+                String requestMessage = readRequestMessage(br);
+                Map<String, List<String>> header = new HashMap<>();
+                HttpRequestMessage request = requestParser.parse(requestMessage);
+                HttpResponseMessage response = new HttpResponseMessage(request.getHttpVersion(), header);
+
+                RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
+                handler.handle(request, response);
+
+                byte[] parse = response.parse(timer);
+                socket.getOutputStream().write(parse);
+                socket.getOutputStream().flush();
+            }catch(HttpException httpException) {
+                logger.error(httpException.getMessage());
+                errorResponse = new HttpResponseMessage(httpException);
+                socket.getOutputStream().write(errorResponse.parse(timer));
+                socket.getOutputStream().flush();
+            }catch(Exception e){
+                logger.error(e.getMessage());
+                //internal server error response
+                errorResponse = new HttpResponseMessage(new HttpInternalServerErrorException("Internal Server Exception"));
+                socket.getOutputStream().write(errorResponse.parse(timer));
+                socket.getOutputStream().flush();
+            }finally{
                 socket.close();
-            } catch (Exception e) {
-                logger.error("Socket Close Exception");
+            }
+        } catch(Exception e){
+            logger.error(e.getMessage());
+        } finally{
+            if(socket!=null&&!socket.isClosed()){
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    logger.error(e.getMessage());
+                }
             }
         }
     }
