@@ -1,8 +1,8 @@
 package codesquad.http.message.parser;
 
+import codesquad.was.http.message.parser.HttpQueryStringParser;
 import org.junit.jupiter.api.Test;
 
-import java.net.URLEncoder;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;

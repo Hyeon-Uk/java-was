@@ -1,10 +1,10 @@
 package codesquad;
 
-import codesquad.http.handler.RequestHandlerMapper;
-import codesquad.http.handler.SocketHandler;
-import codesquad.http.message.parser.*;
-import codesquad.utils.SystemTimer;
-import codesquad.utils.Timer;
+import codesquad.was.http.handler.RequestHandlerMapper;
+import codesquad.was.http.handler.SocketHandler;
+import codesquad.was.http.message.parser.*;
+import codesquad.was.utils.SystemTimer;
+import codesquad.was.utils.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

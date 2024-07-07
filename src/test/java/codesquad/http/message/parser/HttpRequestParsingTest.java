@@ -1,9 +1,9 @@
 package codesquad.http.message.parser;
 
-import codesquad.http.message.InvalidRequestFormatException;
-import codesquad.http.message.parser.*;
-import codesquad.http.message.request.HttpMethod;
-import codesquad.http.message.request.HttpRequestMessage;
+import codesquad.was.http.message.InvalidRequestFormatException;
+import codesquad.was.http.message.parser.*;
+import codesquad.was.http.message.request.HttpMethod;
+import codesquad.was.http.message.request.HttpRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -36,7 +36,7 @@ class HttpRequestParsingTest {
     private HttpQueryStringParser queryStringParser = new HttpQueryStringParser();
     private HttpRequestParser requestParser = new HttpRequestParser(startLineParser,headerParser,bodyParser,queryStringParser);
 
-    private void verifyHeaderValues(HttpRequestMessage req,String key,String valueString){
+    private void verifyHeaderValues(HttpRequest req, String key, String valueString){
         List<String> values = Arrays.stream(valueString.split(","))
                 .map(String::trim)
                 .filter(value -> !value.isEmpty())
@@ -49,7 +49,7 @@ class HttpRequestParsingTest {
     @Test
     public void parseGetMessage() throws InvalidRequestFormatException {
         //given
-        HttpRequestMessage req = requestParser.parse(testGetMessage);
+        HttpRequest req = requestParser.parse(testGetMessage);
 
         //when & then
         assertAll("request message validation",
@@ -70,7 +70,7 @@ class HttpRequestParsingTest {
     @Test
     public void parseWrongMessage(){
         assertThrows(InvalidRequestFormatException.class,()->{
-            HttpRequestMessage req = requestParser.parse(wrongMessage);
+            HttpRequest req = requestParser.parse(wrongMessage);
         });
     }
 
@@ -90,7 +90,7 @@ class HttpRequestParsingTest {
             
             """);
         //when
-        HttpRequestMessage req = requestParser.parse(queryStringMessage);
+        HttpRequest req = requestParser.parse(queryStringMessage);
 
         //then
         assertAll("queryStringValidation",
@@ -115,7 +115,7 @@ class HttpRequestParsingTest {
             
             """);
         //when
-        HttpRequestMessage req = requestParser.parse(queryStringMessage);
+        HttpRequest req = requestParser.parse(queryStringMessage);
 
         //then
         assertAll("blank return blank string",
@@ -139,7 +139,7 @@ class HttpRequestParsingTest {
             
             """);
         //when
-        HttpRequestMessage req = requestParser.parse(queryStringMessage);
+        HttpRequest req = requestParser.parse(queryStringMessage);
 
         //then
         assertAll("not exists query parameter return null",
@@ -163,7 +163,7 @@ class HttpRequestParsingTest {
             
             """);
         //when
-        HttpRequestMessage req = requestParser.parse(queryStringMessage);
+        HttpRequest req = requestParser.parse(queryStringMessage);
 
         //then
         assertEquals("안녕하세요",req.getQueryString("name"));

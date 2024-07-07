@@ -1,6 +1,6 @@
 package codesquad.message.request;
 
-import codesquad.http.message.request.HttpMethod;
+import codesquad.was.http.message.request.HttpMethod;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

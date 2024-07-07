@@ -1,6 +1,7 @@
 package codesquad.http.message.parser;
 
-import codesquad.http.message.vo.HttpHeader;
+import codesquad.was.http.message.parser.HttpHeaderParser;
+import codesquad.was.http.message.vo.HttpHeader;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

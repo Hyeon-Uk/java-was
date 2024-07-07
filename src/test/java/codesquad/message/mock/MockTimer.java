@@ -1,6 +1,6 @@
 package codesquad.message.mock;
 
-import codesquad.utils.Timer;
+import codesquad.was.utils.Timer;
 
 import java.util.Date;
 

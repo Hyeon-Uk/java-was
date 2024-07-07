@@ -2,7 +2,7 @@ package codesquad.message.response;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import codesquad.http.message.response.HttpStatus;
+import codesquad.was.http.message.response.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 public class HttpStatusTest {

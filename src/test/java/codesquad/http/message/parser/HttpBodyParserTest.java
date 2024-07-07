@@ -1,6 +1,7 @@
 package codesquad.http.message.parser;
 
-import codesquad.http.message.vo.HttpBody;
+import codesquad.was.http.message.parser.HttpBodyParser;
+import codesquad.was.http.message.vo.HttpBody;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

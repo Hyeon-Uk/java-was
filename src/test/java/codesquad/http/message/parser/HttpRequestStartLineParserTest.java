@@ -1,12 +1,12 @@
 package codesquad.http.message.parser;
 
-import codesquad.http.message.InvalidRequestFormatException;
-import codesquad.http.message.request.HttpMethod;
-import codesquad.http.message.vo.HttpRequestStartLine;
+import codesquad.was.http.message.InvalidRequestFormatException;
+import codesquad.was.http.message.parser.HttpRequestStartLineParser;
+import codesquad.was.http.message.request.HttpMethod;
+import codesquad.was.http.message.vo.HttpRequestStartLine;
 import org.junit.jupiter.api.Test;
 
 import java.net.URLEncoder;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
