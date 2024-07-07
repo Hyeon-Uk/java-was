@@ -18,7 +18,10 @@ public enum MIME {
     PPT("ppt", "application/vnd.ms-powerpoint"),
     PPTX("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
     ZIP("zip", "application/zip"),
-    RAR("rar", "application/x-rar-compressed");
+    RAR("rar", "application/x-rar-compressed"),
+    CSS("css","text/css"),
+    SVG("svg","image/svg+xml"),
+    ICO("ico","image/x-icon");
 
     private final String extension;
     private final String mimeType;
