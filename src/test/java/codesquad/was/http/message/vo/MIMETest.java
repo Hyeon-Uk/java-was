@@ -26,7 +26,10 @@ class MIMETest {
             "ppt, application/vnd.ms-powerpoint",
             "pptx, application/vnd.openxmlformats-officedocument.presentationml.presentation",
             "zip, application/zip",
-            "rar, application/x-rar-compressed"
+            "rar, application/x-rar-compressed",
+            "css, text/css",
+            "svg, image/svg+xml",
+            "ico, image/x-icon",
     })
     void testGetMimeTypeByExtension(String extension, String expectedMimeType) {
         MIME mime = MIME.fromExtension(extension);
