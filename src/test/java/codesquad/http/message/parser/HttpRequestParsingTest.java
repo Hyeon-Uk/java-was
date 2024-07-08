@@ -12,7 +12,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpRequestParsingTest {
-    private String testGetMessage = withSystemLineSeparator("""
+    private String testGetMessage = replaceWithRNSeperator("""
             GET /index.html HTTP/1.1
             Host: localhost:8080
             User-Agent: Mozilla/5.0
@@ -25,7 +25,7 @@ class HttpRequestParsingTest {
             
             """);
 
-    private String wrongMessage = withSystemLineSeparator("""
+    private String wrongMessage = replaceWithRNSeperator("""
             Unknown uri
             Host: unknown
             """);
@@ -77,7 +77,7 @@ class HttpRequestParsingTest {
     @Test
     public void queryStringMessage(){
         //given
-        String queryStringMessage = withSystemLineSeparator("""
+        String queryStringMessage = replaceWithRNSeperator("""
             GET /create?username=hyeonuk&nickname=khu147&password=password1234 HTTP/1.1
             Host: localhost:8080
             User-Agent: Mozilla/5.0
@@ -102,7 +102,7 @@ class HttpRequestParsingTest {
     @Test
     public void emptyQueryStringMessage(){
         //given
-        String queryStringMessage = withSystemLineSeparator("""
+        String queryStringMessage = replaceWithRNSeperator("""
             GET /create?username=&nickname= HTTP/1.1
             Host: localhost:8080
             User-Agent: Mozilla/5.0
@@ -126,7 +126,7 @@ class HttpRequestParsingTest {
     @Test
     public void nullQueryStringMessage(){
         //given
-        String queryStringMessage = withSystemLineSeparator("""
+        String queryStringMessage = replaceWithRNSeperator("""
             GET /create HTTP/1.1
             Host: localhost:8080
             User-Agent: Mozilla/5.0
@@ -150,7 +150,7 @@ class HttpRequestParsingTest {
     public void urlEncodingQueryString(){
         //given
         //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
-        String queryStringMessage = withSystemLineSeparator("""
+        String queryStringMessage = replaceWithRNSeperator("""
             GET /create?name=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94 HTTP/1.1
             Host: localhost:8080
             User-Agent: Mozilla/5.0
@@ -169,7 +169,7 @@ class HttpRequestParsingTest {
         assertEquals("안녕하세요",req.getQueryString("name"));
     }
 
-    private String withSystemLineSeparator(String message){
-        return message.replaceAll("\r\n",System.lineSeparator()).replaceAll("\n",System.lineSeparator());
+    private String replaceWithRNSeperator(String message){
+        return message.replaceAll(System.lineSeparator(),"\r\n");
     }
 }
