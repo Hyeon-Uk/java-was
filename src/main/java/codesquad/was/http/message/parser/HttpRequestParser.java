@@ -1,5 +1,6 @@
 package codesquad.was.http.message.parser;
 
+import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.vo.HttpHeader;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
 import codesquad.was.http.message.InvalidRequestFormatException;
@@ -8,6 +9,7 @@ import codesquad.was.http.message.vo.HttpBody;
 
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequestParser {
@@ -36,13 +38,15 @@ public class HttpRequestParser {
         String startLine = headerLines[0];
         HttpRequestStartLine httpRequestStartLine = httpRequestStartLineParser.parse(startLine);
 
-        Map<String,String> queryString = httpQueryStringParser.parse(URLDecoder.decode(startLine.split(" ")[1]));
-
+        String uriWithQueryString = startLine.split(" ")[1];
+        Map<String,String> queryString = httpQueryStringParser.parse(URLDecoder.decode(uriWithQueryString.substring(uriWithQueryString.indexOf('?')+1)));
         String[] headers = Arrays.copyOfRange(headerLines,1,headerLines.length);
         HttpHeader httpHeader = httpHeaderParser.parse(headers);
 
         //body parse
         HttpBody httpBody = httpBodyParser.parse(bodyPart);
+        Map<String, String> bodyQueryString = httpQueryStringParser.parse(URLDecoder.decode(bodyPart));
+        queryString.putAll(bodyQueryString);
 
         return new HttpRequest(httpRequestStartLine,queryString,httpHeader,httpBody);
     }

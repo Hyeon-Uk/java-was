@@ -169,6 +169,26 @@ class HttpRequestParsingTest {
         assertEquals("안녕하세요",req.getQueryString("name"));
     }
 
+    @Test
+    public void bodyQueryStringTest(){
+        //given
+        //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
+        String message = replaceWithRNSeperator("""
+                POST /user/create HTTP/1.1
+                HOST : localhost:8080
+                Content-Type: application/x-www-form-urlencoded
+                
+                message=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94&nickname=hyeonuk""");
+        //when
+        HttpRequest req = requestParser.parse(message);
+
+        //then
+        assertAll("body queryString extract",
+                ()->assertEquals("안녕하세요",req.getQueryString("message")),
+                ()->assertEquals("hyeonuk",req.getQueryString("nickname")));
+
+    }
+
     private String replaceWithRNSeperator(String message){
         return message.replaceAll(System.lineSeparator(),"\r\n");
     }

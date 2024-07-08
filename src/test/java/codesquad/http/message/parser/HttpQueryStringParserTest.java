@@ -13,7 +13,7 @@ class HttpQueryStringParserTest {
     @Test
     void parseWithQueryString() {
         //given
-        String uri = "/?id=abc&pw=password";
+        String uri = "id=abc&pw=password";
 
         //when
         Map<String, String> parse = parser.parse(uri);
@@ -28,7 +28,7 @@ class HttpQueryStringParserTest {
     @Test
     void parseWithEmtpyQueryValue() {
         //given
-        String uri = "/?id=&pw=password";
+        String uri = "id=&pw=password";
 
         //when
         Map<String, String> parse = parser.parse(uri);
@@ -43,7 +43,7 @@ class HttpQueryStringParserTest {
     @Test
     void getWithNotExistsKey(){
         //given
-        String uri = "/?";
+        String uri = "";
 
         //when
         Map<String, String> parse = parser.parse(uri);
