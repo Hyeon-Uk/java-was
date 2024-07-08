@@ -31,7 +31,7 @@ public class HttpResponse {
     }
     public void sendRedirect(String redirectPath){
         setHeader("Location",redirectPath);
-        setStatus(HttpStatus.MOVED_PERMANENTLY);
+        setStatus(HttpStatus.FOUND);
     }
     public void setStatus(HttpStatus status){
         this.startLine.setStatus(status);
