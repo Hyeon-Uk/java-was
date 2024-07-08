@@ -15,7 +15,7 @@ public class HttpRequestParser {
     private final HttpHeaderParser httpHeaderParser;
     private final HttpBodyParser httpBodyParser;
     private final HttpQueryStringParser httpQueryStringParser;
-    private final String CRLF = System.lineSeparator();
+    private final String CRLF = "\r\n";
 
     public HttpRequestParser(HttpRequestStartLineParser httpRequestStartLineParser, HttpHeaderParser httpHeaderParser, HttpBodyParser httpBodyParser,HttpQueryStringParser httpQueryStringParser) {
         this.httpRequestStartLineParser = httpRequestStartLineParser;
