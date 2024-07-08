@@ -1,5 +1,7 @@
 package codesquad.was.http.handler;
 
+import codesquad.was.http.exception.HttpMethodNotAllowedException;
+import codesquad.was.http.exception.HttpNotFoundException;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 
@@ -16,11 +18,25 @@ public interface RequestHandler {
             case TRACE -> traceHandle(req,res);
         }
     }
-    default void getHandle(HttpRequest req, HttpResponse res){}
-    default void postHandle(HttpRequest req, HttpResponse res){}
-    default void putHandle(HttpRequest req, HttpResponse res){}
-    default void patchHandle(HttpRequest req, HttpResponse res){}
-    default void deleteHandle(HttpRequest req, HttpResponse res){}
-    default void optionsHandle(HttpRequest req, HttpResponse res){}
-    default void traceHandle(HttpRequest req, HttpResponse res){}
+    default void getHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void postHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void putHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void patchHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void deleteHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void optionsHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void traceHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
 }
