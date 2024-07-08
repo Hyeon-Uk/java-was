@@ -23,7 +23,7 @@
     </header>
     <div class="page">
         <h2 class="page-title">회원가입</h2>
-        <form class="form">
+        <form class="form" action="/user/create">
             <div class="textfield textfield_size_s">
                 <p class="title_textfield">아이디</p>
                 <input
@@ -53,26 +53,12 @@
                     id="registration-btn"
                     class="btn btn_contained btn_size_m"
                     style="margin-top: 24px"
-                    type="button"
+                    type="submit"
             >
                 회원가입
             </button>
         </form>
     </div>
 </div>
-<script>
-    function registerUser() {
-        const userId = document.querySelector('input[placeholder="아이디를 입력해주세요"]').value;
-        const nickname = document.querySelector('input[placeholder="닉네임을 입력해주세요"]').value;
-        const password = document.querySelector('input[placeholder="비밀번호를 입력해주세요"]').value;
-
-        const url = `/create?userId=${encodeURIComponent(userId)}&nickname=${encodeURIComponent(nickname)}&password=${encodeURIComponent(password)}`;
-        window.location.href = url;
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("registration-btn").addEventListener("click", registerUser);
-    });
-</script>
 </body>
 </html>
