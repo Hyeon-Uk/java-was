@@ -3,6 +3,7 @@ package codesquad.was.http.handler;
 import codesquad.application.handler.MainHandler;
 import codesquad.application.handler.RegisterHandler;
 import codesquad.was.http.exception.HttpBadRequestException;
+import codesquad.was.http.exception.HttpNotFoundException;
 
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class RequestHandlerMapper {
     private static final Map<String, RequestHandler> mappers = Map.of(
             STATIC_RESOURCE_KEY, staticResourceHandler,
             "/", new MainHandler(),
-            "/create",new RegisterHandler()
+            "/user/create",new RegisterHandler()
     );
 
     public RequestHandler getRequestHandler(String path) {
@@ -25,7 +26,7 @@ public class RequestHandlerMapper {
                 .filter(entry -> entry.getKey().equals(path))
                 .map(Map.Entry::getValue)
                 .findFirst()
-                .orElseThrow(() -> new HttpBadRequestException(path.concat(" : request can not found")));
+                .orElseThrow(() -> new HttpNotFoundException(path.concat(" : request can not found")));
     }
 
     private boolean isStaticFileRequest(String path) {
