@@ -41,37 +41,35 @@ public class SocketHandler implements Runnable {
     public void run() {
         HttpResponse errorResponse = null;
         try (InputStream is = socket.getInputStream()) {
-            try {
-                String requestMessage = readRequestMessage(is);
-                Map<String, List<String>> header = new HashMap<>();
-                HttpRequest request = requestParser.parse(requestMessage);
-                HttpResponse response = new HttpResponse(request.getHttpVersion(), header);
+            String requestMessage = readRequestMessage(is);
+            logger.info("request : {}",requestMessage);
+            Map<String, List<String>> header = new HashMap<>();
+            HttpRequest request = requestParser.parse(requestMessage);
+            HttpResponse response = new HttpResponse(request.getHttpVersion(), header);
 
-                RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
-                handler.handle(request, response);
+            RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
+            handler.handle(request, response);
 
-                sendResponse(response,socket);
-            }catch(HttpException httpException) {
-                logger.error(httpException.getMessage());
-                errorResponse = new HttpResponse(httpException);
-                sendResponse(errorResponse,socket);
-            }catch(Exception e){
-                logger.error(e.getMessage());
-                //internal server error response
-                errorResponse = new HttpResponse(new HttpInternalServerErrorException("Internal Server Exception"));
-                sendResponse(errorResponse,socket);
-            }finally{
-                socket.close();
-            }
+            sendResponse(response,socket);
+        }catch(HttpException httpException) {
+            logger.error("Http Error : {}",httpException.getMessage());
+            errorResponse = new HttpResponse(httpException);
+        }catch(IOException ioException){
+            logger.error("Error reading or writing to socket : {}",ioException.getMessage());
         } catch(Exception e){
-            logger.error(e.getMessage());
+            logger.error("Unexpected Error : {}",e.getMessage());
+            //internal server error response
+            errorResponse = new HttpResponse(new HttpInternalServerErrorException("Internal Server Exception"));
         } finally{
-            if(socket!=null&&!socket.isClosed()){
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage());
+            try {
+                if(errorResponse != null){
+                    sendResponse(errorResponse, socket);
                 }
+                if(socket != null && !socket.isClosed()) {
+                    socket.close();
+                }
+            }catch(IOException ioException){
+                logger.error("Error with closing socket : {}", ioException.getMessage());
             }
         }
     }
@@ -91,7 +89,9 @@ public class SocketHandler implements Runnable {
     private void sendResponse(HttpResponse response,Socket clientSocket) throws IOException {
         response.setHeader("Date",dateFormatter.format(timer.getCurrentTime()));
 
-        clientSocket.getOutputStream().write(response.parse());
+        byte[] parsed = response.parse();
+        logger.info("response : {}",new String(parsed));
+        clientSocket.getOutputStream().write(parsed);
         clientSocket.getOutputStream().flush();
     }
 }
