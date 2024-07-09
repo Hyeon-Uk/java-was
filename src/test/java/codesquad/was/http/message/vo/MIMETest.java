@@ -55,7 +55,6 @@ class MIMETest {
             ",",
     })
     void testGetMimeTypeByExtensionNotFound(String extension) {
-        System.out.println(extension == null);
         assertNull(MIME.fromExtension(extension));
     }
 
