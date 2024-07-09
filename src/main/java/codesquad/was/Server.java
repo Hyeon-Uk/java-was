@@ -3,6 +3,7 @@ package codesquad.was;
 import codesquad.was.http.handler.RequestHandlerMapper;
 import codesquad.was.http.handler.SocketHandler;
 import codesquad.was.http.message.parser.HttpRequestParser;
+import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.utils.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +19,14 @@ public class Server {
     private final int port;
     private final Timer timer;
     private final ExecutorService threadPool;
-    private final HttpRequestParser httpRequestParser;
+    private final RequestParser httpRequestParser;
     private final RequestHandlerMapper requestHandlerMapper;
     private ServerSocket serverSocket;
     private DateFormat dateFormatter;
     public Server(int port,
                   Timer timer,
                   ExecutorService threadPool,
-                  HttpRequestParser httpRequestParser,
+                  RequestParser httpRequestParser,
                   RequestHandlerMapper requestHandlerMapper,
                   DateFormat dateFormatter) throws IOException {
         this.port = port;

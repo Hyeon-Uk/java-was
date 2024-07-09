@@ -3,6 +3,7 @@ package codesquad.was.http.handler;
 import codesquad.was.http.exception.HttpException;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
 import codesquad.was.http.message.parser.HttpRequestParser;
+import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.utils.Timer;
@@ -22,11 +23,11 @@ public class SocketHandler implements Runnable {
     private final Socket socket;
     private final Timer timer;
     private final DateFormat dateFormatter;
-    private final HttpRequestParser requestParser;
+    private final RequestParser requestParser;
     private final RequestHandlerMapper requestHandlerMapper;
 
     public SocketHandler(Socket socket,
-                         HttpRequestParser requestParser,
+                         RequestParser requestParser,
                          Timer timer,
                          DateFormat dateFormatter,
                          RequestHandlerMapper requestHandlerMapper) {

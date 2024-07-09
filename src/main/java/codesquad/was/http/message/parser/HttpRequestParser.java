@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HttpRequestParser {
+public class HttpRequestParser implements RequestParser{
     private final HttpRequestStartLineParser httpRequestStartLineParser;
     private final HttpHeaderParser httpHeaderParser;
     private final HttpBodyParser httpBodyParser;
@@ -26,6 +26,7 @@ public class HttpRequestParser {
         this.httpQueryStringParser = httpQueryStringParser;
     }
 
+    @Override
     public HttpRequest parse(String message){
         String[] parts = message.split(CRLF+CRLF,2);
 

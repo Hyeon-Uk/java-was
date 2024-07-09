@@ -39,7 +39,7 @@ public class Main {
         return new HttpRequestStartLineParser();
     }
 
-    private HttpRequestParser requestParser(HttpRequestStartLineParser startLineParser,
+    private RequestParser requestParser(HttpRequestStartLineParser startLineParser,
                                             HttpQueryStringParser queryStringParser,
                                             HttpHeaderParser headerParser,
                                             HttpBodyParser bodyParser) {
