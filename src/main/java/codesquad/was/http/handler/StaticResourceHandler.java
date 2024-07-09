@@ -11,12 +11,9 @@ import java.io.*;
 public class StaticResourceHandler implements RequestHandler {
     @Override
     public void getHandle(HttpRequest req, HttpResponse res) {
-        try(InputStream resourceBasePath = StaticResourceHandler.class.getResourceAsStream("/static".concat(req.getUri()))) {
-            res.setHeader("Content-Type", FileUtils.getContentType(req.getUri()));
-            res.setBody(resourceBasePath.readAllBytes());
-            res.setStatus(HttpStatus.OK);
-        } catch (IOException e) {
-            throw new HttpNotFoundException("could't find this static file");
-        }
+        byte[] data = FileUtils.readStaticFile(req.getUri());
+        res.setHeader("Content-Type",FileUtils.getMIME(req.getUri()).getMimeType());
+        res.setBody(data);
+        res.setStatus(HttpStatus.OK);
     }
 }
