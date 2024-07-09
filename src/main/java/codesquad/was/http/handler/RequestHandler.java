@@ -16,6 +16,8 @@ public interface RequestHandler {
             case DELETE -> deleteHandle(req,res);
             case OPTIONS -> optionsHandle(req,res);
             case TRACE -> traceHandle(req,res);
+            case HEAD -> headHandle(req,res);
+            case CONNECT -> connectHandle(req,res);
         }
     }
     default void getHandle(HttpRequest req, HttpResponse res){
@@ -37,6 +39,12 @@ public interface RequestHandler {
         throw new HttpMethodNotAllowedException("This method is not allowed");
     }
     default void traceHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void headHandle(HttpRequest req, HttpResponse res){
+        throw new HttpMethodNotAllowedException("This method is not allowed");
+    }
+    default void connectHandle(HttpRequest req, HttpResponse res){
         throw new HttpMethodNotAllowedException("This method is not allowed");
     }
 }
