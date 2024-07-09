@@ -85,19 +85,12 @@ public class HttpResponse {
         return Arrays.stream(array)
                 .reduce(new byte[0],this::mergeByteArray);
     }
-    public byte[] parse(Timer timer){
-        setHeader("Date",getFormattedDate(timer));
+    public byte[] parse(){
         byte[] startLine = parseStartLine();
         byte[] headers = parseHeaders();
         byte[] emptyLine = NEW_LINE.getBytes();
         byte[] body = parseBody();
 
         return concatByteArray(startLine,headers,emptyLine,body);
-    }
-    private String getFormattedDate(Timer timer) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        return dateFormat.format(timer.getCurrentTime());
     }
 }

@@ -47,6 +47,7 @@ public class HttpResponseTest {
 
         //when
         HttpResponse response = new HttpResponse("HTTP/1.1",header);
+        response.setHeader("Date",dateFormat.format(mockTimer.getCurrentTime()));
         response.setStatus(status);
         response.setBody(body.getBytes());
 
@@ -56,7 +57,7 @@ public class HttpResponseTest {
                 ()->assertEquals(status,response.getStatus()),
                 ()->assertEquals(body,new String(response.getBody())),
                 ()->assertEquals(Integer.toString(body.length()),response.getHeaders("Content-Length").get(0)),
-                ()->assertEquals(expectedMessage,new String(response.parse(mockTimer)))
+                ()->assertEquals(expectedMessage,new String(response.parse()))
                 );
     }
 }

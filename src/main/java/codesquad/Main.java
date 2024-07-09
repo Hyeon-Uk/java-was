@@ -9,6 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -53,12 +58,19 @@ public class Main {
         return new RequestHandlerMapper();
     }
 
+    private DateFormat dateFormat(){
+        DateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return format;
+    }
+
     private Server server(int port) throws IOException {
         return new Server(port,
                 timer(),
                 executorService(),
                 requestParser(startLineParser(), queryStringParser(), headerParser(), bodyParser()),
-                requestHandlerMapper());
+                requestHandlerMapper(),
+                dateFormat());
     }
 
     public Main(int port) throws IOException {

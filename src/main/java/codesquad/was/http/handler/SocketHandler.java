@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,16 +21,19 @@ public class SocketHandler implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(SocketHandler.class);
     private final Socket socket;
     private final Timer timer;
+    private final DateFormat dateFormatter;
     private final HttpRequestParser requestParser;
     private final RequestHandlerMapper requestHandlerMapper;
 
     public SocketHandler(Socket socket,
                          HttpRequestParser requestParser,
                          Timer timer,
+                         DateFormat dateFormatter,
                          RequestHandlerMapper requestHandlerMapper) {
         this.socket = socket;
         this.requestParser = requestParser;
         this.timer = timer;
+        this.dateFormatter = dateFormatter;
         this.requestHandlerMapper = requestHandlerMapper;
     }
 
@@ -46,20 +50,16 @@ public class SocketHandler implements Runnable {
                 RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
                 handler.handle(request, response);
 
-                byte[] parse = response.parse(timer);
-                socket.getOutputStream().write(parse);
-                socket.getOutputStream().flush();
+                sendResponse(response,socket);
             }catch(HttpException httpException) {
                 logger.error(httpException.getMessage());
                 errorResponse = new HttpResponse(httpException);
-                socket.getOutputStream().write(errorResponse.parse(timer));
-                socket.getOutputStream().flush();
+                sendResponse(errorResponse,socket);
             }catch(Exception e){
                 logger.error(e.getMessage());
                 //internal server error response
                 errorResponse = new HttpResponse(new HttpInternalServerErrorException("Internal Server Exception"));
-                socket.getOutputStream().write(errorResponse.parse(timer));
-                socket.getOutputStream().flush();
+                sendResponse(errorResponse,socket);
             }finally{
                 socket.close();
             }
@@ -86,5 +86,12 @@ public class SocketHandler implements Runnable {
             sb.append(new String(buffer,0,length));
         }while(length == BUFFER_SIZE);
         return sb.toString();
+    }
+
+    private void sendResponse(HttpResponse response,Socket clientSocket) throws IOException {
+        response.setHeader("Date",dateFormatter.format(timer.getCurrentTime()));
+
+        clientSocket.getOutputStream().write(response.parse());
+        clientSocket.getOutputStream().flush();
     }
 }
