@@ -1,77 +1,71 @@
 package codesquad.message.request;
 
 import codesquad.was.http.message.request.HttpMethod;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class HttpMethodTest {
-    @Test
-    public void fromGet(){
-        assertEquals(HttpMethod.GET, HttpMethod.from("GET"));
-        assertEquals(HttpMethod.GET, HttpMethod.from("get"));
-        assertEquals(HttpMethod.GET, HttpMethod.from("Get"));
+
+    @ParameterizedTest
+    @ValueSource(strings = {"GET", "get", "Get"})
+    public void fromGet(String method) {
+        assertEquals(HttpMethod.GET, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromPost(){
-        assertEquals(HttpMethod.POST, HttpMethod.from("POST"));
-        assertEquals(HttpMethod.POST, HttpMethod.from("Post"));
-        assertEquals(HttpMethod.POST, HttpMethod.from("post"));
+    @ParameterizedTest
+    @ValueSource(strings = {"POST", "Post", "post"})
+    public void fromPost(String method) {
+        assertEquals(HttpMethod.POST, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromDelete(){
-        assertEquals(HttpMethod.DELETE, HttpMethod.from("DELETE"));
-        assertEquals(HttpMethod.DELETE, HttpMethod.from("Delete"));
-        assertEquals(HttpMethod.DELETE, HttpMethod.from("delete"));
+    @ParameterizedTest
+    @ValueSource(strings = {"DELETE", "Delete", "delete"})
+    public void fromDelete(String method) {
+        assertEquals(HttpMethod.DELETE, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromPatch(){
-        assertEquals(HttpMethod.PATCH, HttpMethod.from("PATCH"));
-        assertEquals(HttpMethod.PATCH, HttpMethod.from("Patch"));
-        assertEquals(HttpMethod.PATCH, HttpMethod.from("patch"));
+    @ParameterizedTest
+    @ValueSource(strings = {"PATCH", "Patch", "patch"})
+    public void fromPatch(String method) {
+        assertEquals(HttpMethod.PATCH, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromPut(){
-        assertEquals(HttpMethod.PUT, HttpMethod.from("PUT"));
-        assertEquals(HttpMethod.PUT, HttpMethod.from("Put"));
-        assertEquals(HttpMethod.PUT, HttpMethod.from("put"));
+    @ParameterizedTest
+    @ValueSource(strings = {"PUT", "Put", "put"})
+    public void fromPut(String method) {
+        assertEquals(HttpMethod.PUT, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromOptions(){
-        assertEquals(HttpMethod.OPTIONS, HttpMethod.from("OPTIONS"));
-        assertEquals(HttpMethod.OPTIONS, HttpMethod.from("Options"));
-        assertEquals(HttpMethod.OPTIONS, HttpMethod.from("options"));
+    @ParameterizedTest
+    @ValueSource(strings = {"OPTIONS", "Options", "options"})
+    public void fromOptions(String method) {
+        assertEquals(HttpMethod.OPTIONS, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromHead(){
-        assertEquals(HttpMethod.HEAD, HttpMethod.from("HEAD"));
-        assertEquals(HttpMethod.HEAD, HttpMethod.from("Head"));
-        assertEquals(HttpMethod.HEAD, HttpMethod.from("head"));
+    @ParameterizedTest
+    @ValueSource(strings = {"HEAD", "Head", "head"})
+    public void fromHead(String method) {
+        assertEquals(HttpMethod.HEAD, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromTrace(){
-        assertEquals(HttpMethod.TRACE, HttpMethod.from("TRACE"));
-        assertEquals(HttpMethod.TRACE, HttpMethod.from("Trace"));
-        assertEquals(HttpMethod.TRACE, HttpMethod.from("trace"));
+    @ParameterizedTest
+    @ValueSource(strings = {"TRACE", "Trace", "trace"})
+    public void fromTrace(String method) {
+        assertEquals(HttpMethod.TRACE, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromConnect(){
-        assertEquals(HttpMethod.CONNECT, HttpMethod.from("CONNECT"));
-        assertEquals(HttpMethod.CONNECT, HttpMethod.from("Connect"));
-        assertEquals(HttpMethod.CONNECT, HttpMethod.from("connect"));
+    @ParameterizedTest
+    @ValueSource(strings = {"CONNECT", "Connect", "connect"})
+    public void fromConnect(String method) {
+        assertEquals(HttpMethod.CONNECT, HttpMethod.from(method));
     }
 
-    @Test
-    public void fromUnknown(){
-        assertNull(HttpMethod.from("unknown"));
+    @ParameterizedTest
+    @ValueSource(strings = {"unknown", "", "InvalidMethod"})
+    public void fromUnknown(String method) {
+        assertNull(HttpMethod.from(method));
     }
 }
