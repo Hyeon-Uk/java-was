@@ -1,8 +1,8 @@
 package codesquad.was;
 
 import codesquad.was.http.handler.RequestHandlerMapper;
+import codesquad.was.http.handler.RequestHandlerMapperImpl;
 import codesquad.was.http.handler.SocketHandler;
-import codesquad.was.http.message.parser.HttpRequestParser;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.utils.Timer;
 import org.slf4j.Logger;

@@ -2,6 +2,7 @@ package codesquad;
 
 import codesquad.was.Server;
 import codesquad.was.http.handler.RequestHandlerMapper;
+import codesquad.was.http.handler.RequestHandlerMapperImpl;
 import codesquad.was.http.message.parser.*;
 import codesquad.was.utils.SystemTimer;
 import codesquad.was.utils.Timer;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +55,7 @@ public class Main {
     }
 
     private RequestHandlerMapper requestHandlerMapper() {
-        return new RequestHandlerMapper();
+        return new RequestHandlerMapperImpl();
     }
 
     private DateFormat dateFormat(){

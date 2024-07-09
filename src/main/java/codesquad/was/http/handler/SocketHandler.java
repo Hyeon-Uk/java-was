@@ -2,7 +2,6 @@ package codesquad.was.http.handler;
 
 import codesquad.was.http.exception.HttpException;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
-import codesquad.was.http.message.parser.HttpRequestParser;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
