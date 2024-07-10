@@ -27,4 +27,9 @@ public class HttpHeader {
                 .filter(v -> !v.isEmpty())
                 .toList());
     }
+
+    public void addHeader(String key, String value) {
+        header.computeIfAbsent(key, k -> new ArrayList<>())
+                .add(value);
+    }
 }
