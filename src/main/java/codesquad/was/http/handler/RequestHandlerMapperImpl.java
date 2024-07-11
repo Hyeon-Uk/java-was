@@ -1,5 +1,6 @@
 package codesquad.was.http.handler;
 
+import codesquad.application.handler.LoginHandler;
 import codesquad.application.handler.MainHandler;
 import codesquad.application.handler.RegisterHandler;
 import codesquad.was.http.exception.HttpNotFoundException;
@@ -12,7 +13,8 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
     private static final Map<String, RequestHandler> mappers = Map.of(
             STATIC_RESOURCE_KEY, staticResourceHandler,
             "/", new MainHandler(),
-            "/user/create",new RegisterHandler()
+            "/user/create",new RegisterHandler(),
+            "/login",new LoginHandler()
     );
 
     public RequestHandler getRequestHandler(String path) {

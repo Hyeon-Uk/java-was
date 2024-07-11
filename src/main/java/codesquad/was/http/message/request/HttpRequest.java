@@ -51,7 +51,7 @@ public class HttpRequest {
     }
 
     public List<Cookie> getCookies() {
-        return parseCookieHeader(header.getHeaders("Cookie").get(0));
+        return parseCookieHeader(header.getHeaders("Cookie").isEmpty() ? "" : header.getHeaders("Cookie").get(0));
     }
 
     private List<Cookie> parseCookieHeader(String cookieHeader) {
