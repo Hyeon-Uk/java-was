@@ -27,7 +27,7 @@ public class HttpTemplateEngine {
 
         while (matcher.find()) {
             String key = matcher.group(1);
-            String replacement = context.containsKey(key) ? context.get(key).toString() : "{{" + key + "}}";
+            String replacement = context.containsKey(key) ? context.get(key).toString() : "null";
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
         }
         matcher.appendTail(result);
@@ -148,7 +148,7 @@ public class HttpTemplateEngine {
         while (matcher.find()) {
             String key = matcher.group(1);
             Object value = context.get(key);
-            String replacement = (value != null) ? value.toString() : "{{" + key + "}}";
+            String replacement = (value != null) ? value.toString() : "null";
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
         }
         matcher.appendTail(result);
