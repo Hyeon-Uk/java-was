@@ -1,9 +1,10 @@
 package codesquad.was.http.handler;
 
 import codesquad.was.http.exception.HttpMethodNotAllowedException;
-import codesquad.was.http.exception.HttpNotFoundException;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
+import codesquad.was.http.message.response.HttpStatus;
+import codesquad.was.utils.FileUtils;
 
 
 public interface RequestHandler {
@@ -21,7 +22,21 @@ public interface RequestHandler {
         }
     }
     default void getHandle(HttpRequest req, HttpResponse res){
-        throw new HttpMethodNotAllowedException("This method is not allowed");
+        String uri = req.getUri();
+        if(uri.lastIndexOf("/") == uri.length()-1){
+            uri = uri.concat("index.html");
+        }
+        else{
+            uri = uri.concat("/index.html");
+        }
+        try {
+            byte[] body = FileUtils.readStaticFile(uri);
+            res.setBody(body);
+            res.setStatus(HttpStatus.OK);
+        }catch(Exception e){
+            throw new HttpMethodNotAllowedException("This method is not allowed");
+        }
+//        throw new HttpMethodNotAllowedException("This method is not allowed");
     }
     default void postHandle(HttpRequest req, HttpResponse res){
         throw new HttpMethodNotAllowedException("This method is not allowed");

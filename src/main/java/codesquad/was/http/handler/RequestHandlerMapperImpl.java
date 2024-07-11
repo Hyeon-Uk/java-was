@@ -12,9 +12,9 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
     private final static RequestHandler staticResourceHandler = new StaticResourceHandler();
     private static final Map<String, RequestHandler> mappers = Map.of(
             STATIC_RESOURCE_KEY, staticResourceHandler,
-            "/", new MainHandler(),
             "/user/create",new RegisterHandler(),
-            "/login",new LoginHandler()
+            "/login",new LoginHandler(),
+            "/", new MainHandler()
     );
 
     public RequestHandler getRequestHandler(String path) {
@@ -24,7 +24,7 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
 
         return mappers.entrySet()
                 .stream()
-                .filter(entry -> entry.getKey().equals(path))
+                .filter(entry -> path.startsWith(entry.getKey()))
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .orElseThrow(() -> new HttpNotFoundException(path.concat(" : request can not found")));
