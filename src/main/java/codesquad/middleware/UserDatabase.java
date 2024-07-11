@@ -9,13 +9,13 @@ import java.util.concurrent.ConcurrentMap;
 
 public class UserDatabase {
     public UserDatabase() {}
-    private final Map<String,User> store = new ConcurrentHashMap<>();
+    private final static Map<String,User> store = new ConcurrentHashMap<>();
 
-    public void save(User user) {
+    public static void save(User user) {
         store.put(user.getId(),user);
     }
 
-    public Optional<User> findById(String userId) {
+    public static Optional<User> findById(String userId) {
         return store.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().equals(userId))

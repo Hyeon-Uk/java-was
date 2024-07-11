@@ -1,5 +1,6 @@
 package codesquad.application.handler;
 
+import codesquad.middleware.UserDatabase;
 import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
@@ -16,6 +17,8 @@ public class RegisterHandler implements RequestHandler {
         String password = req.getQueryString("password");
 
         User user = new User(id,password,nickname);
+
+        UserDatabase.save(user);
         logger.info("User = {}",user);
 
         res.sendRedirect("/");
