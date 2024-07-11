@@ -6,6 +6,7 @@ import codesquad.was.http.message.vo.HttpRequestStartLine;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.vo.HttpBody;
+import codesquad.was.http.session.SessionManager;
 
 import java.net.URLDecoder;
 import java.util.Arrays;
@@ -17,13 +18,19 @@ public class HttpRequestParser implements RequestParser{
     private final HttpHeaderParser httpHeaderParser;
     private final HttpBodyParser httpBodyParser;
     private final HttpQueryStringParser httpQueryStringParser;
+    private final SessionManager sessionManager;
     private final String CRLF = "\r\n";
 
-    public HttpRequestParser(HttpRequestStartLineParser httpRequestStartLineParser, HttpHeaderParser httpHeaderParser, HttpBodyParser httpBodyParser,HttpQueryStringParser httpQueryStringParser) {
+    public HttpRequestParser(HttpRequestStartLineParser httpRequestStartLineParser,
+                             HttpHeaderParser httpHeaderParser,
+                             HttpBodyParser httpBodyParser,
+                             HttpQueryStringParser httpQueryStringParser,
+                             SessionManager sessionManager) {
         this.httpRequestStartLineParser = httpRequestStartLineParser;
         this.httpHeaderParser = httpHeaderParser;
         this.httpBodyParser = httpBodyParser;
         this.httpQueryStringParser = httpQueryStringParser;
+        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -49,6 +56,6 @@ public class HttpRequestParser implements RequestParser{
         Map<String, String> bodyQueryString = httpQueryStringParser.parse(URLDecoder.decode(bodyPart));
         queryString.putAll(bodyQueryString);
 
-        return new HttpRequest(httpRequestStartLine,queryString,httpHeader,httpBody);
+        return new HttpRequest(httpRequestStartLine,queryString,httpHeader,httpBody,sessionManager);
     }
 }

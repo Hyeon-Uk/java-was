@@ -1,9 +1,12 @@
 package codesquad.http.message.parser;
 
+import codesquad.message.mock.MockTimer;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.parser.*;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.session.SessionManager;
+import codesquad.was.http.session.SessionStorage;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -34,7 +37,8 @@ class HttpRequestParsingTest {
     private HttpHeaderParser headerParser = new HttpHeaderParser();
     private HttpBodyParser bodyParser = new HttpBodyParser();
     private HttpQueryStringParser queryStringParser = new HttpQueryStringParser();
-    private HttpRequestParser requestParser = new HttpRequestParser(startLineParser,headerParser,bodyParser,queryStringParser);
+    private SessionManager sessionManager = new SessionManager(new SessionStorage(),new MockTimer(10l));
+    private HttpRequestParser requestParser = new HttpRequestParser(startLineParser,headerParser,bodyParser,queryStringParser,sessionManager);
 
     private void verifyHeaderValues(HttpRequest req, String key, String valueString){
         List<String> values = Arrays.stream(valueString.split(","))

@@ -1,11 +1,14 @@
 package codesquad.application.handler;
 
+import codesquad.message.mock.MockTimer;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.vo.HttpBody;
 import codesquad.was.http.message.vo.HttpHeader;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
+import codesquad.was.http.session.SessionManager;
+import codesquad.was.http.session.SessionStorage;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +19,8 @@ public class MockFactory {
         return new HttpRequest(new HttpRequestStartLine("HTTP/1.1","",method),
                 queryString,
                 new HttpHeader(header),
-                new HttpBody(body));
+                new HttpBody(body),
+                new SessionManager(new SessionStorage(),new MockTimer(10l)));
     }
     public static HttpRequest getHttpRequest(HttpMethod method){
         return getHttpRequest(method,new HashMap<>(),new HashMap<>(),"");

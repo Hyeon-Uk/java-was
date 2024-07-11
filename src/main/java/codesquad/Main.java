@@ -6,6 +6,8 @@ import codesquad.was.Server;
 import codesquad.was.http.handler.RequestHandlerMapper;
 import codesquad.was.http.handler.RequestHandlerMapperImpl;
 import codesquad.was.http.message.parser.*;
+import codesquad.was.http.session.SessionManager;
+import codesquad.was.http.session.SessionStorage;
 import codesquad.was.utils.SystemTimer;
 import codesquad.was.utils.Timer;
 import org.slf4j.Logger;
@@ -41,11 +43,19 @@ public class Main {
         return new HttpRequestStartLineParser();
     }
 
+    private SessionStorage sessionStorage(){
+        return new SessionStorage();
+    }
+    private SessionManager sessionManager() {
+        return new SessionManager(sessionStorage(),timer());
+    }
+
     private RequestParser requestParser(HttpRequestStartLineParser startLineParser,
                                             HttpQueryStringParser queryStringParser,
                                             HttpHeaderParser headerParser,
-                                            HttpBodyParser bodyParser) {
-        return new HttpRequestParser(startLineParser, headerParser, bodyParser, queryStringParser);
+                                            HttpBodyParser bodyParser,
+                                        SessionManager sessionManager) {
+        return new HttpRequestParser(startLineParser, headerParser, bodyParser, queryStringParser, sessionManager);
     }
 
     private Timer timer() {
@@ -70,7 +80,7 @@ public class Main {
         return new Server(port,
                 timer(),
                 executorService(),
-                requestParser(startLineParser(), queryStringParser(), headerParser(), bodyParser()),
+                requestParser(startLineParser(), queryStringParser(), headerParser(), bodyParser(),sessionManager()),
                 requestHandlerMapper(),
                 dateFormat());
     }
