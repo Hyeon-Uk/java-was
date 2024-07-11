@@ -26,7 +26,12 @@ public class MainHandler implements RequestHandler {
             context.put("user", user);
             context.put("name",user == null ? null : user.getId());
         }
-        String rendered = HttpTemplateEngine.render(bodyString, context);
+        String rendered = null;
+        try {
+            rendered = HttpTemplateEngine.render(bodyString, context);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         res.setBody(rendered);
     }
 }

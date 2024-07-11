@@ -57,17 +57,14 @@
                 <th>이름</th>
                 <th>아이디</th>
             </tr>
+            {{for user in {{users}}
             <tr>
-                <td>John Doe</td>
-                <td>johndoe123</td>
+                <td>(user.nickname)</td>
+                <td>(user.id)</td>
             </tr>
-            <tr>
-                <td>Jane Smith</td>
-                <td>janesmith456</td>
-            </tr>
+            }}
             <!-- 여기에 추가적으로 행을 추가할 수 있습니다 -->
         </table>
-        {{users}}
     </div>
 </div>
 </body>

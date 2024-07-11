@@ -1,15 +1,61 @@
 package codesquad.was.http.engine;
 
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HttpTemplateEngine {
-    private static final Pattern IF_PATTERN = Pattern.compile("\\{\\{if(.*?)then(.*?)else(.*?)}}",Pattern.DOTALL);
-    private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\{\\{(.*?)}}");
+    private static final Pattern VALUE_PATTERN = Pattern.compile("\\{\\{(\\w+)}}");
+    private static final Pattern IF_ELSE_PATTERN = Pattern.compile("\\{\\{if\\s+(.+?)\\s+then\\s+(.+?)\\s+else\\s+(.+?)}}",Pattern.DOTALL);
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{\\{(\\w+)}}");
+    private static final Pattern FOR_LOOP_PATTERN = Pattern.compile("\\{\\{for\\s+(\\w+)\\s+in\\s+\\{\\{(\\w+)}}\\s+(.+?)}}",
+            Pattern.DOTALL);
+    private static final Pattern OBJECT_PROPERTY_PATTERN = Pattern.compile("\\(([\\w.]+)\\)");
+
+
+    public static String render(String template, Map<String, Object> context) throws IllegalAccessException {
+        String result = renderForLoops(template, context);
+        String result2 = replaceValues(result, context);
+        String result3 = processIfElse(result2, context);
+        return renderPlaceholders(result3,context);
+    }
+
+    private static String replaceValues(String template, Map<String, Object> context) {
+        StringBuffer result = new StringBuffer();
+        Matcher matcher = VALUE_PATTERN.matcher(template);
+
+        while (matcher.find()) {
+            String key = matcher.group(1);
+            String replacement = context.containsKey(key) ? context.get(key).toString() : "{{" + key + "}}";
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    private static String processIfElse(String template, Map<String, Object> context) throws IllegalAccessException {
+        StringBuffer result = new StringBuffer();
+        Matcher matcher = IF_ELSE_PATTERN.matcher(template);
+
+        while (matcher.find()) {
+            String condition = matcher.group(1);
+            String thenExpression = matcher.group(2);
+            String elseExpression = matcher.group(3);
+
+            boolean conditionResult = evaluateCondition(condition, context);
+            String replacement = conditionResult ? thenExpression : elseExpression;
+
+            // Recursively process nested value replacements and if-else statements
+            replacement = render(replacement, context);
+
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
 
     private static boolean evaluateCondition(String conditionExpression, Map<String, Object> context) {
         if (conditionExpression.contains("==")) {
@@ -27,74 +73,86 @@ public class HttpTemplateEngine {
         return false;
     }
 
-    public static String render(String template, Map<String, Object> context) {
-        Deque<StringBuilder> stack = new LinkedList<>();
-        char[] array = template.toCharArray();
-        StringBuilder result = new StringBuilder();
-        for(int i=0;i<array.length;i++){
-            if(array[i]=='{' && i+1 < array.length && array[i+1] == '{'){
-                stack.offerLast(new StringBuilder().append("{{"));
-                i++;
+
+    private static String renderForLoops(String template, Map<String, Object> context) throws IllegalAccessException {
+        StringBuffer result = new StringBuffer();
+        Matcher matcher = FOR_LOOP_PATTERN.matcher(template);
+
+        while (matcher.find()) {
+            String itemName = matcher.group(1);
+            String listName = matcher.group(2);
+            String expression = matcher.group(3);
+
+            List<?> items = (List<?>) context.get(listName);
+            if (items == null) {
+                matcher.appendReplacement(result, "");
+                continue;
             }
-            else if(array[i] == '}' && i+1 < array.length && array[i+1] == '}'){
-                if(stack.isEmpty()){
-                    result.append(array[i]);
-                }
-                else{
-                    stack.peekLast().append("}}");
-                    StringBuilder pop = stack.pollLast();
-                    String popped = pop.toString();
-                    String innerRendered = innerRender(popped,context);
-                    if(stack.isEmpty()){
-                        result.append(innerRendered);
-                    }
-                    else{
-                        stack.peekLast().append(innerRendered);
-                    }
-                    i++;
-                }
+
+            StringBuilder loopResult = new StringBuilder();
+            for (Object item : items) {
+                Map<String, Object> loopContext = new HashMap<>(context);
+                loopContext.put(itemName, item);
+                String renderedExpression = renderObjectProperties(expression, loopContext);
+                loopResult.append(renderedExpression);
             }
-            else{
-                if(stack.isEmpty()){
-                    result.append(array[i]);
-                }
-                else{
-                    stack.peekLast().append(array[i]);
-                }
-            }
+
+            matcher.appendReplacement(result, Matcher.quoteReplacement(loopResult.toString()));
         }
-        while(!stack.isEmpty()){
-            result.append(stack.pollFirst().toString());
-        }
+        matcher.appendTail(result);
+
         return result.toString();
     }
 
-    private static String innerRender(String popped,Map<String,Object> context){
-        Matcher ifMatcher = IF_PATTERN.matcher(popped);
-        if (ifMatcher.find()) {
-            String conditionExpression = ifMatcher.group(1).trim();
-            String thenExpression = ifMatcher.group(2).trim();
-            String elseExpression = ifMatcher.group(3).trim();
+    private static String renderObjectProperties(String template, Map<String, Object> context) throws IllegalAccessException {
+        StringBuffer result = new StringBuffer();
+        Matcher matcher = OBJECT_PROPERTY_PATTERN.matcher(template);
 
-            boolean isConditionTrue = evaluateCondition(conditionExpression, context);
-            String replacement = isConditionTrue ? thenExpression : elseExpression;
-
-            return replacement;
-        } else {
-            Matcher variableMatcher = VARIABLE_PATTERN.matcher(popped);
-            if (variableMatcher.find()) {
-                String key = variableMatcher.group(1).trim();
-                Object value = context.get(key);
-                if (value != null) {
-                    return variableMatcher.replaceFirst(value.toString());
+        while (matcher.find()) {
+            String propertyPath = matcher.group(1);
+            String[] parts = propertyPath.split("\\.");
+            Object value = context.get(parts[0]);
+            for (int i = 1; i < parts.length && value != null; i++) {
+                Field field = findField(value.getClass(), parts[i]);
+                if (field != null) {
+                    field.setAccessible(true);
+                    value = field.get(value);
                 } else {
-                    // If key not found, replace with empty string
-                    return variableMatcher.replaceFirst("null");
+                    value = null;
+                    break;
                 }
-            } else {
-                // No more patterns found, append to result
-                return "";
+            }
+            String replacement = (value != null) ? value.toString() : "";
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    private static Field findField(Class<?> clazz, String fieldName) {
+        try {
+            return clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            if (clazz.getSuperclass() != null) {
+                return findField(clazz.getSuperclass(), fieldName);
             }
         }
+        return null;
+    }
+
+    private static String renderPlaceholders(String template, Map<String, Object> context) {
+        StringBuffer result = new StringBuffer();
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(template);
+
+        while (matcher.find()) {
+            String key = matcher.group(1);
+            Object value = context.get(key);
+            String replacement = (value != null) ? value.toString() : "{{" + key + "}}";
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
     }
 }

@@ -32,7 +32,12 @@ public class UserListHandler implements RequestHandler {
         Map<String,Object> context = new HashMap<>();
         context.put("users",users);
 
-        String rendered = HttpTemplateEngine.render(template,context);
+        String rendered = null;
+        try {
+            rendered = HttpTemplateEngine.render(template, context);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         res.setBody(rendered);
     }
 }
