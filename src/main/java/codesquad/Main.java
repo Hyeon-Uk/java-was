@@ -85,10 +85,6 @@ public class Main {
                 dateFormat());
     }
 
-    private UserDatabase userDatabase(){
-        return new UserDatabase();
-    }
-
     public Main(int port) throws IOException {
         Server server = server(port);
 

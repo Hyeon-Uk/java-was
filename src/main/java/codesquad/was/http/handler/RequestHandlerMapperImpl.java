@@ -1,8 +1,6 @@
 package codesquad.was.http.handler;
 
-import codesquad.application.handler.LoginHandler;
-import codesquad.application.handler.MainHandler;
-import codesquad.application.handler.RegisterHandler;
+import codesquad.application.handler.*;
 import codesquad.was.http.exception.HttpNotFoundException;
 
 import java.util.Map;
@@ -14,6 +12,8 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
             STATIC_RESOURCE_KEY, staticResourceHandler,
             "/user/create",new RegisterHandler(),
             "/login",new LoginHandler(),
+            "/logout",new LogoutHandler(),
+            "/user/list",new UserListHandler(),
             "/", new MainHandler()
     );
 
@@ -24,9 +24,10 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
 
         return mappers.entrySet()
                 .stream()
+                .sorted((o1,o2)->Integer.compare(o2.getKey().length(),o1.getKey().length()))
                 .filter(entry -> path.startsWith(entry.getKey()))
-                .map(Map.Entry::getValue)
                 .findFirst()
+                .map(Map.Entry::getValue)
                 .orElseThrow(() -> new HttpNotFoundException(path.concat(" : request can not found")));
     }
 
