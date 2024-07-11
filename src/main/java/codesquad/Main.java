@@ -1,5 +1,7 @@
 package codesquad;
 
+import codesquad.application.model.User;
+import codesquad.middleware.UserDatabase;
 import codesquad.was.Server;
 import codesquad.was.http.handler.RequestHandlerMapper;
 import codesquad.was.http.handler.RequestHandlerMapperImpl;
@@ -71,6 +73,10 @@ public class Main {
                 requestParser(startLineParser(), queryStringParser(), headerParser(), bodyParser()),
                 requestHandlerMapper(),
                 dateFormat());
+    }
+
+    private UserDatabase userDatabase(){
+        return new UserDatabase();
     }
 
     public Main(int port) throws IOException {
