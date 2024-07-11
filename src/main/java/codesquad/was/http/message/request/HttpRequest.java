@@ -4,22 +4,26 @@ import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.message.vo.HttpBody;
 import codesquad.was.http.message.vo.HttpHeader;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
+import codesquad.was.http.session.Session;
+import codesquad.was.http.session.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
+    private final SessionManager sessionManager;
     private final HttpRequestStartLine startLine;
     private final HttpHeader header;
     private final HttpBody body;
     private final Map<String, String> queryString;
 
-    public HttpRequest(HttpRequestStartLine startLine, Map<String, String> queryString, HttpHeader header, HttpBody body) {
+    public HttpRequest(HttpRequestStartLine startLine, Map<String, String> queryString, HttpHeader header, HttpBody body,SessionManager sessionManager) {
         this.startLine = startLine;
         this.queryString = queryString;
         this.header = header;
         this.body = body;
+        this.sessionManager = sessionManager;
     }
 
     public String getQueryString(String parameter) {
@@ -67,5 +71,21 @@ public class HttpRequest {
             }
         }
         return cookies;
+    }
+
+    public Session getSession(){
+        return getSession(true);
+    }
+    public Session getSession(boolean create){
+        return getCookies().stream()
+                .filter(cookie -> "SID".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .flatMap(sessionManager::getSession)
+                .orElseGet(()->create?sessionManager.createSession():null);
+    }
+    public boolean isNewSession(){
+        return getCookies().stream()
+                .noneMatch(cookie -> "SID".equals(cookie.getName()));
     }
 }

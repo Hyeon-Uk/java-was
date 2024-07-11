@@ -1,10 +1,12 @@
 package codesquad.was.http.handler;
 
+import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.exception.HttpException;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
+import codesquad.was.http.session.Session;
 import codesquad.was.utils.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,11 @@ public class SocketHandler implements Runnable {
             Map<String, List<String>> header = new HashMap<>();
             HttpRequest request = requestParser.parse(requestMessage);
             HttpResponse response = new HttpResponse(request.getHttpVersion(), header);
+
+            if(request.isNewSession() && request.getSession(false) != null){
+                Session session = request.getSession(false);
+                response.addCookie(new Cookie("SID",session.getId()));
+            }
 
             RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
             handler.handle(request, response);
