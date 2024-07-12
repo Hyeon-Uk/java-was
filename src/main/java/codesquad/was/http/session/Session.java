@@ -75,4 +75,8 @@ public class Session {
     public String getId(){
         return this.id;
     }
+
+    public boolean isExpired() {
+        return expired;
+    }
 }

@@ -1,9 +1,8 @@
 package codesquad.was.http.session;
 
-import codesquad.was.http.message.request.HttpRequest;
-import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.utils.Timer;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,7 +15,12 @@ public class SessionManager {
     }
 
     public Optional<Session> getSession(String sessionId){
-        return sessionStorage.get(sessionId);
+        return sessionStorage.get(sessionId)
+                .filter(session->!session.isExpired()&&timer.getCurrentTime().before(new Date(session.getCreatedAt().getTime()+session.getMaxInactiveInterval()*1000)))
+                .map(session->{
+                    session.setLastAccessedAt(timer.getCurrentTime());
+                    return session;
+                });
     }
 
     public Session createSession(){

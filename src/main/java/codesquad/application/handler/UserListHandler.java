@@ -11,6 +11,7 @@ import codesquad.was.http.session.Session;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class UserListHandler implements RequestHandler {
     @Override
@@ -21,7 +22,6 @@ public class UserListHandler implements RequestHandler {
         String template = new String(body);
 
         Session session = req.getSession(false);
-        System.out.println("session = " + session);
         if(session == null){
             res.sendRedirect("/login");
             return;
@@ -30,6 +30,10 @@ public class UserListHandler implements RequestHandler {
         List<User> users = UserDatabase.findAll();
 
         Map<String,Object> context = new HashMap<>();
+        User user = (User)session.get("user")
+                .orElse(new User(null,null,null));
+        context.put("user",user);
+        context.put("name",user.getNickname());
         context.put("users",users);
 
         String rendered = null;
