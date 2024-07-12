@@ -15,7 +15,7 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
             "/logout",new LogoutHandler(),
             "/user/list",new UserListHandler(),
             "/main",new MainHandler(),
-            "/", new MainHandler()
+            "/", new DefaultHandler()
     );
 
     public RequestHandler getRequestHandler(String path) {
@@ -26,7 +26,8 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
         return mappers.entrySet()
                 .stream()
                 .sorted((o1,o2)->Integer.compare(o2.getKey().length(),o1.getKey().length()))
-                .filter(entry -> path.equals(entry.getKey()))
+                .filter(entry -> path.startsWith(entry.getKey()))
+                .peek(entry-> System.out.println("hello = "+entry.getKey()+" ,"+entry.getValue()))
                 .findFirst()
                 .map(Map.Entry::getValue)
                 .orElseThrow(() -> new HttpNotFoundException(path.concat(" : request can not found")));

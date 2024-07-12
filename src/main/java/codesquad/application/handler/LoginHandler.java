@@ -19,7 +19,7 @@ public class LoginHandler implements RequestHandler {
 
     @Override
     public void getHandle(HttpRequest req, HttpResponse res) {
-        res.sendRedirect("/login/index.html");
+        RequestHandler.super.getHandle(req,res);
     }
 
     @Override
