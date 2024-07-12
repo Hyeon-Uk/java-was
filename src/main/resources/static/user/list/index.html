@@ -46,6 +46,9 @@
             <li class="header__menu__item">
                 <div>사용자 이름 : {{name}}</div>
                 <a class="btn btn_contained btn_size_s" href="/user/list">리스트</a>
+                <form action="/logout" method="post">
+                    <button type = "submit">로그아웃</button>
+                </form>
             </li>
             }}
         </ul>
