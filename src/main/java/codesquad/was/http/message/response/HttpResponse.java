@@ -13,16 +13,19 @@ public class HttpResponse {
     private final HttpHeader header;
     private final HttpBody body;
     private final String NEW_LINE = "\r\n";
+    private final List<Cookie> cookies = new LinkedList<>();
     public HttpResponse(HttpException httpException){
         this.startLine = new HttpResponseStartLine("HTTP/1.1",httpException.getStatus());
         this.header = new HttpHeader();
         this.body = new HttpBody();
         setBody(httpException.getErrorMessage());
+        setStatus(httpException.getStatus());
     }
     public HttpResponse(HttpResponseStartLine startLine, HttpHeader header, HttpBody body){
         this.startLine = startLine;
         this.header = header;
         this.body = body;
+        setStatus(startLine.getStatus());
     }
 
     public HttpResponse(String httpVersion, Map<String, List<String>> header){
@@ -35,12 +38,12 @@ public class HttpResponse {
         setStatus(HttpStatus.FOUND);
     }
     public void addCookie(Cookie cookie){
-        String cookieHeader = extractCookieHeaderString(cookie);
-        header.addHeader("Set-Cookie",cookieHeader);
+        cookies.add(cookie);
     }
 
     private String extractCookieHeaderString(Cookie cookie) {
         StringBuilder sb = new StringBuilder();
+        sb.append("Set-Cookie: ");
         sb.append(cookie.getName()).append('=').append(cookie.getValue());
         if (cookie.getPath() != null) {
             sb.append("; Path=").append(cookie.getPath());
@@ -87,15 +90,18 @@ public class HttpResponse {
                 .append(' ').append(startLine.getStatus().getMessage()).append(NEW_LINE);
         return sb.toString().getBytes();
     }
-    //TODO cookie는 라인별로 보내야함
     private byte[] parseHeaders(){
-        return header.allHeaders().entrySet().stream()
+        String cookieHeaders = cookies.stream()
+                .map(this::extractCookieHeaderString)
+                .reduce("",(acc,line)->acc+line+NEW_LINE);
+        String other = header.allHeaders().entrySet().stream()
                 .map(entry -> {
                     StringJoiner joiner = new StringJoiner(", ");
                     entry.getValue().forEach(joiner::add);
                     return entry.getKey() + ": " + joiner.toString();
                 })
-                .reduce("", (acc, line) -> acc + line + NEW_LINE).getBytes();
+                .reduce("", (acc, line) -> acc + line + NEW_LINE);
+        return (cookieHeaders+other).getBytes();
     }
     private byte[] parseBody(){
         return body.getBody();

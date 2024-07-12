@@ -14,7 +14,7 @@ public class HttpResponseStartLine {
 
     protected HttpResponseStartLine(String httpVersion) {
         this.httpVersion = httpVersion;
-
+        this.status = HttpStatus.OK;
     }
 
     protected String getHttpVersion() {
