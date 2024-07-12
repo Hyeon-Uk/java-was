@@ -19,18 +19,21 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
     );
 
     public RequestHandler getRequestHandler(String path) {
+        if("/".equals(path)){
+            path="/main";
+        }
         if (isStaticFileRequest(path)) {
             return mappers.get(STATIC_RESOURCE_KEY);
         }
 
+        String finalPath = path;
         return mappers.entrySet()
                 .stream()
                 .sorted((o1,o2)->Integer.compare(o2.getKey().length(),o1.getKey().length()))
-                .filter(entry -> path.startsWith(entry.getKey()))
-                .peek(entry-> System.out.println("hello = "+entry.getKey()+" ,"+entry.getValue()))
+                .filter(entry -> finalPath.startsWith(entry.getKey()))
                 .findFirst()
                 .map(Map.Entry::getValue)
-                .orElseThrow(() -> new HttpNotFoundException(path.concat(" : request can not found")));
+                .orElseThrow(() -> new HttpNotFoundException(finalPath.concat(" : request can not found")));
     }
 
     private boolean isStaticFileRequest(String path) {

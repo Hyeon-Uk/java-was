@@ -41,6 +41,6 @@ public class LoginHandler implements RequestHandler {
         Session session = req.getSession(true);
         session.set("user",user);
         res.addCookie(new Cookie("SID",session.getId()));
-        res.sendRedirect("/");
+        res.sendRedirect("/main");
     }
 }
