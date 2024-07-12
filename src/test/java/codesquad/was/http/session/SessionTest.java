@@ -148,4 +148,15 @@ class SessionTest {
         //then
         assertEquals(lastUpdated,session.getLastAccessedAt().getTime());
     }
+
+    @Test
+    void sessionInvalidate(){
+        //given
+
+        //when
+        session.invalidate();
+
+        //then
+        assertTrue(session.isExpired());
+    }
 }
