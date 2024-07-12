@@ -29,7 +29,6 @@ class RequestHandlerMapperImplTest {
         String notExistsURI = "/NotExistHandlerURI";
 
         //when & then
-        RequestHandler requestHandler = mapper.getRequestHandler(notExistsURI);
-        assertEquals(DefaultHandler.class,requestHandler.getClass());
+        assertThrows(HttpNotFoundException.class, () -> mapper.getRequestHandler(notExistsURI));
     }
 }
