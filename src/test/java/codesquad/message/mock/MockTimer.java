@@ -13,4 +13,8 @@ public class MockTimer implements Timer {
     public Date getCurrentTime() {
         return new Date(this.mockTime);
     }
+
+    public void setTime(long time){
+        this.mockTime = time;
+    }
 }
