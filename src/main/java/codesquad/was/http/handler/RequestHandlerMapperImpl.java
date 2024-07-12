@@ -15,7 +15,7 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
             "/logout",new LogoutHandler(),
             "/user/list",new UserListHandler(),
             "/main",new MainHandler(),
-            "/", new DefaultHandler()
+            "/registration",new RegisterHandler()
     );
 
     public RequestHandler getRequestHandler(String path) {
