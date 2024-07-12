@@ -1,5 +1,6 @@
 package codesquad.was.http.handler;
 
+import codesquad.application.handler.DefaultHandler;
 import codesquad.was.http.exception.HttpNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,8 +29,7 @@ class RequestHandlerMapperImplTest {
         String notExistsURI = "/NotExistHandlerURI";
 
         //when & then
-        assertThrows(HttpNotFoundException.class,()->{
-            mapper.getRequestHandler(notExistsURI);
-        });
+        RequestHandler requestHandler = mapper.getRequestHandler(notExistsURI);
+        assertEquals(DefaultHandler.class,requestHandler.getClass());
     }
 }
