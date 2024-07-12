@@ -26,7 +26,7 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
         return mappers.entrySet()
                 .stream()
                 .sorted((o1,o2)->Integer.compare(o2.getKey().length(),o1.getKey().length()))
-                .filter(entry -> path.startsWith(entry.getKey()))
+                .filter(entry -> path.equals(entry.getKey()))
                 .findFirst()
                 .map(Map.Entry::getValue)
                 .orElseThrow(() -> new HttpNotFoundException(path.concat(" : request can not found")));

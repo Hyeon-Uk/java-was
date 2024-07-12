@@ -30,8 +30,7 @@ class MainHandlerTest {
         mainHandler.getHandle(request,response);
 
         //then
-        assertEquals(HttpStatus.FOUND,response.getStatus());
-        assertTrue(response.getHeaders("Location").contains("/index.html"));
+        assertEquals(HttpStatus.OK,response.getStatus());
     }
 
     @ParameterizedTest

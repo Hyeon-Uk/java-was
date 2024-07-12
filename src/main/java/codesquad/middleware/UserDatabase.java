@@ -10,12 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class UserDatabase {
     public UserDatabase() {}
     private final static Map<String,User> store = new ConcurrentHashMap<>();
-    static{
-        store.put("1",new User("1","1","khu147"));
-        store.put("2",new User("2","2","user2"));
-        store.put("3",new User("3","3","user3"));
-        store.put("4",new User("4","4","user4"));
-    }
 
     public static void save(User user) {
         store.put(user.getId(),user);

@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,9 +24,9 @@ class RegisterHandlerTest {
     @Test
     void postRequestTest() {
         //given
-        request = MockFactory.getHttpRequest(HttpMethod.POST,new HashMap<>(),new HashMap<>(),"");
+        request = MockFactory.getHttpRequest(HttpMethod.POST, Map.of("userId","uk"),new HashMap<>(),"userId=uk&password=1234");
         response = MockFactory.getHttpResponse();
-
+        System.out.println(new String(request.getBody()));
         //when
         registerHandler.postHandle(request,response);
 
