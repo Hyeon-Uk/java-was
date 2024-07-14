@@ -1,5 +1,6 @@
 package codesquad.was.http.message.parser;
 
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.request.HttpMethod;
@@ -7,6 +8,7 @@ import codesquad.was.http.message.request.HttpMethod;
 import java.net.URLDecoder;
 import java.util.Optional;
 
+@Coffee
 public class HttpRequestStartLineParser {
     public HttpRequestStartLine parse(String startLine){
         String[] startLineComponents = startLine.split(" ");

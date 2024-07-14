@@ -1,11 +1,13 @@
 package codesquad.was.http.session;
 
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.utils.Timer;
 
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+@Coffee
 public class SessionManager {
     private final Timer timer;
     private final SessionStorage sessionStorage;

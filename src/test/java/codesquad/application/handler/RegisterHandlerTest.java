@@ -1,5 +1,6 @@
 package codesquad.application.handler;
 
+import codesquad.middleware.UserDatabase;
 import codesquad.was.http.exception.HttpMethodNotAllowedException;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
@@ -16,7 +17,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RegisterHandlerTest {
-    private RegisterHandler registerHandler = new RegisterHandler();
+    private RegisterHandler registerHandler = new RegisterHandler(new UserDatabase());
     private HttpRequest request;
     private HttpResponse response;
     private List<HttpMethod> excludeMethods = List.of(HttpMethod.POST);
@@ -26,7 +27,6 @@ class RegisterHandlerTest {
         //given
         request = MockFactory.getHttpRequest(HttpMethod.POST, Map.of("userId","uk"),new HashMap<>(),"userId=uk&password=1234");
         response = MockFactory.getHttpResponse();
-        System.out.println(new String(request.getBody()));
         //when
         registerHandler.postHandle(request,response);
 

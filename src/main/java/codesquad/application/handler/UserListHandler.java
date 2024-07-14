@@ -1,6 +1,7 @@
 package codesquad.application.handler;
 
 import codesquad.application.model.User;
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.engine.HttpTemplateEngine;
 import codesquad.was.http.handler.RequestHandler;
@@ -13,7 +14,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Coffee(name="userList")
 public class UserListHandler implements RequestHandler {
+    private final UserDatabase userDatabase;
+    public UserListHandler(UserDatabase userDatabase) {
+        this.userDatabase = userDatabase;
+    }
+
     @Override
     public void getHandle(HttpRequest req, HttpResponse res) {
         RequestHandler.super.getHandle(req, res);
@@ -27,7 +34,7 @@ public class UserListHandler implements RequestHandler {
             return;
         }
 
-        List<User> users = UserDatabase.findAll();
+        List<User> users = userDatabase.findAll();
 
         Map<String,Object> context = new HashMap<>();
         User user = (User)session.get("user")

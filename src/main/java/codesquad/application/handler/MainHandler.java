@@ -1,6 +1,7 @@
 package codesquad.application.handler;
 
 import codesquad.application.model.User;
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.engine.HttpTemplateEngine;
 import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.message.request.HttpRequest;
@@ -12,6 +13,7 @@ import codesquad.was.utils.FileUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+@Coffee(name="main")
 public class MainHandler implements RequestHandler {
     @Override
     public void getHandle(HttpRequest req, HttpResponse res) {

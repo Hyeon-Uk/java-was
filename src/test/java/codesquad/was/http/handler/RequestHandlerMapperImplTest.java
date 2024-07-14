@@ -10,7 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RequestHandlerMapperImplTest {
-    private final RequestHandlerMapper mapper = new RequestHandlerMapperImpl();
+    private RequestHandlerMapper mapper;
+//            = new RequestHandlerMapperImpl();
 
     @ParameterizedTest
     @CsvSource(value={

@@ -1,5 +1,6 @@
 package codesquad.was.http.message.parser;
 
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.vo.HttpHeader;
 
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 import static java.util.Arrays.stream;
 
 
-
+@Coffee
 public class HttpHeaderParser {
     public HttpHeader parse(String[] headers) {
         return new HttpHeader(Arrays.stream(headers)

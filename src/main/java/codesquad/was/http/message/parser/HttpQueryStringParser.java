@@ -1,10 +1,13 @@
 package codesquad.was.http.message.parser;
 
+import codesquad.framework.coffee.annotation.Coffee;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Coffee
 public class HttpQueryStringParser {
     public Map<String, String> parse(String queryString) {
         return Arrays.stream(queryString.split("&"))

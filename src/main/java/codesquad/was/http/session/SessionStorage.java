@@ -1,9 +1,12 @@
 package codesquad.was.http.session;
 
+import codesquad.framework.coffee.annotation.Coffee;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Coffee
 public class SessionStorage {
     private final Map<String,Session> store;
     public SessionStorage(){

@@ -1,6 +1,7 @@
 package codesquad.application.handler;
 
 import codesquad.application.model.User;
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.handler.RequestHandler;
@@ -14,8 +15,13 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 
+@Coffee(name="login")
 public class LoginHandler implements RequestHandler {
     private final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
+    private final UserDatabase userDatabase;
+    public LoginHandler(UserDatabase userDatabase) {
+        this.userDatabase = userDatabase;
+    }
 
     @Override
     public void getHandle(HttpRequest req, HttpResponse res) {
@@ -27,7 +33,7 @@ public class LoginHandler implements RequestHandler {
         String userId = req.getQueryString("userId");
         String password = req.getQueryString("password");
 
-        Optional<User> byId = UserDatabase.findById(userId);
+        Optional<User> byId = userDatabase.findById(userId);
         if(!byId.isPresent()) {
             res.sendRedirect("/user/login_failed.html");
             return;

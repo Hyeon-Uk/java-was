@@ -1,5 +1,6 @@
 package codesquad.was.http.message.parser;
 
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.vo.HttpHeader;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
@@ -13,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+@Coffee
 public class HttpRequestParser implements RequestParser{
     private final HttpRequestStartLineParser httpRequestStartLineParser;
     private final HttpHeaderParser httpHeaderParser;
