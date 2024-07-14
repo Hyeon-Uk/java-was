@@ -2,9 +2,9 @@ package codesquad.was;
 
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.handler.RequestHandlerMapper;
-import codesquad.was.http.handler.RequestHandlerMapperImpl;
 import codesquad.was.http.handler.SocketHandler;
 import codesquad.was.http.message.parser.RequestParser;
+import codesquad.was.utils.CustomDateFormatter;
 import codesquad.was.utils.ThreadPool;
 import codesquad.was.utils.Timer;
 import org.slf4j.Logger;
@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.DateFormat;
-import java.util.concurrent.ExecutorService;
 
 @Coffee
 public class Server {
@@ -25,12 +23,13 @@ public class Server {
     private final RequestParser httpRequestParser;
     private final RequestHandlerMapper requestHandlerMapper;
     private ServerSocket serverSocket;
-    private DateFormat dateFormatter;
+    private CustomDateFormatter dateFormatter;
+
     public Server(Timer timer,
                   ThreadPool threadPool,
                   RequestParser httpRequestParser,
                   RequestHandlerMapper requestHandlerMapper,
-                  DateFormat dateFormatter) throws IOException {
+                  CustomDateFormatter dateFormatter) throws IOException {
         this.port = 8080;
         this.timer = timer;
         this.threadPool = threadPool;

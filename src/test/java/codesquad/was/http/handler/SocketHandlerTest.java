@@ -14,6 +14,7 @@ import codesquad.was.http.message.vo.HttpHeader;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
 import codesquad.was.http.session.SessionManager;
 import codesquad.was.http.session.SessionStorage;
+import codesquad.was.utils.CustomDateFormatter;
 import codesquad.was.utils.Timer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.net.Socket;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -36,26 +35,28 @@ class SocketHandlerTest {
     private ExecutorService mockExecutorService;
     private MockRequestParser mockRequestParser;
     private MockRequestHandlerMapper mockRequestHandlerMapper;
-    private DateFormat mockDateFormat;
+    private CustomDateFormatter mockDateFormat;
     private MockSocket mockSocket;
     private SocketHandler socketHandler;
     private final String NEW_LINE = "\r\n";
 
     private HttpRequest httpRequest =
-            new HttpRequest(new HttpRequestStartLine("HTTP/1.1","/", HttpMethod.GET),
+            new HttpRequest(new HttpRequestStartLine("HTTP/1.1", "/", HttpMethod.GET),
                     new HashMap<>(),
                     new HttpHeader(new HashMap<>()),
                     new HttpBody(),
-                    new SessionManager(new SessionStorage(),new MockTimer(10l)));
+                    new SessionManager(new SessionStorage(), new MockTimer(10l)));
 
     private class MockRequestParser implements RequestParser {
         private boolean throwFlag;
+
         public void setThrowFlag(boolean throwFlag) {
             this.throwFlag = throwFlag;
         }
+
         @Override
-        public HttpRequest parse(String message){
-            if(throwFlag) throw new InvalidRequestFormatException();
+        public HttpRequest parse(String message) {
+            if (throwFlag) throw new InvalidRequestFormatException();
             return httpRequest;
         }
     }
@@ -63,28 +64,31 @@ class SocketHandlerTest {
     private class MockRequestHandlerMapper implements RequestHandlerMapper {
         private boolean throwMapperFlag;
         private boolean throwHandlerFlag;
+
         public void setThrowMapperFlag(boolean throwFlag) {
             this.throwMapperFlag = throwFlag;
         }
-        public void setThrowHandlerFlag(boolean throwHandlerFlag){
+
+        public void setThrowHandlerFlag(boolean throwHandlerFlag) {
             this.throwHandlerFlag = throwHandlerFlag;
         }
+
         @Override
         public RequestHandler getRequestHandler(String path) {
-            if(throwMapperFlag) throw new HttpNotFoundException("NotFound");
+            if (throwMapperFlag) throw new HttpNotFoundException("NotFound");
             return new RequestHandler() {
                 @Override
                 public void handle(HttpRequest req, HttpResponse res) {
-                    if(throwHandlerFlag) throw new HttpMethodNotAllowedException("MethodNotAllowed");
+                    if (throwHandlerFlag) throw new HttpMethodNotAllowedException("MethodNotAllowed");
                 }
             };
         }
     }
 
-    private class MockSocket extends Socket{
+    private class MockSocket extends Socket {
         private boolean inputStreamException;
         private boolean outputStreamException;
-        private ByteArrayOutputStream os = new ByteArrayOutputStream(1024*10);
+        private ByteArrayOutputStream os = new ByteArrayOutputStream(1024 * 10);
 
         public void setInputStreamException(boolean inputStreamException) {
             this.inputStreamException = inputStreamException;
@@ -96,27 +100,26 @@ class SocketHandlerTest {
 
         @Override
         public InputStream getInputStream() throws IOException {
-            if(inputStreamException) {
+            if (inputStreamException) {
                 throw new IOException("IOException");
-            }
-            else{
+            } else {
                 return new ByteArrayInputStream("GET / HTTP/1.1\r\nDate: hello\r\n\r\n".getBytes());
             }
         }
 
-        public int getOutputStreamSize(){
+        public int getOutputStreamSize() {
             return os.size();
         }
-        public String getOutputData(){
+
+        public String getOutputData() {
             return new String(os.toByteArray());
         }
 
         @Override
         public OutputStream getOutputStream() throws IOException {
-            if(outputStreamException){
+            if (outputStreamException) {
                 throw new IOException("IOException");
-            }
-            else{
+            } else {
                 return os;
             }
         }
@@ -128,7 +131,7 @@ class SocketHandlerTest {
         mockExecutorService = Executors.newFixedThreadPool(10);
         mockRequestParser = new MockRequestParser();
         mockRequestHandlerMapper = new MockRequestHandlerMapper();
-        mockDateFormat = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+        mockDateFormat = new CustomDateFormatter();
         mockSocket = new MockSocket();
         socketHandler = new SocketHandler(mockSocket,
                 mockRequestParser,
@@ -136,8 +139,9 @@ class SocketHandlerTest {
                 mockDateFormat,
                 mockRequestHandlerMapper);
     }
+
     @AfterEach
-    void tearDown(){
+    void tearDown() {
         mockExecutorService.shutdownNow();
     }
 
@@ -168,7 +172,7 @@ class SocketHandlerTest {
         //given
         mockRequestParser.setThrowFlag(true);
         HttpResponse response = new HttpResponse(new HttpInternalServerErrorException("Internal Server Exception"));
-        response.setHeader("Date",mockDateFormat.format(mockTimer.getCurrentTime()));
+        response.setHeader("Date", mockDateFormat.format(mockTimer.getCurrentTime()));
         String expectedResponseMessage = new String(response.parse());
 
         //when
@@ -176,7 +180,7 @@ class SocketHandlerTest {
 
         //then
         assertTrue(mockSocket.isClosed());
-        assertEquals(expectedResponseMessage,mockSocket.getOutputData());
+        assertEquals(expectedResponseMessage, mockSocket.getOutputData());
     }
 
 //    @Test
