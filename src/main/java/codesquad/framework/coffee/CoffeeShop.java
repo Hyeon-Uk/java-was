@@ -62,16 +62,6 @@ public class CoffeeShop {
         Object[] args = resolveDependencies(constructor);
         Object instance = constructor.newInstance(args);
         container.computeIfAbsent(beanClass, k -> new ArrayList<>()).add(instance);
-
-//        // Register for interfaces and superclasses
-//        for (Class<?> iface : beanClass.getInterfaces()) {
-//            container.computeIfAbsent(iface, k -> new ArrayList<>()).add(instance);
-//        }
-//        Class<?> superClass = beanClass.getSuperclass();
-//        while (superClass != null && superClass != Object.class) {
-//            container.computeIfAbsent(superClass, k -> new ArrayList<>()).add(instance);
-//            superClass = superClass.getSuperclass();
-//        }
     }
 
     private void getClassTypeRecursive(Set<Class<?>> result, Class<?> clazz) {
