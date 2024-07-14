@@ -44,9 +44,9 @@ public class SocketHandler implements Runnable {
         HttpResponse errorResponse = null;
         try (InputStream is = socket.getInputStream()) {
             String requestMessage = readRequestMessage(is);
-            logger.info("request : {}", requestMessage);
             Map<String, List<String>> header = new HashMap<>();
             HttpRequest request = requestParser.parse(requestMessage);
+            logger.info("request URI : {} / method : {}", request.getUri(),request.getMethod());
             HttpResponse response = new HttpResponse(request.getHttpVersion(), header);
 
             if (request.isNewSession() && request.getSession(false) != null) {
@@ -55,6 +55,7 @@ public class SocketHandler implements Runnable {
             }
 
             RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri());
+            logger.info("handler : {}",handler);
             handler.handle(request, response);
 
             sendResponse(response, socket);
@@ -97,7 +98,7 @@ public class SocketHandler implements Runnable {
         response.setHeader("Date", dateFormatter.format(timer.getCurrentTime()));
 
         byte[] parsed = response.parse();
-        logger.info("response : {}", new String(parsed));
+        logger.info("response status : {}",response.getStatus());
         clientSocket.getOutputStream().write(parsed);
         clientSocket.getOutputStream().flush();
     }

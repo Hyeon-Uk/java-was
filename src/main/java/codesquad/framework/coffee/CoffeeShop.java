@@ -4,13 +4,16 @@ package codesquad.framework.coffee;
 import codesquad.framework.coffee.annotation.Barista;
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.coffee.annotation.Named;
+import codesquad.framework.coffee.annotation.RequestMapping;
+import codesquad.was.http.handler.RequestHandler;
+import codesquad.was.http.handler.RequestHandlerMapper;
+import codesquad.was.http.message.request.HttpMethod;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CoffeeShop {
     private final Map<Class<?>, List<Object>> container = new HashMap<>();
@@ -22,6 +25,22 @@ public class CoffeeShop {
     public CoffeeShop(String basePackage) throws Exception {
         List<Class<?>> components = scanComponents(basePackage);
         makeDependency(components);
+        setupRequestMapper();
+    }
+    //TODO 테스트때문에 일단 임시로 없으면 아무런일도 안하도록함.
+    private void setupRequestMapper() {
+        try {
+            RequestHandlerMapper requestMapper = getBean(RequestHandlerMapper.class);
+            container.entrySet().stream()
+                    .flatMap(entry -> entry.getValue().stream())
+                    .filter(obj -> obj.getClass().isAnnotationPresent(RequestMapping.class))
+                    .forEach(mapper -> {
+                        String path = mapper.getClass().getAnnotation(RequestMapping.class).path();
+                        requestMapper.setRequestHandler(path, (RequestHandler) mapper);
+                    });
+        }catch(Exception e){
+
+        }
     }
 
     private List<Class<?>> scanComponents(String basePackage) {

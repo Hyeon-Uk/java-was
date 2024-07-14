@@ -2,6 +2,7 @@ package codesquad;
 
 import codesquad.framework.coffee.CoffeeShop;
 import codesquad.was.Server;
+import codesquad.was.http.handler.RequestHandlerMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ public class Main {
 
     public Main(int port) throws Exception {
         CoffeeShop coffeeShop = new CoffeeShop();
+
         Server server = coffeeShop.getBean(Server.class);
 
         server.start();

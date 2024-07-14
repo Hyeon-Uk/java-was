@@ -5,6 +5,7 @@ import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.response.HttpStatus;
+import codesquad.was.utils.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -15,7 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MainHandlerTest {
-    private MainHandler mainHandler = new MainHandler();
+    private MainHandler mainHandler = new MainHandler(new FileUtils());
     private HttpRequest request;
     private HttpResponse response;
     private List<HttpMethod> excludeMethods = List.of(HttpMethod.GET);

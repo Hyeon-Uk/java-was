@@ -21,22 +21,9 @@ public interface RequestHandler {
             case CONNECT -> connectHandle(req,res);
         }
     }
+
     default void getHandle(HttpRequest req, HttpResponse res){
-        String uri = req.getUri();
-        if(uri.lastIndexOf("/") == uri.length()-1){
-            uri = uri.concat("index.html");
-        }
-        else{
-            uri = uri.concat("/index.html");
-        }
-        try {
-            byte[] body = FileUtils.readStaticFile(uri);
-            res.setBody(body);
-            res.setStatus(HttpStatus.OK);
-        }catch(Exception e){
-            throw new HttpMethodNotAllowedException("This method is not allowed");
-        }
-//        throw new HttpMethodNotAllowedException("This method is not allowed");
+        throw new HttpMethodNotAllowedException("This method is not allowed");
     }
     default void postHandle(HttpRequest req, HttpResponse res){
         throw new HttpMethodNotAllowedException("This method is not allowed");

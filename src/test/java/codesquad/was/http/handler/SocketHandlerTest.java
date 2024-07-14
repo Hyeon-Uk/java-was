@@ -83,6 +83,11 @@ class SocketHandlerTest {
                 }
             };
         }
+
+        @Override
+        public void setRequestHandler(String path, RequestHandler requestHandler) {
+
+        }
     }
 
     private class MockSocket extends Socket {
