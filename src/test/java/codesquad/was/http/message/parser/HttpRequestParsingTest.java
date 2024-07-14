@@ -1,8 +1,7 @@
-package codesquad.http.message.parser;
+package codesquad.was.http.message.parser;
 
 import codesquad.message.mock.MockTimer;
 import codesquad.was.http.message.InvalidRequestFormatException;
-import codesquad.was.http.message.parser.*;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.session.SessionManager;
