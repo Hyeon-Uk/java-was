@@ -29,9 +29,9 @@ public class HttpResponse {
     }
 
     public HttpResponse(String httpVersion, Map<String, List<String>> header){
-        this.startLine = new HttpResponseStartLine(httpVersion);
-        this.header = new HttpHeader(header);
-        this.body = new HttpBody();
+        this(new HttpResponseStartLine(httpVersion),
+                new HttpHeader(header),
+                new HttpBody());
     }
     public void sendRedirect(String redirectPath){
         setHeader("Location",redirectPath);
