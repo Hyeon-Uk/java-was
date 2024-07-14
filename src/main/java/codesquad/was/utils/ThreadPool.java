@@ -15,4 +15,16 @@ public class ThreadPool {
     public void execute(Runnable runnable){
         executorService.execute(runnable);
     }
+
+    public void shutDown(){
+        executorService.shutdown();
+    }
+
+    public void shutDownNow(){
+        executorService.shutdownNow();
+    }
+
+    public boolean isShutDown(){
+        return executorService.isShutdown();
+    }
 }
