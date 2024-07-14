@@ -27,7 +27,7 @@ public class HttpTemplateEngine {
 
         while (matcher.find()) {
             String key = matcher.group(1);
-            String replacement = context.containsKey(key) ? context.get(key).toString() : "null";
+            String replacement = context.containsKey(key) ? context.get(key) == null ? "null" : context.get(key).toString() : "null";
             matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
         }
         matcher.appendTail(result);
