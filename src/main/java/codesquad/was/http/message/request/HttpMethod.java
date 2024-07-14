@@ -6,10 +6,11 @@ public enum HttpMethod {
     HttpMethod(String method) {
         this.method = method;
     }
-    private String getMethod(){
+    public String getMethod(){
         return this.method;
     }
     public static HttpMethod from(String method){
+        if(method == null || method.isEmpty()) return null;
         String upperMethod = method.toUpperCase();
         for(HttpMethod httpMethod : HttpMethod.values()){
             if(httpMethod.getMethod().equals(upperMethod)){
