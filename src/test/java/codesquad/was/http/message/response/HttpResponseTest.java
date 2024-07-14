@@ -48,10 +48,12 @@ class HttpResponseTest {
     void addCookie(){
         //given
         Cookie cookie1 = new Cookie("cookie1","value1");
+        cookie1.setDomain("example.com");
+        cookie1.setMaxAge(1000l);
         Cookie cookie2 = new Cookie("cookie2","value2");
         String expected =
                 "HTTP/1.1 200 OK"+"\r\n"+
-                "Set-Cookie: cookie1=value1; Path=/"+"\r\n"+
+                "Set-Cookie: cookie1=value1; Path=/; Domain=example.com; Max-Age=1000"+"\r\n"+
                 "Set-Cookie: cookie2=value2; Path=/"+"\r\n"+
                 "\r\n";
 
