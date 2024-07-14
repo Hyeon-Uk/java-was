@@ -81,4 +81,46 @@ public class CookieTest {
         //then
         assertEquals("exchange", cookie.getValue());
     }
+
+    @Test
+    void setDomainTest(){
+        //given
+        String name = "CustomCookie";
+        String value = "CustomCookieValue";
+        Cookie cookie = new Cookie(name, value);
+
+        //when
+        cookie.setDomain("otherDomain");
+
+        //then
+        assertEquals("otherDomain",cookie.getDomain());
+    }
+
+    @Test
+    void setMaxAge(){
+        //given
+        String name = "CustomCookie";
+        String value = "CustomCookieValue";
+        Cookie cookie = new Cookie(name, value);
+
+        //when
+        cookie.setMaxAge(1000l);
+
+        //then
+        assertEquals(1000l,cookie.getMaxAge());
+    }
+
+    @Test
+    void setPath(){
+        //given
+        String name = "CustomCookie";
+        String value = "CustomCookieValue";
+        Cookie cookie = new Cookie(name, value);
+
+        //when
+        cookie.setPath("otherPath");
+
+        //then
+        assertEquals("otherPath",cookie.getPath());
+    }
 }
