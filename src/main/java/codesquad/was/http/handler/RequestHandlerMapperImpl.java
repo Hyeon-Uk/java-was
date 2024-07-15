@@ -3,6 +3,7 @@ package codesquad.was.http.handler;
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.coffee.annotation.Named;
 import codesquad.middleware.UserDatabase;
+import codesquad.was.http.exception.HttpMethodNotAllowedException;
 import codesquad.was.http.exception.HttpNotFoundException;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.utils.FileUtil;
@@ -38,7 +39,7 @@ public class RequestHandlerMapperImpl implements RequestHandlerMapper{
         }
         RequestHandler requestHandler = requestHandlers.get(method);
         if(requestHandler == null){
-            throw new HttpNotFoundException(path+" not found");
+            throw new HttpMethodNotAllowedException(path+" "+method+" not found");
         }
         return requestHandler;
     }
