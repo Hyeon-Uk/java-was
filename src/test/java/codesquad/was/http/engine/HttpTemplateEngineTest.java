@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class HttpTemplateEngineTest {
 
     private Map<String, Object> context;
-    private HttpTemplateEngine engine;
+    private HttpTemplateEngine engine = new HttpTemplateEngine();
 
     @BeforeEach
     public void setUp() {
