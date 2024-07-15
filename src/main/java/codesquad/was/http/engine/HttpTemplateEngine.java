@@ -1,10 +1,13 @@
 package codesquad.was.http.engine;
 
+import codesquad.framework.coffee.annotation.Coffee;
+
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Coffee
 public class HttpTemplateEngine {
     private static final Pattern VALUE_PATTERN = Pattern.compile("\\{\\{(\\w+)}}");
     private static final Pattern IF_ELSE_PATTERN = Pattern.compile("\\{\\{if\\s+(.+?)\\s+then\\s+(.+?)\\s+else\\s+(.+?)}}",Pattern.DOTALL);
@@ -14,14 +17,14 @@ public class HttpTemplateEngine {
     private static final Pattern OBJECT_PROPERTY_PATTERN = Pattern.compile("\\(([\\w.]+)\\)");
 
 
-    public static String render(String template, Map<String, Object> context) throws IllegalAccessException {
+    public String render(String template, Map<String, Object> context) throws IllegalAccessException {
         String result = renderForLoops(template, context);
         String result2 = replaceValues(result, context);
         String result3 = processIfElse(result2, context);
         return renderPlaceholders(result3,context);
     }
 
-    private static String replaceValues(String template, Map<String, Object> context) {
+    private String replaceValues(String template, Map<String, Object> context) {
         StringBuffer result = new StringBuffer();
         Matcher matcher = VALUE_PATTERN.matcher(template);
 
@@ -35,7 +38,7 @@ public class HttpTemplateEngine {
         return result.toString();
     }
 
-    private static String processIfElse(String template, Map<String, Object> context) throws IllegalAccessException {
+    private String processIfElse(String template, Map<String, Object> context) throws IllegalAccessException {
         StringBuffer result = new StringBuffer();
         Matcher matcher = IF_ELSE_PATTERN.matcher(template);
 
@@ -57,7 +60,7 @@ public class HttpTemplateEngine {
         return result.toString();
     }
 
-    private static boolean evaluateCondition(String conditionExpression, Map<String, Object> context) {
+    private boolean evaluateCondition(String conditionExpression, Map<String, Object> context) {
         if (conditionExpression.contains("==")) {
             String[] parts = conditionExpression.split("==");
             String key1 = parts[0].trim();
@@ -74,7 +77,7 @@ public class HttpTemplateEngine {
     }
 
 
-    private static String renderForLoops(String template, Map<String, Object> context) throws IllegalAccessException {
+    private String renderForLoops(String template, Map<String, Object> context) throws IllegalAccessException {
         StringBuffer result = new StringBuffer();
         Matcher matcher = FOR_LOOP_PATTERN.matcher(template);
 
@@ -104,7 +107,7 @@ public class HttpTemplateEngine {
         return result.toString();
     }
 
-    private static String renderObjectProperties(String template, Map<String, Object> context) throws IllegalAccessException {
+    private String renderObjectProperties(String template, Map<String, Object> context) throws IllegalAccessException {
         StringBuffer result = new StringBuffer();
         Matcher matcher = OBJECT_PROPERTY_PATTERN.matcher(template);
 
@@ -130,7 +133,7 @@ public class HttpTemplateEngine {
         return result.toString();
     }
 
-    private static Field findField(Class<?> clazz, String fieldName) {
+    private Field findField(Class<?> clazz, String fieldName) {
         try {
             return clazz.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
@@ -141,7 +144,7 @@ public class HttpTemplateEngine {
         return null;
     }
 
-    private static String renderPlaceholders(String template, Map<String, Object> context) {
+    private String renderPlaceholders(String template, Map<String, Object> context) {
         StringBuffer result = new StringBuffer();
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(template);
 

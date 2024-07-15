@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class HttpTemplateEngineTest {
 
     private Map<String, Object> context;
+    private HttpTemplateEngine engine;
 
     @BeforeEach
     public void setUp() {
@@ -28,7 +29,7 @@ public class HttpTemplateEngineTest {
         String template = "Hello {{name}}, you are {{age}} years old.";
 
         // when
-        String result = HttpTemplateEngine.render(template, context);
+        String result = engine.render(template, context);
 
         // then
         assertEquals("Hello John Doe, you are 30 years old.", result);
@@ -40,7 +41,7 @@ public class HttpTemplateEngineTest {
         String template = "{{for item in {{items}} Item: (item)}}";
 
         // when
-        String result = HttpTemplateEngine.render(template, context);
+        String result = engine.render(template, context);
 
         // then
         assertEquals("Item: item1Item: item2Item: item3", result.trim());
@@ -55,7 +56,7 @@ public class HttpTemplateEngineTest {
         String template = "{{for user in {{users}} user:{(user.name),(user.age)} }}";
 
         // when
-        String result = HttpTemplateEngine.render(template, ctx);
+        String result = engine.render(template, ctx);
 
         // then
         assertEquals("user:{name1,1} user:{name2,2} user:{name3,3}", result.trim());
@@ -67,7 +68,7 @@ public class HttpTemplateEngineTest {
         String template = "{{if {{age}} == 30 then You are 30 years old else You are not 30 years old}}";
 
         // when
-        String result = HttpTemplateEngine.render(template, context);
+        String result = engine.render(template, context);
 
         // then
         assertEquals("You are 30 years old", result);
@@ -79,7 +80,7 @@ public class HttpTemplateEngineTest {
         String template = "{{if {{age}} != 30 then You are 30 years old else You are not 30 years old}}";
 
         // when
-        String result = HttpTemplateEngine.render(template, context);
+        String result = engine.render(template, context);
 
         // then
         assertEquals("You are not 30 years old", result);
@@ -91,7 +92,7 @@ public class HttpTemplateEngineTest {
         String template = "Null value: {{nullValue}}";
 
         // when
-        String result = HttpTemplateEngine.render(template, context);
+        String result = engine.render(template, context);
 
         // then
         assertEquals("Null value: null", result);
