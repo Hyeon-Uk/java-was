@@ -14,23 +14,20 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpRequestParsingTest {
-    private String testGetMessage = replaceWithRNSeperator("""
-            GET /index.html HTTP/1.1
-            Host: localhost:8080
-            User-Agent: Mozilla/5.0
-            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json
-            Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8
-            Accept-Encoding: gzip, deflate, sdch
-            Connection: keep-alive
-            Upgrade-Insecure-Requests: 1
-            Content-Type: application/x-www-form-urlencoded
-            
-            """);
+    private String testGetMessage =
+            "GET /index.html HTTP/1.1"+"\r\n"+
+            "Host: localhost:8080"+"\r\n"+
+            "User-Agent: Mozilla/5.0"+"\r\n"+
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json"+"\r\n"+
+            "Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8"+"\r\n"+
+            "Accept-Encoding: gzip, deflate, sdch"+"\r\n"+
+            "Connection: keep-alive"+"\r\n"+
+            "Upgrade-Insecure-Requests: 1"+"\r\n"+
+            "Content-Type: application/x-www-form-urlencoded";
 
-    private String wrongMessage = replaceWithRNSeperator("""
-            Unknown uri
-            Host: unknown
-            """);
+    private String wrongMessage =
+            "Unknown uri"+"\r\n"+
+            "Host: unknown";
 
     private HttpRequestStartLineParser startLineParser = new HttpRequestStartLineParser();
     private HttpHeaderParser headerParser = new HttpHeaderParser();
@@ -80,18 +77,17 @@ class HttpRequestParsingTest {
     @Test
     public void queryStringMessage(){
         //given
-        String queryStringMessage = replaceWithRNSeperator("""
-            GET /create?username=hyeonuk&nickname=khu147&password=password1234 HTTP/1.1
-            Host: localhost:8080
-            User-Agent: Mozilla/5.0
-            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json
-            Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8
-            Accept-Encoding: gzip, deflate, sdch
-            Connection: keep-alive
-            Upgrade-Insecure-Requests: 1
-            Content-Type: application/x-www-form-urlencoded
-            
-            """);
+        String queryStringMessage =
+            "GET /create?username=hyeonuk&nickname=khu147&password=password1234 HTTP/1.1"+"\r\n"+
+            "Host: localhost:8080"+"\r\n"+
+            "User-Agent: Mozilla/5.0"+"\r\n"+
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json"+"\r\n"+
+            "Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8"+"\r\n"+
+            "Accept-Encoding: gzip, deflate, sdch"+"\r\n"+
+            "Connection: keep-alive"+"\r\n"+
+            "Upgrade-Insecure-Requests: 1"+"\r\n"+
+            "Content-Type: application/x-www-form-urlencoded";
+
         //when
         HttpRequest req = requestParser.parse(queryStringMessage);
 
@@ -105,18 +101,17 @@ class HttpRequestParsingTest {
     @Test
     public void emptyQueryStringMessage(){
         //given
-        String queryStringMessage = replaceWithRNSeperator("""
-            GET /create?username=&nickname= HTTP/1.1
-            Host: localhost:8080
-            User-Agent: Mozilla/5.0
-            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json
-            Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8
-            Accept-Encoding: gzip, deflate, sdch
-            Connection: keep-alive
-            Upgrade-Insecure-Requests: 1
-            Content-Type: application/x-www-form-urlencoded
-            
-            """);
+        String queryStringMessage =
+            "GET /create?username=&nickname= HTTP/1.1"+"\r\n"+
+            "Host: localhost:8080"+"\r\n"+
+            "User-Agent: Mozilla/5.0"+"\r\n"+
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json"+"\r\n"+
+            "Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8"+"\r\n"+
+            "Accept-Encoding: gzip, deflate, sdch"+"\r\n"+
+            "Connection: keep-alive"+"\r\n"+
+            "Upgrade-Insecure-Requests: 1"+"\r\n"+
+            "Content-Type: application/x-www-form-urlencoded";
+
         //when
         HttpRequest req = requestParser.parse(queryStringMessage);
 
@@ -129,18 +124,17 @@ class HttpRequestParsingTest {
     @Test
     public void nullQueryStringMessage(){
         //given
-        String queryStringMessage = replaceWithRNSeperator("""
-            GET /create HTTP/1.1
-            Host: localhost:8080
-            User-Agent: Mozilla/5.0
-            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json
-            Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8
-            Accept-Encoding: gzip, deflate, sdch
-            Connection: keep-alive
-            Upgrade-Insecure-Requests: 1
-            Content-Type: application/x-www-form-urlencoded
-            
-            """);
+        String queryStringMessage =
+            "GET /create HTTP/1.1"+"\r\n"+
+            "Host: localhost:8080"+"\r\n"+
+            "User-Agent: Mozilla/5.0"+"\r\n"+
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json"+"\r\n"+
+            "Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8"+"\r\n"+
+            "Accept-Encoding: gzip, deflate, sdch"+"\r\n"+
+            "Connection: keep-alive"+"\r\n"+
+            "Upgrade-Insecure-Requests: 1"+"\r\n"+
+            "Content-Type: application/x-www-form-urlencoded";
+
         //when
         HttpRequest req = requestParser.parse(queryStringMessage);
 
@@ -153,18 +147,17 @@ class HttpRequestParsingTest {
     public void urlEncodingQueryString(){
         //given
         //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
-        String queryStringMessage = replaceWithRNSeperator("""
-            GET /create?name=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94 HTTP/1.1
-            Host: localhost:8080
-            User-Agent: Mozilla/5.0
-            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json
-            Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8
-            Accept-Encoding: gzip, deflate, sdch
-            Connection: keep-alive
-            Upgrade-Insecure-Requests: 1
-            Content-Type: application/x-www-form-urlencoded
-            
-            """);
+        String queryStringMessage =
+            "GET /create?name=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94 HTTP/1.1"+"\r\n"+
+            "Host: localhost:8080"+"\r\n"+
+            "User-Agent: Mozilla/5.0"+"\r\n"+
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json"+"\r\n"+
+            "Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8"+"\r\n"+
+            "Accept-Encoding: gzip, deflate, sdch"+"\r\n"+
+            "Connection: keep-alive"+"\r\n"+
+            "Upgrade-Insecure-Requests: 1"+"\r\n"+
+            "Content-Type: application/x-www-form-urlencoded";
+
         //when
         HttpRequest req = requestParser.parse(queryStringMessage);
 
@@ -176,12 +169,12 @@ class HttpRequestParsingTest {
     public void bodyQueryStringTest(){
         //given
         //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
-        String message = replaceWithRNSeperator("""
-                POST /user/create HTTP/1.1
-                HOST : localhost:8080
-                Content-Type: application/x-www-form-urlencoded
-                
-                message=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94&nickname=hyeonuk""");
+        String message =
+                "POST /user/create HTTP/1.1"+"\r\n"+
+                "HOST : localhost:8080"+"\r\n"+
+                "Content-Type: application/x-www-form-urlencoded"+"\r\n"+
+                "\r\n"+
+                "message=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94&nickname=hyeonuk";
         //when
         HttpRequest req = requestParser.parse(message);
 
@@ -190,9 +183,5 @@ class HttpRequestParsingTest {
                 ()->assertEquals("안녕하세요",req.getQueryString("message")),
                 ()->assertEquals("hyeonuk",req.getQueryString("nickname")));
 
-    }
-
-    private String replaceWithRNSeperator(String message){
-        return message.replaceAll(System.lineSeparator(),"\r\n");
     }
 }
