@@ -193,6 +193,6 @@ class HttpRequestParsingTest {
     }
 
     private String replaceWithRNSeperator(String message){
-        return message.replaceAll(System.lineSeparator(),"\r\n").replaceAll("\n","\r\n");
+        return message.replaceAll(System.lineSeparator(),"\r\n");
     }
 }
