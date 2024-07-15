@@ -4,18 +4,18 @@ package codesquad.framework.coffee;
 import codesquad.framework.coffee.annotation.Barista;
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.coffee.annotation.Named;
-import codesquad.framework.coffee.annotation.RequestMapping;
-import codesquad.was.http.handler.RequestHandler;
-import codesquad.was.http.handler.RequestHandlerMapper;
-import codesquad.was.http.message.request.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.net.URL;
 import java.util.*;
 
 public class CoffeeShop {
+    private final Logger logger = LoggerFactory.getLogger(CoffeeShop.class);
     private final Map<Class<?>, List<Object>> container = new HashMap<>();
 
     public CoffeeShop() throws Exception {
@@ -25,22 +25,6 @@ public class CoffeeShop {
     public CoffeeShop(String basePackage) throws Exception {
         List<Class<?>> components = scanComponents(basePackage);
         makeDependency(components);
-        setupRequestMapper();
-    }
-    //TODO 테스트때문에 일단 임시로 없으면 아무런일도 안하도록함.
-    private void setupRequestMapper() {
-        try {
-            RequestHandlerMapper requestMapper = getBean(RequestHandlerMapper.class);
-            container.entrySet().stream()
-                    .flatMap(entry -> entry.getValue().stream())
-                    .filter(obj -> obj.getClass().isAnnotationPresent(RequestMapping.class))
-                    .forEach(mapper -> {
-                        String path = mapper.getClass().getAnnotation(RequestMapping.class).path();
-                        requestMapper.setRequestHandler(path, (RequestHandler) mapper);
-                    });
-        }catch(Exception e){
-
-        }
     }
 
     private List<Class<?>> scanComponents(String basePackage) {
@@ -141,7 +125,7 @@ public class CoffeeShop {
 
         while (!q.isEmpty()) {
             Class<?> clazz = q.poll();
-            if(!container.containsKey(clazz)) {
+            if (!container.containsKey(clazz)) {
                 registerBean(clazz);
             }
             Set<Class<?>> types = new HashSet<>();
@@ -166,7 +150,7 @@ public class CoffeeShop {
                 .toList();
 
         if (autowiredConstructors.size() > 1) {
-            throw new IllegalStateException("Multiple @Autowired constructors found for " + beanClass.getName());
+            throw new IllegalStateException("Multiple @Barista constructors found for " + beanClass.getName());
         }
 
         return autowiredConstructors.isEmpty() ? constructors[0] : autowiredConstructors.get(0);
@@ -227,11 +211,18 @@ public class CoffeeShop {
         throw new IllegalStateException("Multiple beans found of type " + beanClass.getName() + " and no matching name found");
     }
 
-    private <T> List<T> getAllBeansOfType(Class<T> beanClass) {
+    public <T> List<T> getAllBeansOfType(Class<T> beanClass) {
         return container.entrySet().stream()
                 .filter(entry -> beanClass.isAssignableFrom(entry.getKey()))
                 .flatMap(entry -> entry.getValue().stream())
                 .map(beanClass::cast)
+                .toList();
+    }
+
+    public List<?> getAllBeansOfAnnotation(Class<? extends Annotation> annotation) {
+        return container.entrySet().stream()
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(obj -> obj.getClass().isAnnotationPresent(annotation))
                 .toList();
     }
 }
