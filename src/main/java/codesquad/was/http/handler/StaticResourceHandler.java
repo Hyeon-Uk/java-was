@@ -20,7 +20,7 @@ public class StaticResourceHandler implements RequestHandler {
     }
 
     @Override
-    public void getHandle(HttpRequest req, HttpResponse res) {
+    public void handle(HttpRequest req, HttpResponse res) {
         byte[] data = fileUtil.readStaticFile(req.getUri());
         res.setHeader("Content-Type",fileUtil.getMIME(req.getUri()).getMimeType());
         res.setBody(data);
