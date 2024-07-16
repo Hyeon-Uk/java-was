@@ -6,8 +6,10 @@ import codesquad.framework.coffee.annotation.RequestMapping;
 import codesquad.framework.dispatcher.mv.Model;
 import codesquad.was.Server;
 import codesquad.was.http.engine.HttpTemplateEngine;
+import codesquad.was.http.exception.HttpException;
+import codesquad.was.http.exception.HttpInternalServerErrorException;
 import codesquad.was.http.handler.RequestHandler;
-import codesquad.was.http.handler.RequestHandlerMapper;
+import codesquad.framework.dispatcher.servlet.RequestHandlerMapper;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.response.HttpStatus;
@@ -16,6 +18,7 @@ import codesquad.was.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -41,20 +44,18 @@ public class Main {
         return (req, res) -> {
             try {
                 Model model = new Model();
-                Object[] args = resolveArguments(req, res,model, method);
+                Object[] args = resolveArguments(req, res, model, method);
                 Class<?> returnType = method.getReturnType();
                 //view 처리
-                if(returnType.equals(String.class)){
-                    String viewPath = (String)method.invoke(bean, args);
-
-                    if(viewPath.startsWith("redirect:")){
+                if (returnType.equals(String.class)) {
+                    String viewPath = (String) method.invoke(bean, args);
+                    if (viewPath.startsWith("redirect:")) {
                         String redirectPath = viewPath.substring("redirect:".length());
-
                         res.sendRedirect(redirectPath);
                         return;
                     }
 
-                    if(!viewPath.startsWith("/")){
+                    if (!viewPath.startsWith("/")) {
                         viewPath = "/" + viewPath;
                     }
                     String fullViewPath = viewPath.concat(".html");
@@ -63,12 +64,21 @@ public class Main {
 
                     res.setStatus(status);
                     res.setBody(rendered.getBytes());
+                } else {
+                    method.invoke(bean, args);
+                }
+            }catch(InvocationTargetException e){
+                logger.error(e.getMessage(),e);
+                Throwable exc = e.getTargetException();
+                if(exc instanceof HttpException){
+                    throw (HttpException) exc;
                 }
                 else{
-                    method.invoke(bean,args);
+                    throw new HttpInternalServerErrorException(exc.getMessage());
                 }
             } catch (Exception e) {
-                throw new IllegalStateException("Failed to invoke method " + method + " on " + bean, e);
+                logger.error(e.getMessage(),e);
+                throw new HttpInternalServerErrorException("Internal Server Error!!!!");
             }
         };
     }
