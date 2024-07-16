@@ -48,6 +48,6 @@ public class UserController {
         model.addAttribute("name",user.getNickname());
         model.addAttribute("users",users);
 
-        return "user/list";
+        return "user/list/index";
     }
 }
