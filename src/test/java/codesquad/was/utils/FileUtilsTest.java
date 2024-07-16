@@ -56,6 +56,19 @@ public class FileUtilsTest {
             // Then assert that the MIME type is default or appropriate for files with no extension
             assertNotNull(result); // Adjust assertion as per your requirement
         }
+
+        @Test
+        void notFilePath(){
+            //given
+            String path = "/path/to/api/end/point";
+
+            //when
+            FileUtils fileUtils = new FileUtils();
+            MIME mime = fileUtils.getMIME(path);
+
+            //then
+            assertNull(mime);
+        }
     }
 
     @Nested
