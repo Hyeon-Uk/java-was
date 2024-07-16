@@ -168,7 +168,20 @@ class CoffeeShopTest {
             //then
             assertEquals(daughter,parent.getDaughter());
             assertEquals(son,parent.getSon());
+        }
+    }
 
+    @Nested
+    @DisplayName("No bean found of type")
+    class NoBeanFoundTest {
+        private final String basePackage = "codesquad.framework.coffee.nobean";
+        @Test
+        void failureOfNoBeanFound() throws Exception {
+            //given & when & then
+            String message = assertThrows(Exception.class, () -> {
+                coffeeShop = new CoffeeShop(basePackage);
+            }).getMessage();
+            assertEquals("No bean found of type "+basePackage+".NoBeanChild",message);
         }
     }
 }
