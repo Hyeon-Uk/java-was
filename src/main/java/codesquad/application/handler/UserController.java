@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @RequestMapping(path="/login",method=HttpMethod.GET)
-    public String loginPage(HttpRequest req, HttpResponse res){
+    public String loginPage(){
         return "login/index";
     }
 
