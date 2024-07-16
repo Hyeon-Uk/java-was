@@ -27,7 +27,7 @@ public class UserAuthController {
     }
 
     @RequestMapping(path="/user/create",method = HttpMethod.POST)
-    public String registerUser(HttpRequest req, HttpResponse res){
+    public String registerUser(HttpRequest req){
         String id = req.getQueryString("userId");
         String nickname = req.getQueryString("nickname");
         String password = req.getQueryString("password");
