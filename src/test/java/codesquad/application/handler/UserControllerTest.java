@@ -26,4 +26,19 @@ class UserControllerTest {
             assertEquals("registration/index",path);
         }
     }
+
+    @Nested
+    @DisplayName("login")
+    class Login{
+        @Test
+        void loginPageTest(){
+            //given
+
+            //when
+            String path = userController.loginPage();
+
+            //then
+            assertEquals("login/index",path);
+        }
+    }
 }
