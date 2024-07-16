@@ -131,4 +131,44 @@ class CoffeeShopTest {
             assertEquals(son,parent.getSon());
         }
     }
+
+    @Nested
+    @DisplayName("More then two constructor test")
+    class MoreThenTwoConstructorTest {
+        private final String basePackage = "codesquad.framework.coffee.constructor";
+
+        @Test
+        void failureOfMoreThenTwoConstructorWithoutBarista() throws Exception {
+            //given & when & then
+            String message = assertThrows(Exception.class, () -> {
+                coffeeShop = new CoffeeShop(basePackage + ".failure.without");
+            }).getMessage();
+            assertEquals("Multiple constructors without @Barista for "+basePackage+".failure.without.Parent",message);
+        }
+
+        @Test
+        void failureOfMoreThenTwoConstructorWithMultipleBarista() throws Exception {
+            //given & when & then
+            String message = assertThrows(Exception.class, () -> {
+                coffeeShop = new CoffeeShop(basePackage + ".failure.multiple");
+            }).getMessage();
+            assertEquals("Multiple @Barista constructors found for "+basePackage+".failure.multiple.Parent",message);
+        }
+
+        @Test
+        void success() throws Exception {
+            //given
+            coffeeShop = new CoffeeShop(basePackage+".success");
+
+            //when
+            codesquad.framework.coffee.constructor.success.Parent parent = coffeeShop.getBean(codesquad.framework.coffee.constructor.success.Parent.class);
+            codesquad.framework.coffee.constructor.success.Daughter daughter = coffeeShop.getBean(codesquad.framework.coffee.constructor.success.Daughter.class);
+            codesquad.framework.coffee.constructor.success.Son son = coffeeShop.getBean(codesquad.framework.coffee.constructor.success.Son.class);
+
+            //then
+            assertEquals(daughter,parent.getDaughter());
+            assertEquals(son,parent.getSon());
+
+        }
+    }
 }
