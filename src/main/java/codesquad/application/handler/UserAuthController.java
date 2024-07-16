@@ -6,11 +6,9 @@ import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.cookie.Cookie;
-import codesquad.was.http.engine.HttpTemplateEngine;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
-import codesquad.was.http.message.response.HttpStatus;
 import codesquad.was.http.session.Session;
 
 import java.util.Optional;
@@ -19,15 +17,13 @@ import java.util.Optional;
 @Coffee
 public class UserAuthController {
     private final UserDatabase userDatabase;
-    private final HttpTemplateEngine templateEngine;
 
-    public UserAuthController(UserDatabase userDatabase, HttpTemplateEngine templateEngine) {
+    public UserAuthController(UserDatabase userDatabase) {
         this.userDatabase = userDatabase;
-        this.templateEngine = templateEngine;
     }
 
     @RequestMapping(path="/user/create",method = HttpMethod.POST)
-    public void registerUser(HttpRequest req, HttpResponse res){
+    public String registerUser(HttpRequest req, HttpResponse res){
         String id = req.getQueryString("userId");
         String nickname = req.getQueryString("nickname");
         String password = req.getQueryString("password");
@@ -36,40 +32,38 @@ public class UserAuthController {
 
         userDatabase.save(user);
 
-        res.sendRedirect("/");
+        return "redirect:/";
     }
 
     @RequestMapping(path="/login",method = HttpMethod.POST)
-    public void loginProcess(HttpRequest req, HttpResponse res){
+    public String loginProcess(HttpRequest req, HttpResponse res){
         String userId = req.getQueryString("userId");
         String password = req.getQueryString("password");
 
         Optional<User> byId = userDatabase.findById(userId);
         if(!byId.isPresent()) {
-            res.sendRedirect("/user/login_failed.html");
-            return;
+            return "redirect:/user/login_failed";
         }
 
         User user = byId.get();
         if(!password.equals(user.getPassword())) {
             res.sendRedirect("/user/login_failed.html");
-            return;
+            return "redirect:/user/login_failed";
         }
         Session session = req.getSession(true);
         session.set("user",user);
         res.addCookie(new Cookie("SID",session.getId()));
-        res.sendRedirect("/");
+        return "redirect:/";
     }
 
     @RequestMapping(path = "/logout",method=HttpMethod.POST)
-    public void logout(HttpRequest req, HttpResponse res){
-        Session session = req.getSession(false);
+    public String logout(Session session,HttpResponse res){
         if(session != null) {
             session.invalidate();
         }
         Cookie sid = new Cookie("SID", "");
         sid.setMaxAge(0);
         res.addCookie(sid);
-        res.sendRedirect("/");
+        return "redirect:/";
     }
 }
