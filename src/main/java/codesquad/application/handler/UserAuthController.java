@@ -37,7 +37,6 @@ public class UserAuthController {
                     throw new HttpBadRequestException("Already exists user");
                 },()->{
                     String encrypted = passwordEncoder.encode(password);
-                    System.out.println("encrypted = " + encrypted);
                     userDatabase.save(new User(id,encrypted,nickname));
                 });
 
