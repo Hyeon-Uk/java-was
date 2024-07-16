@@ -3,7 +3,7 @@ package codesquad;
 import codesquad.framework.coffee.CoffeeShop;
 import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
-import codesquad.framework.coffee.mvc.Model;
+import codesquad.framework.dispatcher.mv.Model;
 import codesquad.was.Server;
 import codesquad.was.http.engine.HttpTemplateEngine;
 import codesquad.was.http.handler.RequestHandler;

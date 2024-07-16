@@ -1,5 +1,6 @@
 package codesquad.framework.coffee.mvc;
 
+import codesquad.framework.dispatcher.mv.Model;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

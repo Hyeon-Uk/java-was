@@ -1,4 +1,4 @@
-package codesquad.framework.coffee.mvc;
+package codesquad.framework.dispatcher.mv;
 
 import java.util.HashMap;
 import java.util.Map;

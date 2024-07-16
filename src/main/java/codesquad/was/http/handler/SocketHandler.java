@@ -1,7 +1,6 @@
 package codesquad.was.http.handler;
 
 import codesquad.was.http.cookie.Cookie;
-import codesquad.was.http.exception.HttpException;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.http.message.request.HttpRequest;
@@ -25,24 +24,26 @@ public class SocketHandler implements Runnable {
     private final Timer timer;
     private final CustomDateFormatter dateFormatter;
     private final RequestParser requestParser;
-    private final RequestHandlerMapper requestHandlerMapper;
+    private final RequestHandler requestHandler;
 
     public SocketHandler(Socket socket,
                          RequestParser requestParser,
                          Timer timer,
                          CustomDateFormatter dateFormatter,
-                         RequestHandlerMapper requestHandlerMapper) {
+                         RequestHandler requestHandler) {
         this.socket = socket;
         this.requestParser = requestParser;
         this.timer = timer;
         this.dateFormatter = dateFormatter;
-        this.requestHandlerMapper = requestHandlerMapper;
+        this.requestHandler = requestHandler;
     }
 
     @Override
     public void run() {
         HttpResponse errorResponse = null;
-        try (InputStream is = socket.getInputStream()) {
+        InputStream is = null;
+        try{
+            is = socket.getInputStream();
             String requestMessage = readRequestMessage(is);
             Map<String, List<String>> header = new HashMap<>();
             HttpRequest request = requestParser.parse(requestMessage);
@@ -54,14 +55,12 @@ public class SocketHandler implements Runnable {
                 response.addCookie(new Cookie("SID", session.getId()));
             }
 
-            RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri(),request.getMethod());
-            logger.info("handler : {}",handler);
-            handler.handle(request, response);
+//            RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri(),request.getMethod());
+//            logger.info("handler : {}",handler);
+//            handler.handle(request, response);
+            requestHandler.handle(request,response);
 
             sendResponse(response, socket);
-        } catch (HttpException httpException) {
-            logger.error("Http Error : {}", httpException.getMessage());
-            errorResponse = new HttpResponse(httpException);
         } catch (IOException ioException) {
             logger.error("Error reading or writing to socket : {}", ioException.getMessage());
         } catch (Exception e) {
@@ -72,6 +71,9 @@ public class SocketHandler implements Runnable {
             try {
                 if (errorResponse != null) {
                     sendResponse(errorResponse, socket);
+                }
+                if(is!=null){
+                    is.close();
                 }
                 if (socket != null && !socket.isClosed()) {
                     socket.close();
@@ -98,7 +100,6 @@ public class SocketHandler implements Runnable {
         response.setHeader("Date", dateFormatter.format(timer.getCurrentTime()));
 
         byte[] parsed = response.parse();
-        logger.info("response status : {}",response.getStatus());
         clientSocket.getOutputStream().write(parsed);
         clientSocket.getOutputStream().flush();
     }

@@ -4,7 +4,7 @@ import codesquad.application.model.User;
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
-import codesquad.framework.coffee.mvc.Model;
+import codesquad.framework.dispatcher.mv.Model;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.session.Session;

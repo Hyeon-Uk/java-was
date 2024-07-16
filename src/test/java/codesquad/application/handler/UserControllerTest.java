@@ -2,7 +2,7 @@ package codesquad.application.handler;
 
 import codesquad.application.handler.mock.MockUserDatabase;
 import codesquad.application.model.User;
-import codesquad.framework.coffee.mvc.Model;
+import codesquad.framework.dispatcher.mv.Model;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.session.Session;
 import org.junit.jupiter.api.BeforeEach;

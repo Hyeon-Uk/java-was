@@ -1,7 +1,8 @@
 package codesquad.was;
 
 import codesquad.framework.coffee.annotation.Coffee;
-import codesquad.was.http.handler.RequestHandlerMapper;
+import codesquad.framework.coffee.annotation.Named;
+import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.handler.SocketHandler;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.utils.CustomDateFormatter;
@@ -21,14 +22,14 @@ public class Server {
     private final Timer timer;
     private final ThreadPool threadPool;
     private final RequestParser httpRequestParser;
-    private final RequestHandlerMapper requestHandlerMapper;
+    private final RequestHandler requestHandler;
     private ServerSocket serverSocket;
     private CustomDateFormatter dateFormatter;
 
     public Server(Timer timer,
                   ThreadPool threadPool,
                   RequestParser httpRequestParser,
-                  RequestHandlerMapper requestHandlerMapper,
+                  @Named("dispatcher")RequestHandler requestHandler,
                   CustomDateFormatter dateFormatter) throws IOException {
         this.port = 8080;
         this.timer = timer;
@@ -36,7 +37,7 @@ public class Server {
         this.serverSocket = new ServerSocket(port);
         logger.info("Server Socket binds on port: {}", port);
         this.httpRequestParser = httpRequestParser;
-        this.requestHandlerMapper = requestHandlerMapper;
+        this.requestHandler = requestHandler;
         this.dateFormatter = dateFormatter;
     }
 
@@ -49,7 +50,7 @@ public class Server {
                         httpRequestParser,
                         timer,
                         dateFormatter,
-                        requestHandlerMapper);
+                        requestHandler);
 
                 threadPool.execute(handler);
             } catch (IOException e) {

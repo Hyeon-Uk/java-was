@@ -1,17 +1,13 @@
-package codesquad.was.http.handler;
+package codesquad.framework.dispatcher.servlet;
 
 import codesquad.framework.coffee.annotation.Coffee;
-import codesquad.framework.coffee.annotation.RequestMapping;
+import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.response.HttpStatus;
-import codesquad.was.http.exception.HttpNotFoundException;
 import codesquad.was.utils.FileUtil;
-import codesquad.was.utils.FileUtils;
 
-import java.io.*;
-
-@Coffee
+@Coffee(name="staticHandler")
 public class StaticResourceHandler implements RequestHandler {
     private final FileUtil fileUtil;
 
