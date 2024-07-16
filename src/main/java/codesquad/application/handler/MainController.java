@@ -11,10 +11,10 @@ import codesquad.was.http.session.Session;
 
 @Controller
 @Coffee
-public class Maincontroller {
+public class MainController {
     private final UserDatabase userDatabase;
 
-    public Maincontroller(UserDatabase userDatabase) {
+    public MainController(UserDatabase userDatabase) {
         this.userDatabase = userDatabase;
     }
 
