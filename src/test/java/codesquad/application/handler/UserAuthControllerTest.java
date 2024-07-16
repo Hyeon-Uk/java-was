@@ -160,5 +160,16 @@ class UserAuthControllerTest {
             assertEquals("redirect:/",path);
             assertTrue(session.isExpired());
         }
+
+        @Test
+        public void logoutWithNullSession() throws Exception {
+            //given
+            HttpResponse res = MockFactory.getHttpResponse();
+            //when
+            String path = userAuthController.logout(null, res);
+            //then
+            assertEquals("redirect:/",path);
+
+        }
     }
 }
