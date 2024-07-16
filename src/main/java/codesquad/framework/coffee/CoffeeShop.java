@@ -106,6 +106,7 @@ public class CoffeeShop {
             Class<?>[] paramTypes = resolveDependenciesTypes(appropriateConstructor);
             Arrays.stream(paramTypes)
                     .forEach(param -> {
+                        if(!seqMap.containsKey(param)) throw new IllegalStateException("No bean found of type "+param.getName());
                         int paramSeq = seqMap.get(param);
                         int nowSeq = seqMap.get(clazz);
 
