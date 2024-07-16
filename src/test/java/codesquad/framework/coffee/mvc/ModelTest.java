@@ -3,6 +3,7 @@ package codesquad.framework.coffee.mvc;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,6 +64,27 @@ class ModelTest {
 
         //then
         assertNull(result);
+    }
+
+    @Test
+    void asMapTest(){
+        //given
+        String key1 = "key1";
+        String value1 = "value1";
+
+        String key2 = "key2";
+        String value2 = "value2";
+        model.addAttribute(key1,value1);
+        model.addAttribute(key2,value2);
+
+        //when
+        Map<String, Object> map = model.asMap();
+
+        //then
+        assertTrue(map.containsKey(key1));
+        assertTrue(map.containsKey(key2));
+        assertEquals(value1,map.get(key1));
+        assertEquals(value2,map.get(key2));
     }
 
     private class TestObject{

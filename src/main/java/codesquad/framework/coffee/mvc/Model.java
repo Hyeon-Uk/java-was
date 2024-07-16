@@ -16,4 +16,8 @@ public class Model {
     public Object getAttribute(String name){
         return model.get(name);
     }
+
+    public Map<String,Object> asMap(){
+        return model;
+    }
 }
