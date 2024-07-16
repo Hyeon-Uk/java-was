@@ -9,11 +9,13 @@ import codesquad.was.http.exception.HttpBadRequestException;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
+import codesquad.was.http.session.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -94,7 +96,7 @@ class UserAuthControllerTest {
             userDatabase.save(new User(id,passwordEncoder.encode(password),nickname));
         }
 
-        //TODO : 로그인이 끝난 뒤 session에 객체가 남아있는것을 검증해야함
+        //TODO : 로그인이 끝난 뒤 session에 객체가 남아있고, 쿠키값이 날아가는것을 검증해야함
         @Test
         void loginSuccess(){
             //given
@@ -138,6 +140,25 @@ class UserAuthControllerTest {
 
             //then
             assertEquals("redirect:/user/login_failed",path);
+        }
+    }
+
+    @Nested
+    @DisplayName("logout")
+    class LogoutTest{
+        //TODO : 만료시키는 쿠키를 날리는지 검증해야함
+        @Test
+        public void logoutSuccess() throws Exception {
+            //given
+            Session session = new Session(new Date(),new Date());
+            HttpResponse res = MockFactory.getHttpResponse();
+
+            //when
+            String path = userAuthController.logout(session, res);
+
+            //then
+            assertEquals("redirect:/",path);
+            assertTrue(session.isExpired());
         }
     }
 }
