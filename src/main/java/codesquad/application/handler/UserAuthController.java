@@ -1,11 +1,13 @@
 package codesquad.application.handler;
 
 import codesquad.application.model.User;
+import codesquad.application.utils.PasswordEncoder;
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.cookie.Cookie;
+import codesquad.was.http.exception.HttpBadRequestException;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
@@ -17,9 +19,11 @@ import java.util.Optional;
 @Coffee
 public class UserAuthController {
     private final UserDatabase userDatabase;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserAuthController(UserDatabase userDatabase) {
+    public UserAuthController(UserDatabase userDatabase,PasswordEncoder passwordEncoder) {
         this.userDatabase = userDatabase;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @RequestMapping(path="/user/create",method = HttpMethod.POST)
@@ -28,9 +32,14 @@ public class UserAuthController {
         String nickname = req.getQueryString("nickname");
         String password = req.getQueryString("password");
 
-        User user = new User(id,password,nickname);
-
-        userDatabase.save(user);
+        userDatabase.findById(id)
+                .ifPresentOrElse((user)-> {
+                    throw new HttpBadRequestException("Already exists user");
+                },()->{
+                    String encrypted = passwordEncoder.encode(password);
+                    System.out.println("encrypted = " + encrypted);
+                    userDatabase.save(new User(id,encrypted,nickname));
+                });
 
         return "redirect:/";
     }
@@ -46,10 +55,10 @@ public class UserAuthController {
         }
 
         User user = byId.get();
-        if(!password.equals(user.getPassword())) {
-            res.sendRedirect("/user/login_failed.html");
+        if(!passwordEncoder.match(password,user.getPassword())) {
             return "redirect:/user/login_failed";
         }
+
         Session session = req.getSession(true);
         session.set("user",user);
         res.addCookie(new Cookie("SID",session.getId()));
