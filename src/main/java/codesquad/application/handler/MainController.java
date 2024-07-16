@@ -30,4 +30,9 @@ public class MainController {
         }
         return "index";
     }
+
+    @RequestMapping(path ="/user/login_failed")
+    public String loginFailed(){
+        return "user/login_failed";
+    }
 }
