@@ -20,6 +20,10 @@ public class Board {
         this.content = content;
         this.writer = writer;
     }
+    //TODO : 추후 setter를 없애야함. why? boardId를 함부로 수정할 수 있으면 저장된 데이터들의 정합성이 크게 깨질 수 있기때문에
+    public void setBoardId(Long boardId) {
+        this.boardId = boardId;
+    }
 
     public Long getBoardId() {
         return this.boardId;
