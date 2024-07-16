@@ -153,6 +153,10 @@ public class CoffeeShop {
             throw new IllegalStateException("Multiple @Barista constructors found for " + beanClass.getName());
         }
 
+        if(autowiredConstructors.isEmpty() && constructors.length >= 2){
+            throw new IllegalStateException("Multiple constructors without @Barista for " + beanClass.getName());
+        }
+
         return autowiredConstructors.isEmpty() ? constructors[0] : autowiredConstructors.get(0);
     }
 
