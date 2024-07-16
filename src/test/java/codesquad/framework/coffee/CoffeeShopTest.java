@@ -1,12 +1,22 @@
 package codesquad.framework.coffee;
 
+import codesquad.framework.coffee.annotation.Controller;
+import codesquad.framework.coffee.controllers.NotController;
+import codesquad.framework.coffee.controllers.TestControllerA;
+import codesquad.framework.coffee.controllers.TestControllerB;
 import codesquad.framework.coffee.inheritance.*;
+import codesquad.framework.coffee.multiplebeans.success.Daughter;
+import codesquad.framework.coffee.multiplebeans.success.Parent;
+import codesquad.framework.coffee.multiplebeans.success.Son;
 import codesquad.framework.coffee.test.TestBeanA;
 import codesquad.framework.coffee.test.TestBeanB;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,6 +77,58 @@ class CoffeeShopTest {
             //when&then
             assertEquals(inA,bean.getInheritanceA());
             assertEquals(inB,bean.getInheritanceB());
+        }
+    }
+
+    @DisplayName("getAllBeansOfAnnotation")
+    @Nested
+    class GetAllBeansOfAnnotationTest {
+        @BeforeEach
+        void setUp() throws Exception {
+            coffeeShop = new CoffeeShop("codesquad.framework.coffee.controllers");
+        }
+        @Test
+        void getAllBeansOfAnnotationTest(){
+            //given
+            Class<? extends Annotation> annotation = Controller.class;
+            TestControllerA expectedA = coffeeShop.getBean(TestControllerA.class);
+            TestControllerB expectedB = coffeeShop.getBean(TestControllerB.class);
+            NotController exclude = coffeeShop.getBean(NotController.class);
+
+            //when
+            List<?> result = coffeeShop.getAllBeansOfAnnotation(annotation);
+
+            //then
+            assertTrue(result.contains(expectedA));
+            assertTrue(result.contains(expectedB));
+            assertFalse(result.contains(exclude));
+        }
+    }
+
+    @Nested
+    @DisplayName("Multiple Beans Injection test")
+    class MultipleBeansInjectionTest {
+        private final String basePackage = "codesquad.framework.coffee.multiplebeans";
+        @Test
+        void failureOfMultipleBeansWithoutName() throws Exception {
+            //given & when & then
+            String message = assertThrows(Exception.class, () -> {
+                coffeeShop = new CoffeeShop(basePackage + ".failure");
+            }).getMessage();
+            assertEquals("Multiple beans found of type "+basePackage+".failure.Child and no matching name found",message);
+        }
+
+        @Test
+        void successOfMultipleBeansWithName() throws Exception {
+            //given & when
+            coffeeShop = new CoffeeShop(basePackage + ".success");
+            Daughter daughter = coffeeShop.getBean(Daughter.class);
+            Son son = coffeeShop.getBean(Son.class);
+            Parent parent = coffeeShop.getBean(Parent.class);
+
+            //then
+            assertEquals(daughter,parent.getDaughter());
+            assertEquals(son,parent.getSon());
         }
     }
 }
