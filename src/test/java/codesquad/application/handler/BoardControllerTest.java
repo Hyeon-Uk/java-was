@@ -33,6 +33,7 @@ class BoardControllerTest {
             assertEquals("article/index",path);
             assertEquals(user,model.getAttribute("user"));
             assertEquals(user.getNickname(),model.getAttribute("name"));
+            assertNotNull(model.getAttribute("csrfToken"));
         }
 
         @Test
