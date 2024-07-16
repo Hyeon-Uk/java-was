@@ -13,4 +13,5 @@ import java.lang.annotation.Target;
 public @interface RequestMapping {
     String path() default "";
     HttpMethod method() default HttpMethod.GET;
+    HttpStatus status() default HttpStatus.OK;
 }
