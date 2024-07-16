@@ -80,4 +80,14 @@ public class HttpHeaderTest {
         assertEquals(1, headers.size());
         assertEquals("text/html", headers.get(0));
     }
+
+    @Test
+    public void testSetHeaderWithBlankValue(){
+        HttpHeader httpHeader = new HttpHeader();
+        httpHeader.setHeader("Accept", "text/html, ,application/json");
+        List<String> headers = httpHeader.getHeaders("Accept");
+        assertEquals(2, headers.size());
+        assertEquals("text/html", headers.get(0));
+        assertEquals("application/json", headers.get(1));
+    }
 }
