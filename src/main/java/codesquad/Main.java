@@ -30,7 +30,7 @@ public class Main {
                     Class<?> type = param.getType();
                     if(HttpRequest.class.equals(type)) return req;
                     else if(HttpResponse.class.equals(type)) return res;
-                    else if(Session.class.equals(type)) return req.getSession(true);
+                    else if(Session.class.equals(type)) return req.getSession(false);
                     else if(Model.class.equals(type)) return model;
                     else return null;
                 }).toArray();
@@ -43,7 +43,8 @@ public class Main {
                 Model model = new Model();
                 Object[] args = resolveArguments(req, res,model, method);
                 Class<?> returnType = method.getReturnType();
-                if(returnType.equals(String.class)){//view처리
+                //view 처리
+                if(returnType.equals(String.class)){
                     String viewPath = (String)method.invoke(bean, args);
 
                     if(viewPath.startsWith("redirect:")){
