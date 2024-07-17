@@ -97,8 +97,23 @@ public class ArgumentResolver {
         }
 
         if (param.isAnnotationPresent(RequestParam.class)) {
-            Function<String, String> getValue = (key -> req.getQueryString(key));
-            return makeObject(type, getValue);
+            RequestParam requestParam = param.getAnnotation(RequestParam.class);
+            String requestName = requestParam.name();
+            String value = req.getQueryString(requestName);
+            if (type.equals(String.class)) {
+                return value;
+            } else if (type.equals(int.class) || type.equals(Integer.class)) {
+                return Integer.parseInt(value);
+            } else if (type.equals(long.class) || type.equals(Long.class)) {
+                return Long.parseLong(value);
+            } else if (type.equals(double.class) || type.equals(Double.class)) {
+                return Double.parseDouble(value);
+            } else if (type.equals(float.class) || type.equals(Float.class)) {
+                return Float.parseFloat(value);
+            } else {
+                Function<String, String> getValue = (key -> req.getQueryString(key));
+                return makeObject(type, getValue);
+            }
         }
 
         return null;
