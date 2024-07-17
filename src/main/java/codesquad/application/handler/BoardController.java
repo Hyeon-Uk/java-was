@@ -10,6 +10,7 @@ import codesquad.framework.dispatcher.mv.Model;
 import codesquad.framework.resolver.annotation.RequestParam;
 import codesquad.framework.resolver.annotation.SessionParam;
 import codesquad.middleware.BoardDatabase;
+import codesquad.was.http.exception.HttpNotFoundException;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.session.Session;
 
@@ -22,6 +23,31 @@ public class BoardController {
     private final BoardDatabase boardDatabase;
     public BoardController(BoardDatabase boardDatabase) {
         this.boardDatabase = boardDatabase;
+    }
+
+    @RequestMapping(path="/board",method=HttpMethod.GET)
+    public String boardPage(@RequestParam(name="seq") Long boardId,
+                            @SessionParam(create = false) Session session,
+                            Model model){
+        Optional<Board> byId = boardDatabase.findById(boardId);
+
+        if(byId.isEmpty()) throw new HttpNotFoundException(boardId+" 게시글을 찾을 수 없습니다.");
+        Board board = byId.get();
+
+        if(session != null) {
+            session.get("user")
+                    .map(User.class::cast)
+                    .ifPresent(user -> {
+                        model.addAttribute("user", user);
+                        model.addAttribute("name", user.getNickname());
+                    });
+        }
+
+        model.addAttribute("writer",board.getWriter());
+        model.addAttribute("title",board.getTitle());
+        model.addAttribute("content",board.getContent());
+
+        return "/article/content";
     }
 
     @RequestMapping(path = "/write",method= HttpMethod.GET)

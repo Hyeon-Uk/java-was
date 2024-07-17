@@ -6,12 +6,17 @@ import codesquad.application.model.Board;
 import codesquad.application.model.User;
 import codesquad.framework.dispatcher.mv.Model;
 import codesquad.middleware.BoardDatabase;
+import codesquad.was.http.exception.HttpNotFoundException;
 import codesquad.was.http.session.Session;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -202,6 +207,104 @@ class BoardControllerTest {
                     .stream().filter(b -> b.getWriter().equals("id"))
                     .count();
             assertEquals(0,size);
+        }
+    }
+
+    @Nested
+    @DisplayName("get board detail")
+    class GetBoardDetail {
+        /**
+         * 1. 보드 상세조회 성공
+         * 1-1. 로그인시 로그인 유저의 정보까지 렌더링
+         * 1-2. 로그인이 아닐경우 로그인/로그아웃 헤더노출
+         * 2. 보드 조회 실패
+         * -> 없는 보드 넘버로 들어온 경우 http not found 되돌려주기
+         *
+         */
+        List<Board> boards;
+        @BeforeEach
+        void boardSetup(){
+            boards = List.of(
+                    new Board(1l,"title1","content1","writer1"),
+                    new Board(2l,"title2","content2","writer2"),
+                    new Board(3l,"title3","content3","writer3"),
+                    new Board(4l,"title4","content4","writer4")
+            );
+            boards.forEach(boardDatabase::save);
+        }
+
+        @ParameterizedTest
+        @CsvSource(value={
+                "1","2","3","4"
+        })
+        void successWithLogin(Long seq){
+            //given
+            Model model = new Model();
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            session.set("user",user);
+            Board expected = boardDatabase.findById(seq).get();
+
+            //when
+            String path = boardController.boardPage(seq, session, model);
+
+            //then
+            assertEquals("/article/content",path);
+            assertEquals(user,model.getAttribute("user"));
+            assertEquals(user.getNickname(),model.getAttribute("name"));
+            assertEquals(expected.getWriter(),model.getAttribute("writer"));
+            assertEquals(expected.getTitle(),model.getAttribute("title"));
+            assertEquals(expected.getContent(),model.getAttribute("content"));
+        }
+
+        @Test
+        void successWithNullSession(){
+            //given
+            Long boardId = 1l;
+            Model model = new Model();
+            Board expected = boardDatabase.findById(boardId).get();
+
+            //when
+            String path = boardController.boardPage(boardId, null, model);
+
+            //then
+            assertEquals("/article/content",path);
+            assertEquals(expected.getWriter(),model.getAttribute("writer"));
+            assertEquals(expected.getTitle(),model.getAttribute("title"));
+            assertEquals(expected.getContent(),model.getAttribute("content"));
+        }
+
+        @Test
+        void successWithNullUserInSession(){
+            //given
+            long boardId = 1l;
+            Model model = new Model();
+            Board expected = boardDatabase.findById(boardId).get();
+            Session session = new Session(new Date(),new Date());
+
+            //when
+            String path = boardController.boardPage(boardId, session, model);
+
+            //then
+            assertEquals("/article/content",path);
+            assertEquals(expected.getWriter(),model.getAttribute("writer"));
+            assertEquals(expected.getTitle(),model.getAttribute("title"));
+            assertEquals(expected.getContent(),model.getAttribute("content"));
+        }
+
+        @Test
+        void boardNotFound(){
+            //given
+            long boardId = Long.MAX_VALUE;
+            Model model = new Model();
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            session.set("user",user);
+
+            //when & then
+            assertThrows(HttpNotFoundException.class,()->{
+                String path = boardController.boardPage(boardId, session, model);
+            });
         }
     }
 }
