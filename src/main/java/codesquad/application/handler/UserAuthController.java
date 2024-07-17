@@ -1,10 +1,14 @@
 package codesquad.application.handler;
 
+import codesquad.application.dto.UserLogin;
+import codesquad.application.dto.UserRegist;
 import codesquad.application.model.User;
 import codesquad.application.utils.PasswordEncoder;
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
+import codesquad.framework.resolver.annotation.RequestParam;
+import codesquad.framework.resolver.annotation.SessionParam;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.exception.HttpBadRequestException;
@@ -27,10 +31,10 @@ public class UserAuthController {
     }
 
     @RequestMapping(path="/user/create",method = HttpMethod.POST)
-    public String registerUser(HttpRequest req){
-        String id = req.getQueryString("userId");
-        String nickname = req.getQueryString("nickname");
-        String password = req.getQueryString("password");
+    public String registerUser(@RequestParam UserRegist req){
+        String id = req.getUserId();
+        String nickname = req.getNickname();
+        String password = req.getPassword();
 
         userDatabase.findById(id)
                 .ifPresentOrElse((user)-> {
@@ -44,9 +48,11 @@ public class UserAuthController {
     }
 
     @RequestMapping(path="/login",method = HttpMethod.POST)
-    public String loginProcess(HttpRequest req, HttpResponse res){
-        String userId = req.getQueryString("userId");
-        String password = req.getQueryString("password");
+    public String loginProcess(@RequestParam UserLogin req,
+                               @SessionParam(create=true) Session session,
+                               HttpResponse res){
+        String userId = req.getUserId();
+        String password = req.getPassword();
 
         Optional<User> byId = userDatabase.findById(userId);
         if(!byId.isPresent()) {
@@ -58,14 +64,13 @@ public class UserAuthController {
             return "redirect:/user/login_failed";
         }
 
-        Session session = req.getSession(true);
         session.set("user",user);
         res.addCookie(new Cookie("SID",session.getId()));
         return "redirect:/";
     }
 
     @RequestMapping(path = "/logout",method=HttpMethod.POST)
-    public String logout(Session session,HttpResponse res){
+    public String logout(@SessionParam(create=false) Session session,HttpResponse res){
         if(session != null) {
             session.invalidate();
         }

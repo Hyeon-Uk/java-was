@@ -5,6 +5,7 @@ import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
 import codesquad.framework.dispatcher.mv.Model;
+import codesquad.framework.resolver.annotation.SessionParam;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.session.Session;
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Coffee
 public class BoardController {
     @RequestMapping(path = "/write",method= HttpMethod.GET)
-    public String writePage(Session session, Model model){
+    public String writePage(@SessionParam(create=false) Session session, Model model){
         if(session == null){
             return "redirect:/login";
         }

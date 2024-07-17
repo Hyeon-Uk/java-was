@@ -4,6 +4,7 @@ import codesquad.framework.coffee.CoffeeShop;
 import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
 import codesquad.framework.dispatcher.mv.Model;
+import codesquad.framework.resolver.ArgumentResolver;
 import codesquad.was.Server;
 import codesquad.was.http.engine.HttpTemplateEngine;
 import codesquad.was.http.exception.HttpException;
@@ -40,11 +41,12 @@ public class Main {
     }
 
 
-    private RequestHandler makeRequestHandler(Object bean, Method method, HttpStatus status, FileUtil fileUtil, HttpTemplateEngine engine) {
+    private RequestHandler makeRequestHandler(Object bean, Method method, HttpStatus status, FileUtil fileUtil, HttpTemplateEngine engine,ArgumentResolver argumentResolver) {
         return (req, res) -> {
             try {
                 Model model = new Model();
-                Object[] args = resolveArguments(req, res, model, method);
+//                Object[] args = resolveArguments(req, res, model, method);
+                Object[] args = argumentResolver.resolveArguments(method,req,res,model);
                 Class<?> returnType = method.getReturnType();
                 //view 처리
                 if (returnType.equals(String.class)) {
@@ -89,12 +91,15 @@ public class Main {
         HttpTemplateEngine engine = coffeeShop.getBean(HttpTemplateEngine.class);
         FileUtil fileUtil = coffeeShop.getBean(FileUtil.class);
         List<?> controllerClasses = coffeeShop.getAllBeansOfAnnotation(Controller.class);
+        ArgumentResolver argResolver = coffeeShop.getBean(ArgumentResolver.class);
         for (Object controllerClass : controllerClasses) {
             Arrays.stream(controllerClass.getClass().getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(RequestMapping.class))
                     .forEach(method -> {
                         RequestMapping annotation = method.getAnnotation(RequestMapping.class);
-                        requestHandlerMapper.setRequestHandler(annotation.path(), annotation.method(), makeRequestHandler(controllerClass, method,annotation.status(),fileUtil,engine));
+                        requestHandlerMapper.setRequestHandler(annotation.path(),
+                                annotation.method(),
+                                makeRequestHandler(controllerClass, method,annotation.status(),fileUtil,engine,argResolver));
                     });
         }
 

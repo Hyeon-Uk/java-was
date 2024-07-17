@@ -1,13 +1,13 @@
 package codesquad.application.handler;
 
+import codesquad.application.dto.UserLogin;
+import codesquad.application.dto.UserRegist;
 import codesquad.application.handler.mock.MockPasswordEncoder;
 import codesquad.application.handler.mock.MockUserDatabase;
 import codesquad.application.model.User;
 import codesquad.application.utils.PasswordEncoder;
 import codesquad.middleware.UserDatabase;
 import codesquad.was.http.exception.HttpBadRequestException;
-import codesquad.was.http.message.request.HttpMethod;
-import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.session.Session;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,24 +37,20 @@ class UserAuthControllerTest {
         @Test
         void registerUserSuccess(){
             //given
-            Map<String,String> queryString = new HashMap<>();
-            String id = "id";
+            String userId = "userId";
             String password = "password";
             String nickname = "nickname";
-            queryString.put("userId",id);
-            queryString.put("password",password);
-            queryString.put("nickname",nickname);
-            HttpRequest request = MockFactory.getHttpRequest(HttpMethod.POST,queryString,new HashMap<>(),"");
+            UserRegist req = new UserRegist(userId,password,nickname);
 
             //when
-            String path = userAuthController.registerUser(request);
+            String path = userAuthController.registerUser(req);
 
             //then
             assertEquals("redirect:/",path);
-            Optional<User> optional = userDatabase.findById(id);
+            Optional<User> optional = userDatabase.findById(userId);
             assertTrue(optional.isPresent());
             User user = optional.get();
-            assertEquals(id,user.getId());
+            assertEquals(userId,user.getId());
             assertEquals(nickname,user.getNickname());
             //must be encrypted
             assertNotEquals(password,user.getPassword());
@@ -68,14 +64,11 @@ class UserAuthControllerTest {
             String password = "password";
             String nickname = "nickname";
             userDatabase.save(new User(id,password,nickname));
-            queryString.put("userId",id);
-            queryString.put("password",password);
-            queryString.put("nickname",nickname);
-            HttpRequest request = MockFactory.getHttpRequest(HttpMethod.POST,queryString,new HashMap<>(),"");
+            UserRegist req = new UserRegist(id,password,"other nickname");
 
             //when & then
             assertThrows(HttpBadRequestException.class,()->{
-                userAuthController.registerUser(request);
+                userAuthController.registerUser(req);
             });
         }
     }
@@ -100,28 +93,29 @@ class UserAuthControllerTest {
         @Test
         void loginSuccess(){
             //given
-            Map<String,String> queryString = new HashMap<>();
-            queryString.put("userId",id);
-            queryString.put("password",password);
-            HttpRequest req = MockFactory.getHttpRequest(HttpMethod.POST,queryString,new HashMap<>(),"");
+            UserLogin req = new UserLogin(id,password);
+            Session session = new Session(new Date(),new Date());
             HttpResponse res = MockFactory.getHttpResponse();
+            User expected = new User(id,passwordEncoder.encode(password),nickname);
+
             //when
-            String path = userAuthController.loginProcess(req, res);
+            String path = userAuthController.loginProcess(req, session, res);
 
             //then
             assertEquals("redirect:/",path);
+            Optional<Object> optional = session.get("user");
+            assertTrue(optional.isPresent());
+            assertEquals(expected,optional.get());
         }
 
         @Test
         void loginFailedWithNonExistsUser(){
             //given
-            Map<String,String> queryString = new HashMap<>();
-            queryString.put("userId","nonExistsUser");
-            queryString.put("password",password);
-            HttpRequest req = MockFactory.getHttpRequest(HttpMethod.POST,queryString,new HashMap<>(),"");
+            UserLogin req = new UserLogin("nonExistsUser",password);
+            Session session = new Session(new Date(),new Date());
             HttpResponse res = MockFactory.getHttpResponse();
             //when
-            String path = userAuthController.loginProcess(req, res);
+            String path = userAuthController.loginProcess(req,session, res);
 
             //then
             assertEquals("redirect:/user/login_failed",path);
@@ -130,13 +124,11 @@ class UserAuthControllerTest {
         @Test
         void loginFailedWithWrongPassword(){
             //given
-            Map<String,String> queryString = new HashMap<>();
-            queryString.put("userId",id);
-            queryString.put("password","wrongPassword");
-            HttpRequest req = MockFactory.getHttpRequest(HttpMethod.POST,queryString,new HashMap<>(),"");
+            UserLogin req = new UserLogin("id","wrongPassword");
+            Session session = new Session(new Date(),new Date());
             HttpResponse res = MockFactory.getHttpResponse();
             //when
-            String path = userAuthController.loginProcess(req, res);
+            String path = userAuthController.loginProcess(req,session, res);
 
             //then
             assertEquals("redirect:/user/login_failed",path);

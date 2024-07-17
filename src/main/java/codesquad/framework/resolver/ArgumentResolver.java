@@ -3,6 +3,7 @@ package codesquad.framework.resolver;
 import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.framework.dispatcher.mv.Model;
 import codesquad.framework.resolver.annotation.RequestParam;
+import codesquad.framework.resolver.annotation.SessionParam;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.session.Session;
@@ -85,6 +86,10 @@ public class ArgumentResolver {
             return res;
         }
         if(type.equals(Session.class)){
+            SessionParam sessionAnnotation = param.getAnnotation(SessionParam.class);
+            if(sessionAnnotation != null){
+                return req.getSession(sessionAnnotation.create());
+            }
             return req.getSession(false);
         }
         if(type.equals(Model.class)){
