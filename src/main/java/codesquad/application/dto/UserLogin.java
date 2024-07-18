@@ -6,6 +6,7 @@ public class UserLogin {
     public UserLogin(){
     }
     public UserLogin(String userId, String password) {
+        this();
         setUserId(userId);
         setPassword(password);
     }

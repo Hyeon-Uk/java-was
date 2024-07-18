@@ -54,9 +54,6 @@ public class SocketHandler implements Runnable {
                 response.addCookie(new Cookie("SID", session.getId()));
             }
 
-//            RequestHandler handler = requestHandlerMapper.getRequestHandler(request.getUri(),request.getMethod());
-//            logger.info("handler : {}",handler);
-//            handler.handle(request, response);
             requestHandler.handle(request,response);
 
             sendResponse(response, socket);

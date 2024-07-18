@@ -9,6 +9,7 @@ public class UserRegist {
     }
 
     public UserRegist(String userId, String password, String nickname) {
+        this();
         setUserId(userId);
         setPassword(password);
         setNickname(nickname);

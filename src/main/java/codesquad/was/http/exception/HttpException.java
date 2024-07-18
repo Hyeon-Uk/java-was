@@ -17,4 +17,9 @@ public class HttpException extends RuntimeException {
     public String getErrorMessage() {
         return errorMessage;
     }
+
+    @Override
+    public String getMessage(){
+        return getErrorMessage();
+    }
 }

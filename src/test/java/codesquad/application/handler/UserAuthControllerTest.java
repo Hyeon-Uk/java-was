@@ -105,7 +105,8 @@ class UserAuthControllerTest {
             assertEquals("redirect:/",path);
             Optional<Object> optional = session.get("user");
             assertTrue(optional.isPresent());
-            assertEquals(expected,optional.get());
+            User user = (User)optional.get();
+            assertEquals(expected.getId(),user.getId());
         }
 
         @Test

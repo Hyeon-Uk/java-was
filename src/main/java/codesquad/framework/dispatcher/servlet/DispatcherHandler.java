@@ -35,19 +35,6 @@ public class DispatcherHandler implements RequestHandler {
             HttpMethod method = req.getMethod();
             RequestHandler requestHandler = requestHandlerMapper.getRequestHandler(path, method);
             requestHandler.handle(req,res);
-        }catch(HttpException e){
-            logger.error("http exception "+e.getErrorMessage(),e);
-            Model model = new Model();
-            model.addAttribute("errorMessage",e.getErrorMessage());
-            byte[] files = fileUtil.readFile("/templates/error.html");
-            String template = new String(files);
-
-            try {
-                res.setBody(engine.render(template, model.asMap()));
-                res.setStatus(e.getStatus());
-            }catch(Exception e1){
-                e1.printStackTrace();
-            }
         }catch(Exception e){
             logger.error(e.getMessage(),e);
             Model model = new Model();
@@ -55,12 +42,11 @@ public class DispatcherHandler implements RequestHandler {
             byte[] files = fileUtil.readFile("/templates/error.html");
             String template = new String(files);
 
-
             try {
                 res.setBody(engine.render(template, model.asMap()));
                 res.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-            }catch(Exception e1){
-                e1.printStackTrace();
+            } catch (IllegalAccessException ex) {
+                throw new RuntimeException(ex);
             }
         }
     }

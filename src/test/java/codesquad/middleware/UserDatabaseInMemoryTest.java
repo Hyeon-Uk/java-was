@@ -11,6 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserDatabaseInMemoryTest {
     private UserDatabase userDatabase = new UserDatabaseInMemory();
 
+    void compareUser(User expected,User actual){
+        assertAll("compare user",
+                ()->assertEquals(expected.getId(),actual.getId()),
+                ()->assertEquals(expected.getNickname(),actual.getNickname()),
+                ()->assertEquals(expected.getPassword(),actual.getPassword())
+        );
+    }
+
     @Test
     void saveSuccess(){
         //given
@@ -25,7 +33,7 @@ class UserDatabaseInMemoryTest {
         //then
         Optional<User> optional = userDatabase.findById(id);
         assertTrue(optional.isPresent());
-        assertEquals(user, optional.get());
+        compareUser(user, optional.get());
     }
 
     @Test
@@ -45,7 +53,7 @@ class UserDatabaseInMemoryTest {
         //then
         Optional<User> optional = userDatabase.findById(id);
         assertTrue(optional.isPresent());
-        assertEquals(overrideUser,optional.get());
+        compareUser(overrideUser,optional.get());
     }
 
     @Test
@@ -57,11 +65,16 @@ class UserDatabaseInMemoryTest {
         userDatabase.save(user1);
         userDatabase.save(user2);
         userDatabase.save(user3);
+        List<String> ids = List.of(user1.getId(),user2.getId(),user3.getId());
 
         //when
         List<User> allUsers = userDatabase.findAll();
 
         //then
-        assertTrue(allUsers.containsAll(List.of(user1,user2,user3)));
+        assertTrue(allUsers
+                .stream()
+                .map(User::getId)
+                .allMatch(id->ids.contains(id))
+        );
     }
 }

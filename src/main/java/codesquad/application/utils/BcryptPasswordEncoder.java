@@ -25,8 +25,7 @@ public class BcryptPasswordEncoder implements PasswordEncoder{
             md.update(salt.getBytes());
 
             byte[] digest = md.digest();
-            String hashMessage = byteArrayToHex(digest);
-            return hashMessage;
+            return byteArrayToHex(digest);
         }catch(Exception e){
             logger.warn(e.getMessage());
             throw new HttpInternalServerErrorException("some internal error");
