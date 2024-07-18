@@ -39,7 +39,7 @@ public class DispatcherHandler implements RequestHandler {
             logger.error("http exception "+e.getErrorMessage(),e);
             Model model = new Model();
             model.addAttribute("errorMessage",e.getErrorMessage());
-            byte[] files = fileUtil.readStaticFile("/error.html");
+            byte[] files = fileUtil.readFile("/templates/error.html");
             String template = new String(files);
 
             try {
@@ -52,7 +52,7 @@ public class DispatcherHandler implements RequestHandler {
             logger.error(e.getMessage(),e);
             Model model = new Model();
             model.addAttribute("errorMessage",e.getMessage());
-            byte[] files = fileUtil.readStaticFile("/error.html");
+            byte[] files = fileUtil.readFile("/templates/error.html");
             String template = new String(files);
 
 

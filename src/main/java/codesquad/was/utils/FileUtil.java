@@ -10,6 +10,6 @@ import java.io.InputStream;
 
 public interface FileUtil {
     MIME getMIME(String path);
-    byte[] readStaticFile(String path);
+    byte[] readFile(String path);
     boolean isFilePath(String uri);
 }

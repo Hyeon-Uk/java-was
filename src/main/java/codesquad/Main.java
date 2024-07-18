@@ -61,7 +61,7 @@ public class Main {
                         viewPath = "/" + viewPath;
                     }
                     String fullViewPath = viewPath.concat(".html");
-                    String html = new String(fileUtil.readStaticFile(fullViewPath));
+                    String html = new String(fileUtil.readFile("/templates"+fullViewPath));
                     String rendered = engine.render(html, model.asMap());
 
                     res.setStatus(status);

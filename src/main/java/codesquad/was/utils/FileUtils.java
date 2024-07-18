@@ -19,11 +19,11 @@ public class FileUtils implements FileUtil {
         }
         return MIME.fromExtension(extension);
     }
-    public byte[] readStaticFile(String path){
-        try(InputStream is = FileUtils.class.getResourceAsStream("/static".concat(path))){
+    public byte[] readFile(String path){
+        try(InputStream is = FileUtils.class.getResourceAsStream(path)){
             return is.readAllBytes();
         }catch(Exception e){
-            throw new HttpNotFoundException("could not find this static file : ".concat(path));
+            throw new HttpNotFoundException("could not find this file : ".concat(path));
         }
     }
     public boolean isFilePath(String uri){

@@ -77,11 +77,11 @@ public class FileUtilsTest {
         @Test
         public void testReadStaticFile_withExistingFile() {
             // Given an existing file path
-            String path = "/input.txt"; // Example path to an existing static file
+            String path = "/static/input.txt"; // Example path to an existing static file
 
             // When calling readStaticFile method
             FileUtils fileUtils = new FileUtils();
-            byte[] fileData = fileUtils.readStaticFile(path);
+            byte[] fileData = fileUtils.readFile(path);
 
             // Then assert that the returned byte array is not empty
             assertTrue(fileData.length > 0);
@@ -90,11 +90,11 @@ public class FileUtilsTest {
         @Test
         public void testReadStaticFile_withNonExistingFile() {
             // Given a non-existing file path
-            String path = "/nonexistentfile.txt"; // Example path to a non-existing static file
+            String path = "/static/nonexistentfile.txt"; // Example path to a non-existing static file
 
             // When calling readStaticFile method, expect HttpNotFoundException
             FileUtils fileUtils = new FileUtils();
-            assertThrows(HttpNotFoundException.class, () -> fileUtils.readStaticFile(path));
+            assertThrows(HttpNotFoundException.class, () -> fileUtils.readFile(path));
         }
     }
 
@@ -125,6 +125,33 @@ public class FileUtilsTest {
 
             // Then assert that the result is false
             assertFalse(result);
+        }
+    }
+
+    @Nested
+    class ReadTemplateFileTests {
+
+        @Test
+        public void testReadTemplateFile_withExistingFile() {
+            // Given an existing file path
+            String path = "/templates/templateInput.txt"; // Example path to an existing static file
+
+            // When calling readStaticFile method
+            FileUtils fileUtils = new FileUtils();
+            byte[] fileData = fileUtils.readFile(path);
+
+            // Then assert that the returned byte array is not empty
+            assertTrue(fileData.length > 0);
+        }
+
+        @Test
+        public void testReadTemplateFile_withNonExistingFile() {
+            // Given a non-existing file path
+            String path = "/templates/nonexistentfile.txt"; // Example path to a non-existing static file
+
+            // When calling readStaticFile method, expect HttpNotFoundException
+            FileUtils fileUtils = new FileUtils();
+            assertThrows(HttpNotFoundException.class, () -> fileUtils.readFile(path));
         }
     }
 }
