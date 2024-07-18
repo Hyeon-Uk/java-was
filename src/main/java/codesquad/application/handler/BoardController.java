@@ -26,7 +26,7 @@ public class BoardController {
     }
 
     @RequestMapping(path="/board",method=HttpMethod.GET)
-    public String boardPage(@RequestParam(name="seq") Long boardId,
+    public String boardPage(@RequestParam(name="id") Long boardId,
                             @SessionParam(create = false) Session session,
                             Model model){
         Optional<Board> byId = boardDatabase.findById(boardId);
