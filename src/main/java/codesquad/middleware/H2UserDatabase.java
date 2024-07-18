@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Coffee
 public class H2UserDatabase implements UserDatabase {
     private final DataSource dataSource;
 

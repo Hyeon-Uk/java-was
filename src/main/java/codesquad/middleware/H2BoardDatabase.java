@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Coffee
 public class H2BoardDatabase implements BoardDatabase{
     private final DataSource dataSource;
     public H2BoardDatabase(DataSource dataSource){
