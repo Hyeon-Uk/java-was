@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 @Coffee
 public class ArgumentResolver {
-    private Object getObjectField(Field field, Function<String, String> getValue,Function<String,HttpFile> getFileValue) {
+    private Object getObjectField(Field field, HttpRequest req,HttpResponse res,Model model,Function<String, String> getValue,Function<String,HttpFile> getFileValue) {
         Class<?> type = field.getType();
         try {
             if (type.equals(Object.class)) {//bias condition
@@ -25,15 +25,23 @@ public class ArgumentResolver {
             if (type.equals(String.class)) {
                 return value;
             } else if (type.equals(int.class) || type.equals(Integer.class)) {
-                return Integer.parseInt(value);
+                return Integer.parseInt(value == null ? "0" : value);
             } else if (type.equals(long.class) || type.equals(Long.class)) {
-                return Long.parseLong(value);
+                return Long.parseLong(value == null ? "0" : value);
             } else if (type.equals(double.class) || type.equals(Double.class)) {
-                return Double.parseDouble(value);
+                return Double.parseDouble(value == null ? "0" : value);
             } else if (type.equals(float.class) || type.equals(Float.class)) {
-                return Float.parseFloat(value);
+                return Float.parseFloat(value == null ? "0" : value);
             } else if(type.equals(HttpFile.class)){
                 return getFileValue.apply(field.getName());
+            } else if(type.equals(HttpRequest.class)) {
+                return req;
+            }else if(type.equals(HttpResponse.class)) {
+                return res;
+            }else if(type.equals(Model.class)){
+                return model;
+            } else if(type.equals(Session.class)){
+                return req.getSession();
             }else {
                 //object type
                 Field[] declaredFields = type.getDeclaredFields();
@@ -42,40 +50,30 @@ public class ArgumentResolver {
                 Object instance = defaultConstructor.newInstance();
                 for (Field f : declaredFields) {
                     f.setAccessible(true);
-                    Object fValue = getObjectField(f, getValue,getFileValue);
+                    Object fValue = getObjectField(f,req,res,model, getValue,getFileValue);
                     f.set(instance, fValue);
                 }
                 return instance;
             }
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("There is no default constructor for " + field.getName());
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private <T> T makeObject(Class<T> clazz, Function<String, String> getQueryValue,Function<String,HttpFile> getFileValue) {
+    private <T> T makeObject(Class<T> clazz, HttpRequest req,HttpResponse res,Model model, Function<String, String> getQueryValue,Function<String,HttpFile> getFileValue) {
         try {
             Constructor<?> constructor = clazz.getConstructor();
             constructor.setAccessible(true);
             Object instance = constructor.newInstance();
             for (Field f : clazz.getDeclaredFields()) {
-                Object objectField = getObjectField(f, getQueryValue,getFileValue);
+                Object objectField = getObjectField(f, req,res,model,getQueryValue,getFileValue);
                 f.setAccessible(true);
                 f.set(instance, objectField);
             }
             return clazz.cast(instance);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
@@ -106,17 +104,27 @@ public class ArgumentResolver {
             if (type.equals(String.class)) {
                 return value;
             } else if (type.equals(int.class) || type.equals(Integer.class)) {
-                return Integer.parseInt(value);
+                return Integer.parseInt(value == null ? "0" : value);
             } else if (type.equals(long.class) || type.equals(Long.class)) {
-                return Long.parseLong(value);
+                return Long.parseLong(value == null ? "0" : value);
             } else if (type.equals(double.class) || type.equals(Double.class)) {
-                return Double.parseDouble(value);
+                return Double.parseDouble(value == null ? "0" : value);
             } else if (type.equals(float.class) || type.equals(Float.class)) {
-                return Float.parseFloat(value);
-            } else {
+                return Float.parseFloat(value == null ? "0" : value);
+            } else if(type.equals(HttpFile.class)){
+                return req.getFile(value);
+            } else if(type.equals(HttpRequest.class)) {
+                return req;
+            }else if(type.equals(HttpResponse.class)) {
+                return res;
+            }else if(type.equals(Model.class)){
+                return model;
+            }else if(type.equals(Session.class)){
+                return req.getSession();
+            }else {
                 Function<String, String> getQueryValue = (key -> req.getQueryString(key));
                 Function<String, HttpFile> getFileValue = (key -> req.getFile(key));
-                return makeObject(type, getQueryValue,getFileValue);
+                return makeObject(type, req,res,model,getQueryValue,getFileValue);
             }
         }
 
