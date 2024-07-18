@@ -1,6 +1,7 @@
 package codesquad.framework.dispatcher.servlet;
 
 import codesquad.framework.coffee.annotation.Coffee;
+import codesquad.middleware.FileDatabase;
 import codesquad.middleware.FileSystemDatabase;
 import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.message.request.HttpRequest;
@@ -11,9 +12,9 @@ import codesquad.was.utils.FileUtil;
 @Coffee(name="staticHandler")
 public class StaticResourceHandler implements RequestHandler {
     private final FileUtil fileUtil;
-    private final FileSystemDatabase fileDatabase;
+    private final FileDatabase fileDatabase;
 
-    public StaticResourceHandler(FileUtil fileUtil, FileSystemDatabase fileDatabase) {
+    public StaticResourceHandler(FileUtil fileUtil, FileDatabase fileDatabase) {
         this.fileUtil = fileUtil;
         this.fileDatabase = fileDatabase;
     }

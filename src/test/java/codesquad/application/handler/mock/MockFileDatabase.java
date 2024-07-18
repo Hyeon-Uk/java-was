@@ -13,4 +13,9 @@ public class MockFileDatabase implements FileDatabase {
         files.add(file);
         return file.getFileName();
     }
+
+    @Override
+    public byte[] getFileData(String savedPath) {
+        return new byte[0];
+    }
 }
