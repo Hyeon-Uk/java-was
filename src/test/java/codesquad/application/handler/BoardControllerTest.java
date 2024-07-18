@@ -2,11 +2,17 @@ package codesquad.application.handler;
 
 import codesquad.application.dto.BoardRegist;
 import codesquad.application.handler.mock.MockBoardDatabase;
+import codesquad.application.handler.mock.MockFileDatabase;
 import codesquad.application.model.Board;
 import codesquad.application.model.User;
 import codesquad.framework.dispatcher.mv.Model;
 import codesquad.middleware.BoardDatabase;
+import codesquad.middleware.FileDatabase;
+import codesquad.middleware.FileSystemDatabase;
+import codesquad.was.http.exception.HttpBadRequestException;
 import codesquad.was.http.exception.HttpNotFoundException;
+import codesquad.was.http.message.vo.HttpFile;
+import codesquad.was.http.message.vo.MIME;
 import codesquad.was.http.session.Session;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,16 +20,20 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class BoardControllerTest {
     private BoardDatabase boardDatabase = new MockBoardDatabase();
-    private BoardController boardController = new BoardController(boardDatabase);
+    private FileDatabase fileDatabase = new MockFileDatabase();
+    private BoardController boardController = new BoardController(boardDatabase,fileDatabase);
 
     @Nested
     @DisplayName("write page")
@@ -80,6 +90,8 @@ class BoardControllerTest {
          * 4. session이 존재하지 않으면 redirect login
          * 5. session에 user가 존재하지 않으면 redirect login
          * 6. board의 csrf토큰이 null일 경우 redirect /
+         * 7. 파일이 존재하는 경우 path도 save되어야함.
+         * 8. 파일이 존재하지만 이미지가 아닌 다른 경우
          */
 
         @Test
@@ -207,6 +219,130 @@ class BoardControllerTest {
                     .stream().filter(b -> b.getWriter().equals("id"))
                     .count();
             assertEquals(0,size);
+        }
+
+        @ParameterizedTest
+        @EnumSource(value=MIME.class,mode= EnumSource.Mode.INCLUDE,names={"JPEG","JPG","GIF","PNG"})
+        void boardSaveWithFile(MIME mime){
+            //given
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            String csrfToken = UUID.randomUUID().toString();
+            session.set("user",user);
+            session.set("csrfToken",csrfToken);
+
+            HttpFile mockFile = new HttpFile(mime.getMimeType(),"fileName."+mime.getExtension(),new byte[1]);
+            BoardRegist board = new BoardRegist("title","content",csrfToken,mockFile);
+
+            //when
+            String path = boardController.registBoard(session, board);
+
+            //then
+            Optional<Board> optional = boardDatabase.findAll()
+                    .stream()
+                    .filter(bd -> bd.getTitle().equals(board.getTitle()))
+                    .findFirst();
+            assertEquals("redirect:/",path);
+            assertTrue(optional.isPresent());
+            Board registed = optional.get();
+            assertNotNull(registed.getBoardId());
+            assertEquals("/"+board.getFile().getFileName(),registed.getImagePath());
+            assertEquals(board.getTitle(),registed.getTitle());
+            assertEquals(board.getContent(),registed.getContent());
+            assertEquals(user.getId(),registed.getWriter());
+        }
+
+        @ParameterizedTest
+        @EnumSource(value=MIME.class,mode= EnumSource.Mode.EXCLUDE,names={"JPEG","JPG","GIF","PNG"})
+        void boardSaveWithFileButNotImage(MIME mime){
+            //given
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            String csrfToken = UUID.randomUUID().toString();
+            session.set("user",user);
+            session.set("csrfToken",csrfToken);
+
+            HttpFile mockFile = new HttpFile(mime.getMimeType(),"fileName."+mime.getExtension(),new byte[1]);
+            BoardRegist board = new BoardRegist("title","content",csrfToken,mockFile);
+
+            //when & then
+            assertThrows(HttpBadRequestException.class,()->{
+                boardController.registBoard(session, board);
+            });
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        void boardCanNotSaveBecauseOfEmptyContentType(String contentType){
+            //given
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            String csrfToken = UUID.randomUUID().toString();
+            session.set("user",user);
+            session.set("csrfToken",csrfToken);
+
+            HttpFile mockFile = new HttpFile(contentType,"fileName.jpg",new byte[1]);
+            BoardRegist board = new BoardRegist("title","content",csrfToken,mockFile);
+
+            //when & then
+            assertThrows(HttpBadRequestException.class,()->{
+                boardController.registBoard(session, board);
+            });
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        void boardCanNotSaveBecauseOfEmptyFileName(String fileName){
+            //given
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            String csrfToken = UUID.randomUUID().toString();
+            session.set("user",user);
+            session.set("csrfToken",csrfToken);
+
+            HttpFile mockFile = new HttpFile(MIME.GIF.getMimeType(), fileName,new byte[1]);
+            BoardRegist board = new BoardRegist("title","content",csrfToken,mockFile);
+
+            //when & then
+            assertThrows(HttpBadRequestException.class,()->{
+                boardController.registBoard(session, board);
+            });
+        }
+
+        @Test
+        void boardCanNotSaveBecauseOfEmptyFileData(){
+            //given
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            String csrfToken = UUID.randomUUID().toString();
+            session.set("user",user);
+            session.set("csrfToken",csrfToken);
+
+            HttpFile mockFile = new HttpFile(MIME.GIF.getMimeType(), "text.gif",new byte[0]);
+            BoardRegist board = new BoardRegist("title","content",csrfToken,mockFile);
+
+            //when & then
+            assertThrows(HttpBadRequestException.class,()->{
+                boardController.registBoard(session, board);
+            });
+        }
+
+        @Test
+        void boardCanNotSaveBecauseOfNullFileData(){
+            //given
+            Session session = new Session(new Date(),new Date());
+            User user = new User("id","password","nickname");
+            String csrfToken = UUID.randomUUID().toString();
+            session.set("user",user);
+            session.set("csrfToken",csrfToken);
+
+            HttpFile mockFile = new HttpFile(MIME.GIF.getMimeType(), "text.gif",null);
+            BoardRegist board = new BoardRegist("title","content",csrfToken,mockFile);
+
+            //when & then
+            assertThrows(HttpBadRequestException.class,()->{
+                boardController.registBoard(session, board);
+            });
         }
     }
 

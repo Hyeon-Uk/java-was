@@ -10,8 +10,12 @@ import codesquad.framework.dispatcher.mv.Model;
 import codesquad.framework.resolver.annotation.RequestParam;
 import codesquad.framework.resolver.annotation.SessionParam;
 import codesquad.middleware.BoardDatabase;
+import codesquad.middleware.FileDatabase;
+import codesquad.middleware.FileSystemDatabase;
+import codesquad.was.http.exception.HttpBadRequestException;
 import codesquad.was.http.exception.HttpNotFoundException;
 import codesquad.was.http.message.request.HttpMethod;
+import codesquad.was.http.message.vo.HttpFile;
 import codesquad.was.http.session.Session;
 
 import java.util.Optional;
@@ -21,8 +25,10 @@ import java.util.UUID;
 @Coffee
 public class BoardController {
     private final BoardDatabase boardDatabase;
-    public BoardController(BoardDatabase boardDatabase) {
+    private final FileDatabase fileDatabase;
+    public BoardController(BoardDatabase boardDatabase, FileDatabase fileDatabase) {
         this.boardDatabase = boardDatabase;
+        this.fileDatabase = fileDatabase;
     }
 
     @RequestMapping(path="/board",method=HttpMethod.GET)
@@ -46,6 +52,7 @@ public class BoardController {
         model.addAttribute("writer",board.getWriter());
         model.addAttribute("title",board.getTitle());
         model.addAttribute("content",board.getContent());
+        model.addAttribute("path",board.getImagePath());
 
         return "/article/content";
     }
@@ -88,9 +95,22 @@ public class BoardController {
         String content = req.getContent();
         String csrfToken = req.getCsrfToken();
         String writer = user.getId();
+        HttpFile file = req.getFile();
+
+        if(file != null && (!file.isExist() || !file.isImageFile())){
+            throw new HttpBadRequestException("이미지 파일형식을 넣어주세요");
+        }
 
         if(csrfToken != null && csrfToken.equals(sessionCsrf)){
-            Board board = new Board(title,content,writer);
+            String savedPath = null;
+            Board board = null;
+            if(file!=null&&file.isExist()){
+                savedPath = fileDatabase.save(file);
+                board = new Board(title,content,writer,"/"+savedPath);
+            }
+            else{
+                board = new Board(title,content,writer);
+            }
             boardDatabase.save(board);
             return "redirect:/";
         }

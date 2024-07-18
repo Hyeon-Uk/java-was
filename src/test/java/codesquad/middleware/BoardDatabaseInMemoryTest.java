@@ -47,7 +47,7 @@ class BoardDatabaseInMemoryTest {
             String title = "title";
             String content = "content";
             String writer = "writer";
-            Board board = new Board(null, title, content, writer);
+            Board board = new Board((Long)null, title, content, writer);
 
             //when
             database.save(board);
