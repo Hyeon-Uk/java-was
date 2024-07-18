@@ -4,6 +4,8 @@ import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.request.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -11,10 +13,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Coffee
 public class HttpRequestStartLineParser {
+    private final Logger logger = LoggerFactory.getLogger(HttpRequestStartLineParser.class);
     private final HttpQueryStringParser queryStringParser;
     public HttpRequestStartLineParser(HttpQueryStringParser queryStringParser) {
         this.queryStringParser = queryStringParser;

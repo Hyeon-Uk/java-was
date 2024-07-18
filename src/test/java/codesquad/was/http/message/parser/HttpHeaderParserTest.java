@@ -1,11 +1,13 @@
 package codesquad.was.http.message.parser;
 
+import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.vo.HttpHeader;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -172,6 +174,22 @@ class HttpHeaderParserTest {
 
             //then
             assertEquals(0, parse.getHeaders("notExistsKey").size());
+        }
+
+        @Test
+        void throwIOExceptionTest(){
+            //given
+            InputStream is = new InputStream() {
+                @Override
+                public int read() throws IOException {
+                    throw new IOException("ioexception");
+                }
+            };
+
+            //when & then
+            assertThrows(InvalidRequestFormatException.class,()->{
+                parser.parse(is);
+            });
         }
     }
 }

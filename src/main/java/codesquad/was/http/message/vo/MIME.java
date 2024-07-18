@@ -21,7 +21,8 @@ public enum MIME {
     RAR("rar", "application/x-rar-compressed"),
     CSS("css","text/css"),
     SVG("svg","image/svg+xml"),
-    ICO("ico","image/x-icon");
+    ICO("ico","image/x-icon"),
+    MULTIPART_FORM_DATA("multipart/form-data", "multipart/form-data");
 
     private final String extension;
     private final String mimeType;
@@ -42,6 +43,14 @@ public enum MIME {
     public static MIME fromExtension(String ext) {
         for (MIME mime : values()) {
             if (mime.getExtension().equalsIgnoreCase(ext)) {
+                return mime;
+            }
+        }
+        return null;
+    }
+    public static MIME fromMimeType(String mimeType){
+        for (MIME mime : values()) {
+            if (mime.getMimeType().equalsIgnoreCase(mimeType)) {
                 return mime;
             }
         }

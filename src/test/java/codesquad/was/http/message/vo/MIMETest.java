@@ -30,6 +30,7 @@ class MIMETest {
             "css, text/css",
             "svg, image/svg+xml",
             "ico, image/x-icon",
+            "multipart/form-data,multipart/form-data"
     })
     void testGetMimeTypeByExtension(String extension, String expectedMimeType) {
         MIME mime = MIME.fromExtension(extension);
@@ -56,6 +57,15 @@ class MIMETest {
     })
     void testGetMimeTypeByExtensionNotFound(String extension) {
         assertNull(MIME.fromExtension(extension));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "unknown,",
+            ",",
+    })
+    void testGetMimeTypeByMimeTypeStringNotFound(String mimeType) {
+        assertNull(MIME.fromMimeType(mimeType));
     }
 
     @ParameterizedTest

@@ -41,7 +41,7 @@ class HttpRequestStartLineParserTest {
         @Test
         void startLineWithEncodedQueryString() {
             //given
-            String value = "world";
+            String value = "안녕";
             String startLine = "GET /?hello=".concat(URLEncoder.encode(value)).concat(" HTTP/1.1\r\n");
 
             //when
@@ -51,7 +51,8 @@ class HttpRequestStartLineParserTest {
             assertAll("startLineWithURLEncodedString",
                     () -> assertEquals(HttpMethod.GET, parse.getMethod()),
                     () -> assertEquals("/", parse.getUri()),
-                    () -> assertEquals("HTTP/1.1", parse.getHttpVersion())
+                    () -> assertEquals("HTTP/1.1", parse.getHttpVersion()),
+                    ()-> assertEquals("안녕",parse.getQueryString().get("hello"))
             );
         }
 

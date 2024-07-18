@@ -1,9 +1,11 @@
 package codesquad.was.http.message.parser;
 
 import codesquad.message.mock.MockTimer;
+import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.message.vo.HttpFile;
 import codesquad.was.http.session.SessionManager;
 import codesquad.was.http.session.SessionStorage;
 import org.junit.jupiter.api.DisplayName;
@@ -25,9 +27,10 @@ class HttpRequestParsingTest {
             "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,application/json"+"\r\n"+
             "Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8"+"\r\n"+
             "Accept-Encoding: gzip, deflate, sdch"+"\r\n"+
+            "Cookie: name1=value1;name2=value2"+"\r\n"+
             "Connection: keep-alive"+"\r\n"+
             "Upgrade-Insecure-Requests: 1"+"\r\n"+
-            "Content-Type: application/x-www-form-urlencoded";
+            "Content-Type: application/x-www-form-urlencoded\r\n\r\n";
 
     private String wrongMessage =
             "Unknown uri"+"\r\n"+
@@ -35,10 +38,11 @@ class HttpRequestParsingTest {
 
     private HttpHeaderParser headerParser = new HttpHeaderParser();
     private HttpQueryStringParser queryStringParser = new HttpQueryStringParser();
-    private HttpBodyParser bodyParser = new HttpBodyParser(queryStringParser);
+    private HttpMultipartParser multipartParser = new HttpMultipartParser();
+    private HttpBodyParser bodyParser = new HttpBodyParser(queryStringParser,multipartParser);
     private HttpRequestStartLineParser startLineParser = new HttpRequestStartLineParser(queryStringParser);
     private SessionManager sessionManager = new SessionManager(new SessionStorage(),new MockTimer(10l));
-    private HttpRequestParser requestParser = new HttpRequestParser(startLineParser,headerParser,bodyParser,queryStringParser,sessionManager);
+    private HttpRequestParser requestParser = new HttpRequestParser(startLineParser,headerParser,bodyParser,sessionManager);
 
     private void verifyHeaderValues(HttpRequest req, String key, String valueString){
         List<String> values = Arrays.stream(valueString.split(","))
@@ -50,6 +54,99 @@ class HttpRequestParsingTest {
             assertTrue(req.getHeader(key).contains(value));
         }
     }
+    @Nested
+    @DisplayName("multipart/form-data")
+    class MultipartFormDataTest{
+        @Test
+        void withFileData(){
+            //given
+            String boundary = "----WebKitFormBoundaryABC123";
+            String formKey = "username";
+            String formValue = "john_kim";
+            String fileKey = "file";
+            String fileName = "file.jpg";
+            String fileValue = "hello world";
+
+            String body = "--"+boundary+"\r\n" +
+                    "Content-Disposition: form-data; name=\""+formKey+"\"\r\n" +
+                    "\r\n" +
+                    formValue+"\r\n" +
+                    "--"+boundary+"\r\n" +
+                    "Content-Disposition: form-data; name=\""+fileKey+"\"; filename=\""+fileName+"\"\r\n" +
+                    "Content-Type: image/jpeg\r\n" +
+                    "\r\n" +
+                    fileValue+"\r\n"+
+                    "--"+boundary+"--";
+
+            String message = "POST /upload HTTP/1.1\r\n" +
+                    "Content-Type: multipart/form-data; boundary="+boundary+"\r\n" +
+                    "Content-Length: "+body.getBytes().length+"\r\n"+
+                    "\r\n" +
+                    body;
+
+            //when
+            HttpRequest parse = requestParser.parse(message);
+
+            //then
+            assertNotNull(parse.getFile(fileKey));
+            HttpFile file = parse.getFile(fileKey);
+            assertEquals(fileName,file.getFileName());
+            assertTrue(Arrays.equals(fileValue.getBytes(),file.getData()));
+            assertEquals(formValue,parse.getQueryString(formKey));
+        }
+    }
+
+    @Nested
+    @DisplayName("Request Cookies")
+    class RequestCookies {
+        @Test
+        void multipleCookieTest() {
+            //given
+            String getMessage =
+                    "GET / HTTP/1.1\r\n" +
+                    "Cookie: name1=value1;name2=value2\r\n\r\n";
+
+            //when
+            HttpRequest parse = requestParser.parse(new ByteArrayInputStream(getMessage.getBytes()));
+            List<Cookie> cookies = parse.getCookies();
+
+            //then
+            assertEquals(2,cookies.size());
+            assertTrue(cookies.stream()
+                    .allMatch(cookie -> cookie.getName().equals("name1") && cookie.getValue().equals("value1") || cookie.getName().equals("name2") && cookie.getValue().equals("value2")));
+        }
+
+        @Test
+        void blankCookieTest() {
+            //given
+            String getMessage =
+                    "GET / HTTP/1.1\r\n"+
+                    "Cookie: \r\n\r\n";
+
+            //when
+            HttpRequest parse = requestParser.parse(new ByteArrayInputStream(getMessage.getBytes()));
+            List<Cookie> cookies = parse.getCookies();
+
+            //then
+            assertEquals(0,cookies.size());
+        }
+
+        @Test
+        void emptyCookieTest() {
+            //given
+            String getMessage =
+                    "GET / HTTP/1.1\r\n"+
+                    "Accept: true\r\n\r\n";
+
+            //when
+            HttpRequest parse = requestParser.parse(new ByteArrayInputStream(getMessage.getBytes()));
+            List<Cookie> cookies = parse.getCookies();
+
+            //then
+            assertEquals(0,cookies.size());
+        }
+    }
+
     @Nested
     @DisplayName("with string")
     class WithStringTest {
@@ -92,8 +189,7 @@ class HttpRequestParsingTest {
                 "Accept-Language: ko-KR,ko;q=0.9,zh-CN,zh;q=0.8"+"\r\n"+
                 "Accept-Encoding: gzip, deflate, sdch"+"\r\n"+
                 "Connection: keep-alive"+"\r\n"+
-                "Upgrade-Insecure-Requests: 1"+"\r\n"+
-                "Content-Type: application/x-www-form-urlencoded";
+                "Upgrade-Insecure-Requests: 1"+"\r\n\r\n";
 
             //when
             HttpRequest req = requestParser.parse(queryStringMessage);
@@ -176,12 +272,13 @@ class HttpRequestParsingTest {
         public void bodyQueryStringTest(){
             //given
             //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
+            String body = "message=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94&nickname=hyeonuk";
             String message =
                     "POST /user/create HTTP/1.1"+"\r\n"+
                     "HOST : localhost:8080"+"\r\n"+
+                    "Content-Length: "+body.getBytes().length+"\r\n"+
                     "Content-Type: application/x-www-form-urlencoded"+"\r\n"+
-                    "\r\n"+
-                    "message=%ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94&nickname=hyeonuk";
+                    "\r\n"+body;
             //when
             HttpRequest req = requestParser.parse(message);
 

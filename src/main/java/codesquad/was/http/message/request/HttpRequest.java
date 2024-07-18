@@ -2,6 +2,7 @@ package codesquad.was.http.message.request;
 
 import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.message.vo.HttpBody;
+import codesquad.was.http.message.vo.HttpFile;
 import codesquad.was.http.message.vo.HttpHeader;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
 import codesquad.was.http.session.Session;
@@ -48,6 +49,10 @@ public class HttpRequest {
 
     public byte[] getBody() {
         return body.getBody();
+    }
+
+    public HttpFile getFile(String key){
+        return body.getFile().get(key);
     }
 
     public List<Cookie> getCookies() {
