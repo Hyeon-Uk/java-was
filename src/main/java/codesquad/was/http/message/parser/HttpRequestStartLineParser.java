@@ -5,15 +5,48 @@ import codesquad.was.http.message.vo.HttpRequestStartLine;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.request.HttpMethod;
 
+import java.io.*;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.Optional;
 
 @Coffee
 public class HttpRequestStartLineParser {
-    public HttpRequestStartLine parse(String startLine){
-        String[] startLineComponents = startLine.split(" ");
-        if(startLineComponents.length != 3) throw new InvalidRequestFormatException();
+    public HttpRequestStartLine parse(InputStream is) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte[] read = new byte[1];
+            byte last = -1;
+            while (is.read(read) != -1) {
+                if (isNewLine(last, read[0])) break;
+                bos.write(read);
+                last = read[0];
+            }
+            byte[] byteArray = bos.toByteArray();
+            StringBuilder sb = new StringBuilder();
+            for(byte b : byteArray){
+                if((char)b == '\n' || (char)b =='\r') {
+                    break;
+                }
+                sb.append((char)b);
+            }
+            String startLineString = sb.toString();
+            return parse(startLineString);
+        }catch(IOException e) {
+            throw new InvalidRequestFormatException();
+        }
+    }
 
+    private boolean isNewLine(byte tail1,byte tail2){
+        return (char)tail1 == '\r' && (char)tail2 == '\n';
+    }
+
+    public HttpRequestStartLine parse(String startLine){
+        String[] startLineComponents = Arrays.stream(startLine.split(" "))
+                .map(String::trim)
+                .filter(component -> !"".equals(component))
+                .toArray(String[]::new);
+        if(startLineComponents.length != 3) throw new InvalidRequestFormatException();
         HttpMethod method = extractMethod(startLineComponents[0]);
         String uri = extractUri(startLineComponents[1]);
         String httpVersion = extractHttpVersion(startLineComponents[2]);
