@@ -3,35 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="../reset.css" rel="stylesheet" />
-    <link href="../global.css" rel="stylesheet" />
-    <style>
-    /* CSS 스타일링 */
-    table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    }
-    th, td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    }
-    th {
-    background-color: #f2f2f2;
-    }
-    tr:nth-child(even) {
-    background-color: #f2f2f2;
-    }
-    tr:hover {
-    background-color: #ddd;
-    }
-    </style>
+    <link href="/reset.css" rel="stylesheet" />
+    <link href="/global.css" rel="stylesheet" />
+    <link href="/main.css" rel="stylesheet" />
 </head>
 <body>
 <div class="container">
     <header class="header">
-        <a href="/"><img src="../img/signiture.svg" /></a>
+        <a href="/"><img src="/img/signiture.svg" /></a>
         <ul class="header__menu">
             {{if {{user}} == null then
             <li class="header__menu__item">
@@ -53,18 +32,9 @@
             }}
         </ul>
     </header>
-    <div class="page">
-        <h2 class="page-title">유저 목록</h2>
-        <table>
-            <tr>
-                <th>이름</th>
-                <th>아이디</th>
-            </tr>
-            <tr>
-                <td>더미 닉네임1</td>
-                <td>더미 아이디1</td>
-            </tr>
-        </table>
+    <div class="wrapper">
+        <h1>오류가 발생했어요!!!!!!!</h1>
+        <p>{{errorMessage}}</p>
     </div>
 </div>
 </body>

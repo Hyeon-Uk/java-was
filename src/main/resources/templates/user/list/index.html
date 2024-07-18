@@ -60,10 +60,13 @@
                 <th>이름</th>
                 <th>아이디</th>
             </tr>
+            {{for user in {{users}}
             <tr>
-                <td>더미 닉네임1</td>
-                <td>더미 아이디1</td>
+                <td>(user.nickname)</td>
+                <td>(user.id)</td>
             </tr>
+            }}
+            <!-- 여기에 추가적으로 행을 추가할 수 있습니다 -->
         </table>
     </div>
 </div>

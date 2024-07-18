@@ -11,6 +11,7 @@
       <header class="header">
         <a href="/"><img src="../img/signiture.svg" /></a>
         <ul class="header__menu">
+          {{if {{user}} == null then
           <li class="header__menu__item">
             <a class="btn btn_contained btn_size_s" href="/login">로그인</a>
           </li>
@@ -19,11 +20,21 @@
               회원 가입
             </a>
           </li>
+          else
+          <li class="header__menu__item">
+            <div>사용자 이름 : {{name}}</div>
+            <a class="btn btn_contained btn_size_s" href="/user/list">리스트</a>
+            <form action="/logout" method="post">
+              <button type = "submit">로그아웃</button>
+            </form>
+          </li>
+          }}
         </ul>
       </header>
       <div class="page">
         <h2 class="page-title">게시글 작성</h2>
         <form class="form" method="post" action="/write">
+          <input type="hidden" name="csrfToken" value="{{csrfToken}}"/>
           <div class="textfield_size_s">
             <p class="title_textfield">제목</p>
             <input type="text" class="input_textfield" name="title" placeholder="title"/>

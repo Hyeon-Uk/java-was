@@ -22,28 +22,34 @@
         </ul>
       </header>
       <div class="page">
-        <h2 class="page-title">게시글 작성</h2>
-        <form class="form" method="post" action="/write">
-          <div class="textfield_size_s">
-            <p class="title_textfield">제목</p>
-            <input type="text" class="input_textfield" name="title" placeholder="title"/>
-          </div>
-          <div class="textfield textfield_size_m">
-            <p class="title_textfield">내용</p>
-            <textarea
+        <h2 class="page-title">로그인</h2>
+        <form class="form" action = "/login" method="post">
+          <div class="textfield textfield_size_s">
+            <p class="title_textfield">아이디</p>
+            <input
               class="input_textfield"
-              placeholder="글의 내용을 입력하세요"
+              placeholder="아이디를 입력해주세요"
               autocomplete="username"
-              name="content"
-            ></textarea>
+              name ="userId"
+            />
+          </div>
+          <div class="textfield textfield_size_s">
+            <p class="title_textfield">비밀번호</p>
+            <input
+              class="input_textfield"
+              type="password"
+              placeholder="비밀번호를 입력해주세요"
+              autocomplete="current-password"
+              name="password"
+            />
           </div>
           <button
-            id="registration-btn"
+            id="login-btn"
             class="btn btn_contained btn_size_m"
             style="margin-top: 24px"
             type="submit"
           >
-            작성 완료
+            로그인
           </button>
         </form>
       </div>
