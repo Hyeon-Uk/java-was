@@ -33,7 +33,7 @@
       </header>
       <div class="page">
         <h2 class="page-title">게시글 작성</h2>
-        <form class="form" method="post" action="/write">
+        <form class="form" method="post" action="/write" enctype="multipart/form-data">
           <input type="hidden" name="csrfToken" value="{{csrfToken}}"/>
           <div class="textfield_size_s">
             <p class="title_textfield">제목</p>
@@ -48,6 +48,7 @@
               name="content"
             ></textarea>
           </div>
+          <input type="file" name="file" value="이미지"/>
           <button
             id="registration-btn"
             class="btn btn_contained btn_size_m"
