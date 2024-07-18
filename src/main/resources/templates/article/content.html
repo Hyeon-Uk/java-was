@@ -34,6 +34,10 @@
       <div class="page">
         <h2 class="page-title">{{title}}</h2>
         <h3>작성자 : {{writer}}</h3>
+        {{if {{path}} != null then
+        <img src="{{path}}"/>
+          else
+        }}
         <p>
           {{content}}
         </p>
