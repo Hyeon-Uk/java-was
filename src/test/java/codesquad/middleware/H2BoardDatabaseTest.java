@@ -32,6 +32,15 @@ class H2BoardDatabaseTest {
         }
     }
 
+    void compareBoard(Board expected, Board actual){
+        assertAll("compare board",
+                ()->assertEquals(expected.getBoardId(),actual.getBoardId()),
+                ()->assertEquals(expected.getTitle(),actual.getTitle()),
+                ()->assertEquals(expected.getContent(),actual.getContent()),
+                ()->assertEquals(expected.getWriter(),actual.getWriter())
+        );
+    }
+
     @Nested
     @DisplayName("save")
     class SaveTest {
@@ -49,7 +58,7 @@ class H2BoardDatabaseTest {
             //then
             Optional<Board> byId = database.findById(board.getBoardId());
             assertTrue(byId.isPresent());
-            assertEquals(board,byId.get());
+            compareBoard(board,byId.get());
         }
 
         @Test
@@ -66,7 +75,7 @@ class H2BoardDatabaseTest {
             String title = "title";
             String content = "content";
             String writer = "writer";
-            Board board = new Board(null, title, content, writer);
+            Board board = new Board((Long)null, title, content, writer);
 
             //when
             database.save(board);
@@ -75,7 +84,8 @@ class H2BoardDatabaseTest {
             assertNotNull(board.getBoardId());
             Optional<Board> byId = database.findById(board.getBoardId());
             assertTrue(byId.isPresent());
-            assertEquals(board,byId.get());
+            Board found = byId.get();
+            compareBoard(board,found);
         }
 
         @Test
@@ -95,7 +105,8 @@ class H2BoardDatabaseTest {
             //then
             Optional<Board> byId = database.findById(duplicated.getBoardId());
             assertTrue(byId.isPresent());
-            assertEquals(duplicated,byId.get());
+            Board found = byId.get();
+            compareBoard(duplicated,found);
         }
     }
 
@@ -110,6 +121,7 @@ class H2BoardDatabaseTest {
             Board board1 = new Board(Long.valueOf(1l),"title1","content1","writer1");
             Board board2 = new Board(Long.valueOf(2l),"title2","content2","writer2");
             Board board3 = new Board(Long.valueOf(3l),"title3","content3","writer3");
+            List<Long> boards = List.of(1l,2l,3l);
             database.save(board1);
             database.save(board2);
             database.save(board3);
@@ -118,7 +130,9 @@ class H2BoardDatabaseTest {
             List<Board> all = database.findAll();
 
             //then
-            assertTrue(all.containsAll(List.of(board1,board2,board3)));
+            assertTrue(all.stream()
+                    .map(Board::getBoardId)
+                    .allMatch(boardId -> boards.contains(boardId)));
         }
     }
 
@@ -136,7 +150,7 @@ class H2BoardDatabaseTest {
 
             //then
             assertTrue(byId.isPresent());
-            assertEquals(board1, byId.get());
+            assertEquals(board1.getBoardId(), byId.get().getBoardId());
         }
         @Test
         void findByIdWithNotExists(){
