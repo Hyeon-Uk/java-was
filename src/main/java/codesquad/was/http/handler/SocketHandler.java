@@ -44,9 +44,8 @@ public class SocketHandler implements Runnable {
         InputStream is = null;
         try{
             is = socket.getInputStream();
-            String requestMessage = readRequestMessage(is);
             Map<String, List<String>> header = new HashMap<>();
-            HttpRequest request = requestParser.parse(requestMessage);
+            HttpRequest request = requestParser.parse(is);
             logger.info("request URI : {} / method : {}", request.getUri(),request.getMethod());
             HttpResponse response = new HttpResponse(request.getHttpVersion(), header);
 
@@ -82,18 +81,6 @@ public class SocketHandler implements Runnable {
                 logger.error("Error with closing socket : {}", ioException.getMessage());
             }
         }
-    }
-
-    private String readRequestMessage(InputStream is) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        int BUFFER_SIZE = 1024;
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int length = 0;
-        do {
-            length = is.read(buffer);
-            sb.append(new String(buffer, 0, length));
-        } while (length == BUFFER_SIZE);
-        return sb.toString();
     }
 
     private void sendResponse(HttpResponse response, Socket clientSocket) throws IOException {

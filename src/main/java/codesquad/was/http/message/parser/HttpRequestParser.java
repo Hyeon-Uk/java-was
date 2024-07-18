@@ -9,6 +9,7 @@ import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.vo.HttpBody;
 import codesquad.was.http.session.SessionManager;
 
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,5 +60,18 @@ public class HttpRequestParser implements RequestParser{
         queryString.putAll(bodyQueryString);
 
         return new HttpRequest(httpRequestStartLine,queryString,httpHeader,httpBody,sessionManager);
+    }
+
+    @Override
+    public HttpRequest parse(InputStream is){
+        HttpRequestStartLine startLine = httpRequestStartLineParser.parse(is);
+        HttpHeader headers = httpHeaderParser.parse(is);
+        HttpBody body = httpBodyParser.parse(headers, is);
+
+        Map<String,String> queryString = startLine.getQueryString();
+        String bodyPart = new String(body.getBody());
+        queryString.putAll(httpQueryStringParser.parse(URLDecoder.decode(bodyPart)));
+
+        return new HttpRequest(startLine,queryString,headers,body,sessionManager);
     }
 }

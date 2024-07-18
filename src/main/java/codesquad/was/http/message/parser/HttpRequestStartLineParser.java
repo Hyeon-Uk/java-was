@@ -8,10 +8,17 @@ import codesquad.was.http.message.request.HttpMethod;
 import java.io.*;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Coffee
 public class HttpRequestStartLineParser {
+    private final HttpQueryStringParser queryStringParser;
+    public HttpRequestStartLineParser(HttpQueryStringParser queryStringParser) {
+        this.queryStringParser = queryStringParser;
+    }
     public HttpRequestStartLine parse(InputStream is) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -27,7 +34,7 @@ public class HttpRequestStartLineParser {
             for(byte b : byteArray){
                 sb.append((char)b);
             }
-            String startLineString = sb.toString().trim();
+            String startLineString = URLDecoder.decode(sb.toString().trim());
             return parse(startLineString);
         }catch(IOException e) {
             throw new InvalidRequestFormatException();
@@ -46,9 +53,18 @@ public class HttpRequestStartLineParser {
         if(startLineComponents.length != 3) throw new InvalidRequestFormatException();
         HttpMethod method = extractMethod(startLineComponents[0]);
         String uri = extractUri(startLineComponents[1]);
+        Map<String,String> queryString = extractQueryString(startLineComponents[1]);
         String httpVersion = extractHttpVersion(startLineComponents[2]);
 
-        return new HttpRequestStartLine(httpVersion,uri,method);
+        return new HttpRequestStartLine(httpVersion,uri,method,queryString);
+    }
+
+    private Map<String,String> extractQueryString(String uri){
+        int index = uri.indexOf('?');
+        if(index == -1) return new HashMap<>();
+
+        String queryString = uri.substring(index+1);
+        return queryStringParser.parse(queryString);
     }
 
     //TODO 추후 extract에서 request startline의 형식이 맞는지 검증하는 코드를 extract 메서드 내에서 검증

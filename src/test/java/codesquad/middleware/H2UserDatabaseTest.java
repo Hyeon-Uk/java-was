@@ -78,7 +78,6 @@ class H2UserDatabaseTest {
 
         //when
         List<User> allUsers = userDatabase.findAll();
-        System.out.println("allUsers = " + allUsers);
 
         //then
         assertTrue(allUsers.containsAll(List.of(user1,user2,user3)));

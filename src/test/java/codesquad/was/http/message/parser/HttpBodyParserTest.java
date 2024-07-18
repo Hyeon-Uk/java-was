@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpBodyParserTest {
-    private final HttpBodyParser parser = new HttpBodyParser();
+    private final HttpQueryStringParser queryStringParser = new HttpQueryStringParser();
+    private final HttpBodyParser parser = new HttpBodyParser(queryStringParser);
     @Test
     void bodyParsingWithStringTest(){
         //given

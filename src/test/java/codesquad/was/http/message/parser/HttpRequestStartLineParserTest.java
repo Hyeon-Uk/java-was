@@ -16,7 +16,8 @@ import java.net.URLEncoder;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpRequestStartLineParserTest {
-    private final HttpRequestStartLineParser parser = new HttpRequestStartLineParser();
+    private final HttpQueryStringParser queryStringParser = new HttpQueryStringParser();
+    private final HttpRequestStartLineParser parser = new HttpRequestStartLineParser(queryStringParser);
 
     @Nested
     @DisplayName("with string")
@@ -110,9 +111,6 @@ class HttpRequestStartLineParserTest {
 
             //when
             HttpRequestStartLine parse = parser.parse(is);
-            System.out.println("parse.getMethod() = " + parse.getMethod());
-            System.out.println("parse.getUri() = " + parse.getUri());
-            System.out.println("parse.getHttpVersion() = " + parse.getHttpVersion());
 
             //then
             assertAll("startLine",
