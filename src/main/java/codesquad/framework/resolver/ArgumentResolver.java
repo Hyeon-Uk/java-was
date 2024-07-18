@@ -6,6 +6,7 @@ import codesquad.framework.resolver.annotation.RequestParam;
 import codesquad.framework.resolver.annotation.SessionParam;
 import codesquad.was.http.message.request.HttpRequest;
 import codesquad.was.http.message.response.HttpResponse;
+import codesquad.was.http.message.vo.HttpFile;
 import codesquad.was.http.session.Session;
 
 import java.lang.reflect.*;
@@ -14,7 +15,7 @@ import java.util.function.Function;
 
 @Coffee
 public class ArgumentResolver {
-    private Object getObjectField(Field field, Function<String, String> getValue) {
+    private Object getObjectField(Field field, Function<String, String> getValue,Function<String,HttpFile> getFileValue) {
         Class<?> type = field.getType();
         try {
             if (type.equals(Object.class)) {//bias condition
@@ -31,7 +32,9 @@ public class ArgumentResolver {
                 return Double.parseDouble(value);
             } else if (type.equals(float.class) || type.equals(Float.class)) {
                 return Float.parseFloat(value);
-            } else {
+            } else if(type.equals(HttpFile.class)){
+                return getFileValue.apply(field.getName());
+            }else {
                 //object type
                 Field[] declaredFields = type.getDeclaredFields();
                 Constructor<?> defaultConstructor = type.getConstructor();
@@ -39,7 +42,7 @@ public class ArgumentResolver {
                 Object instance = defaultConstructor.newInstance();
                 for (Field f : declaredFields) {
                     f.setAccessible(true);
-                    Object fValue = getObjectField(f, getValue);
+                    Object fValue = getObjectField(f, getValue,getFileValue);
                     f.set(instance, fValue);
                 }
                 return instance;
@@ -55,13 +58,13 @@ public class ArgumentResolver {
         }
     }
 
-    private <T> T makeObject(Class<T> clazz, Function<String, String> getValue) {
+    private <T> T makeObject(Class<T> clazz, Function<String, String> getQueryValue,Function<String,HttpFile> getFileValue) {
         try {
             Constructor<?> constructor = clazz.getConstructor();
             constructor.setAccessible(true);
             Object instance = constructor.newInstance();
             for (Field f : clazz.getDeclaredFields()) {
-                Object objectField = getObjectField(f, getValue);
+                Object objectField = getObjectField(f, getQueryValue,getFileValue);
                 f.setAccessible(true);
                 f.set(instance, objectField);
             }
@@ -111,8 +114,9 @@ public class ArgumentResolver {
             } else if (type.equals(float.class) || type.equals(Float.class)) {
                 return Float.parseFloat(value);
             } else {
-                Function<String, String> getValue = (key -> req.getQueryString(key));
-                return makeObject(type, getValue);
+                Function<String, String> getQueryValue = (key -> req.getQueryString(key));
+                Function<String, HttpFile> getFileValue = (key -> req.getFile(key));
+                return makeObject(type, getQueryValue,getFileValue);
             }
         }
 
