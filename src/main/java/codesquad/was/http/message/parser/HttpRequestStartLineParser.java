@@ -25,12 +25,9 @@ public class HttpRequestStartLineParser {
             byte[] byteArray = bos.toByteArray();
             StringBuilder sb = new StringBuilder();
             for(byte b : byteArray){
-                if((char)b == '\n' || (char)b =='\r') {
-                    break;
-                }
                 sb.append((char)b);
             }
-            String startLineString = sb.toString();
+            String startLineString = sb.toString().trim();
             return parse(startLineString);
         }catch(IOException e) {
             throw new InvalidRequestFormatException();
@@ -38,7 +35,7 @@ public class HttpRequestStartLineParser {
     }
 
     private boolean isNewLine(byte tail1,byte tail2){
-        return (char)tail1 == '\r' && (char)tail2 == '\n';
+        return tail1 == '\r' && tail2 == '\n';
     }
 
     public HttpRequestStartLine parse(String startLine){

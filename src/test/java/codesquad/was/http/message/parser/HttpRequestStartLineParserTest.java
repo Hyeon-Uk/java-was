@@ -1,5 +1,6 @@
 package codesquad.was.http.message.parser;
 
+import codesquad.was.http.exception.HttpInternalServerErrorException;
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
@@ -183,6 +184,39 @@ class HttpRequestStartLineParserTest {
 
             //when & then
             assertThrows(InvalidRequestFormatException.class, () -> {
+                parser.parse(is);
+            });
+        }
+
+        @Test
+        void parsingWithoutCRLF(){
+            //given
+            String startLine = "GET / HTTP/1.1";
+            InputStream is = new ByteArrayInputStream(startLine.getBytes());
+
+            //when
+            HttpRequestStartLine parse = parser.parse(is);
+
+            //then
+            assertAll("startLineWithURLEncodedString",
+                    () -> assertEquals(HttpMethod.GET, parse.getMethod()),
+                    () -> assertEquals("/", parse.getUri()),
+                    () -> assertEquals("HTTP/1.1", parse.getHttpVersion())
+            );
+        }
+
+        @Test
+        void withIOException(){
+            //given
+            InputStream is = new InputStream() {
+                @Override
+                public int read() throws IOException {
+                    throw new IOException();
+                }
+            };
+
+            //when & then
+            assertThrows(InvalidRequestFormatException.class,()->{
                 parser.parse(is);
             });
         }
