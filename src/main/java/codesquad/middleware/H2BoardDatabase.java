@@ -1,6 +1,7 @@
 package codesquad.middleware;
 
 import codesquad.application.model.Board;
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
 
 import java.sql.*;
@@ -8,18 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Coffee
 public class H2BoardDatabase implements BoardDatabase{
     private final DataSource dataSource;
     public H2BoardDatabase(DataSource dataSource){
         this.dataSource = dataSource;
+        Connection con=null;
         try{
             Class.forName(dataSource.getDriverClassName());
-            Connection con = DriverManager.getConnection(dataSource.getUrl(),dataSource.getUsername(),dataSource.getPassword());
-            PreparedStatement pstm = con.prepareStatement("create table if not exists \"BOARD\"(boardId bigint primary key AUTO_INCREMENT, title varchar(255), content text,writer varchar(255))");
+            con = DriverManager.getConnection(dataSource.getUrl(),dataSource.getUsername(),dataSource.getPassword());
+            con.setAutoCommit(false);
+            con.prepareStatement("drop table if exists \"BOARD\"").executeUpdate();
+
+            PreparedStatement pstm = con.prepareStatement("create table  \"BOARD\"(boardId bigint primary key AUTO_INCREMENT, title varchar(255), content text,writer varchar(255))");
             pstm.executeUpdate();
 
+            con.commit();
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException ex) {
+                throw new HttpInternalServerErrorException("internal server error!");
+            }
             throw new HttpInternalServerErrorException("internal server error!");
         }
     }
@@ -42,7 +53,7 @@ public class H2BoardDatabase implements BoardDatabase{
             int count = 0;
 
             if(board.getBoardId() != null) {
-                PreparedStatement pstm1 = con.prepareStatement("select count(*) from \"BOARD\" where boardId = ?");
+                PreparedStatement pstm1 = con.prepareStatement("select count(*) from BOARD where boardId = ?");
                 pstm1.setLong(1, board.getBoardId());
                 ResultSet rs1 = pstm1.executeQuery();
 
@@ -53,7 +64,7 @@ public class H2BoardDatabase implements BoardDatabase{
             }
             if(count == 0) {
                 if(board.getBoardId() == null) {
-                    PreparedStatement ps = con.prepareStatement("insert into \"BOARD\"(writer,title,content) values (?,?,?)",Statement.RETURN_GENERATED_KEYS);
+                    PreparedStatement ps = con.prepareStatement("insert into BOARD(writer,title,content) values (?,?,?)",Statement.RETURN_GENERATED_KEYS);
                     ps.setString(1, board.getWriter());
                     ps.setString(2, board.getTitle());
                     ps.setString(3, board.getContent());
@@ -68,7 +79,7 @@ public class H2BoardDatabase implements BoardDatabase{
                     }
                 }
                 else{
-                    PreparedStatement ps = con.prepareStatement("insert into \"BOARD\"(boardId,writer,title,content) values (?,?,?,?)");
+                    PreparedStatement ps = con.prepareStatement("insert into BOARD(boardId,writer,title,content) values (?,?,?,?)");
                     ps.setLong(1,board.getBoardId());
                     ps.setString(2, board.getWriter());
                     ps.setString(3, board.getTitle());
@@ -78,7 +89,7 @@ public class H2BoardDatabase implements BoardDatabase{
                 }
             }
             else{
-                PreparedStatement ps = con.prepareStatement("update \"BOARD\" set writer = ? , title = ?, content = ? where boardId = ?");
+                PreparedStatement ps = con.prepareStatement("update BOARD set writer = ? , title = ?, content = ? where boardId = ?");
                 ps.setString(1,board.getWriter());
                 ps.setString(2, board.getTitle());
                 ps.setString(3, board.getContent());
@@ -109,7 +120,7 @@ public class H2BoardDatabase implements BoardDatabase{
         Connection con = null;
         try{
             con = getConnection();
-            PreparedStatement ps = con.prepareStatement("select * from \"BOARD\"");
+            PreparedStatement ps = con.prepareStatement("select * from BOARD");
 
             ResultSet rs = ps.executeQuery();
             List<Board> boards = new ArrayList<>();
@@ -121,6 +132,7 @@ public class H2BoardDatabase implements BoardDatabase{
             }
             return boards;
         }catch (SQLException e) {
+            e.printStackTrace();
             throw new HttpInternalServerErrorException("internal server error!");
         }finally{
             try{
@@ -138,7 +150,7 @@ public class H2BoardDatabase implements BoardDatabase{
         Connection con = null;
         try{
             con = getConnection();
-            PreparedStatement ps = con.prepareStatement("select * from \"BOARD\" where boardId = ?");
+            PreparedStatement ps = con.prepareStatement("select * from BOARD where boardId = ?");
             ps.setLong(1,id);
             ResultSet rs = ps.executeQuery();
 

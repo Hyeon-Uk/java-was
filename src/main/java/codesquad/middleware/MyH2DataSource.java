@@ -7,7 +7,7 @@ public class MyH2DataSource implements DataSource{
 
     @Override
     public String getUrl() {
-        return "jdbc:h2:mem:javawas";
+        return "jdbc:h2:mem:javawas;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
     }
 
     @Override

@@ -1,6 +1,7 @@
 package codesquad.middleware;
 
 import codesquad.application.model.User;
+import codesquad.framework.coffee.annotation.Coffee;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
 import org.h2.mvstore.tx.Transaction;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Coffee
 public class H2UserDatabase implements UserDatabase{
     private final DataSource dataSource;
     public H2UserDatabase(DataSource dataSource) {

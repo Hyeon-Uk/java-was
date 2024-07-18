@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Coffee
 public class BoardDatabaseInMemory implements BoardDatabase{
     private final Map<Long, Board> store = new ConcurrentHashMap<>();
     private final AtomicLong seq = new AtomicLong(0);
