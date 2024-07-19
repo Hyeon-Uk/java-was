@@ -2,7 +2,6 @@ package codesquad.was.http.handler;
 
 import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
-import codesquad.was.http.filter.Filter;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.http.message.request.Request;
 import codesquad.was.http.message.response.HttpResponse;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +26,6 @@ public class SocketHandler implements Runnable {
     private final CustomDateFormatter dateFormatter;
     private final RequestParser requestParser;
     private final RequestHandler requestHandler;
-    private List<Filter> filters;
 
     public SocketHandler(Socket socket,
                          RequestParser requestParser,
@@ -40,7 +37,6 @@ public class SocketHandler implements Runnable {
         this.timer = timer;
         this.dateFormatter = dateFormatter;
         this.requestHandler = requestHandler;
-        this.filters = new LinkedList<>();
     }
 
     @Override
