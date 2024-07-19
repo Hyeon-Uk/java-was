@@ -65,6 +65,7 @@ public class Main {
                     String rendered = engine.render(html, model.asMap());
 
                     res.setStatus(status);
+                    res.setHeader("Content-Type","text/html;charset=utf-8");
                     res.setBody(rendered.getBytes());
                 } else {
                     method.invoke(bean, args);
