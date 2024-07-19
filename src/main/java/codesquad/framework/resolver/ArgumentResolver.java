@@ -5,7 +5,9 @@ import codesquad.framework.dispatcher.mv.Model;
 import codesquad.framework.resolver.annotation.RequestParam;
 import codesquad.framework.resolver.annotation.SessionParam;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.message.request.Request;
 import codesquad.was.http.message.response.HttpResponse;
+import codesquad.was.http.message.response.Response;
 import codesquad.was.http.message.vo.HttpFile;
 import codesquad.was.http.session.Session;
 
@@ -15,7 +17,7 @@ import java.util.function.Function;
 
 @Coffee
 public class ArgumentResolver {
-    private Object getObjectField(Field field, HttpRequest req,HttpResponse res,Model model,Function<String, String> getValue,Function<String,HttpFile> getFileValue) {
+    private Object getObjectField(Field field, Request req,Response res,Model model,Function<String, String> getValue,Function<String,HttpFile> getFileValue) {
         Class<?> type = field.getType();
         try {
             if (type.equals(Object.class)) {//bias condition
@@ -62,7 +64,7 @@ public class ArgumentResolver {
         }
     }
 
-    private <T> T makeObject(Class<T> clazz, HttpRequest req,HttpResponse res,Model model, Function<String, String> getQueryValue,Function<String,HttpFile> getFileValue) {
+    private <T> T makeObject(Class<T> clazz, Request req,Response res,Model model, Function<String, String> getQueryValue,Function<String,HttpFile> getFileValue) {
         try {
             Constructor<?> constructor = clazz.getConstructor();
             constructor.setAccessible(true);
@@ -78,7 +80,7 @@ public class ArgumentResolver {
         }
     }
 
-    private Object resolveParam(Parameter param, HttpRequest req, HttpResponse res,Model model) {
+    private Object resolveParam(Parameter param, Request req, Response res,Model model) {
         Class<?> type = param.getType();
         if(type.equals(HttpRequest.class)){
             return req;
@@ -131,7 +133,7 @@ public class ArgumentResolver {
         return null;
     }
 
-    public Object[] resolveArguments(Method method, HttpRequest req, HttpResponse res, Model model) {
+    public Object[] resolveArguments(Method method, Request req, Response res, Model model) {
         Parameter[] parameters = method.getParameters();
         return Arrays.stream(parameters)
                 .map(param -> resolveParam(param, req, res,model))

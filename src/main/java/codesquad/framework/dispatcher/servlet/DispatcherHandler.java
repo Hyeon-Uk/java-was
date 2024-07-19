@@ -7,8 +7,10 @@ import codesquad.was.http.exception.HttpException;
 import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.message.request.Request;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.response.HttpStatus;
+import codesquad.was.http.message.response.Response;
 import codesquad.was.utils.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +31,7 @@ public class DispatcherHandler implements RequestHandler {
     }
 
     @Override
-    public void handle(HttpRequest req, HttpResponse res) {
+    public void handle(Request req, Response res) {
         try{
             String path = req.getUri();
             HttpMethod method = req.getMethod();

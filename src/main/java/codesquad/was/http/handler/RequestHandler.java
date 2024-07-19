@@ -1,12 +1,9 @@
 package codesquad.was.http.handler;
 
-import codesquad.was.http.exception.HttpMethodNotAllowedException;
-import codesquad.was.http.message.request.HttpRequest;
-import codesquad.was.http.message.response.HttpResponse;
-import codesquad.was.http.message.response.HttpStatus;
-import codesquad.was.utils.FileUtils;
+import codesquad.was.http.message.request.Request;
+import codesquad.was.http.message.response.Response;
 
 
 public interface RequestHandler {
-    void handle(HttpRequest req, HttpResponse res);
+    void handle(Request req, Response res);
 }

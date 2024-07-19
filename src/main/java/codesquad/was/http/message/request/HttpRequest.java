@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HttpRequest {
+public class HttpRequest implements Request{
     private final SessionManager sessionManager;
     private final HttpRequestStartLine startLine;
     private final HttpHeader header;

@@ -8,7 +8,7 @@ import codesquad.was.utils.Timer;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class HttpResponse {
+public class HttpResponse implements Response {
     private final HttpResponseStartLine startLine;
     private final HttpHeader header;
     private final HttpBody body;
