@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="../reset.css" rel="stylesheet" />
     <link href="../global.css" rel="stylesheet" />
+    <link href="../main.css" rel="stylesheet" />
   </head>
   <body>
     <div class="container">
@@ -32,12 +33,16 @@
         </ul>
       </header>
       <div class="page">
-        <h2 class="page-title">{{title}}</h2>
+        <h2 class="page-title">제목 : {{title}}</h2>
+        <hr>
         <h3>작성자 : {{writer}}</h3>
+        <hr>
         {{if {{path}} != null then
-        <img src="{{path}}"/>
+        <img src="{{path}}" class="post__img"/>
           else
         }}
+        <h2>본문</h2>
+        <hr>
         <p>
           {{content}}
         </p>
