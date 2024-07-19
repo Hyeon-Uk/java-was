@@ -11,15 +11,18 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class CoffeeShop {
     private final Logger logger = LoggerFactory.getLogger(CoffeeShop.class);
     private final Map<Class<?>, List<Object>> container = new HashMap<>();
 
     public CoffeeShop() throws Exception {
-        this("");
+        this("codesquad");
     }
 
     public CoffeeShop(String basePackage) throws Exception {
@@ -35,12 +38,33 @@ public class CoffeeShop {
             Enumeration<URL> resources = classLoader.getResources(path);
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
-                File file = new File(resource.getFile());
-                scanDirectory(clazzes, file, basePackage);
+                if(resource.getProtocol().equals("file")) {
+                    File file = new File(resource.getFile());
+                    scanDirectory(clazzes, file, basePackage);
+                }else if(resource.getProtocol().equals("jar")) {
+                    System.out.println("jar!");
+                    JarURLConnection jarUrlConnection = (JarURLConnection) resource.openConnection();
+                    scanJar(clazzes,jarUrlConnection.getJarFile(),basePackage);
+                }
             }
             return clazzes;
         } catch (Exception e) {
             throw new RuntimeException("Failed to scan and register components", e);
+        }
+    }
+
+    private void scanJar(List<Class<?>> clazzes, JarFile jarFile, String basePackage) throws Exception {
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while(entries.hasMoreElements()) {
+            JarEntry jarEntry = entries.nextElement();
+            String entryName = jarEntry.getName();
+            if(entryName.startsWith(basePackage) && entryName.endsWith(".class") && !jarEntry.isDirectory()) {
+                String className = entryName.replace('/','.').substring(0,entryName.length()-6);
+                Class<?> clazz = Class.forName(className);
+                if(clazz.isAnnotationPresent(Coffee.class)) {
+                    clazzes.add(clazz);
+                }
+            }
         }
     }
 
@@ -106,7 +130,9 @@ public class CoffeeShop {
             Class<?>[] paramTypes = resolveDependenciesTypes(appropriateConstructor);
             Arrays.stream(paramTypes)
                     .forEach(param -> {
-                        if(!seqMap.containsKey(param)) throw new IllegalStateException("No bean found of type "+param.getName());
+                        if(!seqMap.containsKey(param)) {
+                            throw new IllegalStateException("No bean found of type "+param.getName());
+                        }
                         int paramSeq = seqMap.get(param);
                         int nowSeq = seqMap.get(clazz);
 
