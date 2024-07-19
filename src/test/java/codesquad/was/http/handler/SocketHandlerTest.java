@@ -18,9 +18,7 @@ import codesquad.was.http.session.SessionManager;
 import codesquad.was.http.session.SessionStorage;
 import codesquad.was.utils.CustomDateFormatter;
 import codesquad.was.utils.Timer;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -32,22 +30,89 @@ import java.util.concurrent.Executors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@DisplayName("SocketHandler 클래스")
 class SocketHandlerTest {
-    private Timer mockTimer;
-    private ExecutorService mockExecutorService;
+
+    // Data
+    private MockTimer mockTimer;
     private MockRequestParser mockRequestParser;
     private CustomDateFormatter mockDateFormat;
     private MockSocket mockSocket;
     private SocketHandler socketHandler;
-    private MockRequestHandler requestHandler;
-    private final String NEW_LINE = "\r\n";
+    private MockRequestHandler mockRequestHandler;
 
-    private HttpRequest httpRequest =
-            new HttpRequest(new HttpRequestStartLine("HTTP/1.1", "/", HttpMethod.GET),
-                    new HashMap<>(),
-                    new HttpHeader(new HashMap<>()),
-                    new HttpBody(),
-                    new SessionManager(new SessionStorage(), new MockTimer(10l)));
+    private HttpRequest httpRequest;
+
+    // Context setup
+    @BeforeEach
+    void setUp() {
+        mockTimer = new MockTimer(new Date().getTime());
+        mockRequestParser = new MockRequestParser();
+        mockDateFormat = new CustomDateFormatter();
+        mockSocket = new MockSocket();
+        mockRequestHandler = new MockRequestHandler();
+        socketHandler = new SocketHandler(mockSocket, mockRequestParser, mockTimer, mockDateFormat, mockRequestHandler);
+
+        httpRequest = new HttpRequest(
+                new HttpRequestStartLine("HTTP/1.1", "/", HttpMethod.GET),
+                new HashMap<>(),
+                new HttpHeader(new HashMap<>()),
+                new HttpBody(),
+                new SessionManager(new SessionStorage(), mockTimer)
+        );
+    }
+
+    @Nested
+    @DisplayName("run 메소드는")
+    class RunMethod {
+
+        @Test
+        @DisplayName("소켓의 InputStream에서 IOException이 발생하면 소켓을 닫는다")
+        void socketExceptionWithReadInputStream() {
+            mockSocket.setInputStreamException(true);
+
+            socketHandler.run();
+
+            assertTrue(mockSocket.isClosed());
+            assertEquals(0, mockSocket.getOutputStreamSize());
+        }
+
+        @Test
+        @DisplayName("잘못된 요청 형식을 받으면 500 응답을 반환한다")
+        void unSatisfiedRequestMessageFormat() {
+            mockRequestParser.setThrowFlag(true);
+            HttpResponse expectedResponse = new HttpResponse(new HttpInternalServerErrorException("Internal Server Exception"));
+            expectedResponse.setHeader("Date", mockDateFormat.format(mockTimer.getCurrentTime()));
+
+            socketHandler.run();
+
+            assertTrue(mockSocket.isClosed());
+            assertEquals(new String(expectedResponse.parse()), mockSocket.getOutputData());
+        }
+
+        @Test
+        @DisplayName("핸들러에서 예외가 발생하면 적절한 오류 응답을 반환한다")
+        void whenHandlerThrowsException() {
+            mockRequestHandler.setThrowFlag(true);
+            HttpResponse expectedResponse = new HttpResponse(new HttpInternalServerErrorException("Internal Server Exception"));
+            expectedResponse.setHeader("Date", mockDateFormat.format(mockTimer.getCurrentTime()));
+
+            socketHandler.run();
+
+            assertTrue(mockSocket.isClosed());
+            assertEquals(new String(expectedResponse.parse()), mockSocket.getOutputData());
+        }
+
+        @Test
+        @DisplayName("소켓의 OutputStream에서 IOException이 발생하면 응답을 보내지 않는다")
+        void socketExceptionWithWriteOutputStream() {
+            mockSocket.setOutputStreamException(true);
+
+            socketHandler.run();
+
+            assertEquals(0, mockSocket.getOutputStreamSize());
+        }
+    }
 
     private class MockRequestParser implements RequestParser {
         private boolean throwFlag;
@@ -120,92 +185,5 @@ class SocketHandlerTest {
                 return os;
             }
         }
-    }
-
-    @BeforeEach
-    void setUp() throws IOException {
-        mockTimer = new MockTimer(new Date().getTime());
-        mockExecutorService = Executors.newFixedThreadPool(10);
-        mockRequestParser = new MockRequestParser();
-        mockDateFormat = new CustomDateFormatter();
-        mockSocket = new MockSocket();
-        requestHandler = new MockRequestHandler();
-        socketHandler = new SocketHandler(mockSocket,
-                mockRequestParser,
-                mockTimer,
-                mockDateFormat,
-                requestHandler);
-    }
-
-    @AfterEach
-    void tearDown() {
-        mockExecutorService.shutdownNow();
-    }
-
-    /***
-     * 테스트 해야할 목록
-     *
-     * 1. socket의 getInputStream() 메서드에서 ioexception이 터지는 경우
-     * 2. request message의 format이 잘못된경우
-     * 3. handler에서 exception을 throw 받은경우
-     * 4. send 도중 ioexception이 발생한경우
-     *
-     */
-    @Test
-    void socketExceptionWithReadInputStream() throws IOException {
-        //given
-        mockSocket.setInputStreamException(true);
-
-        //when
-        socketHandler.run();
-
-        //then
-        assertTrue(mockSocket.isClosed());
-        assertEquals(0, mockSocket.getOutputStreamSize());
-    }
-
-    @Test
-    void unSatisfiedRequestMessageFormat() throws IOException {
-        //given
-        mockRequestParser.setThrowFlag(true);
-        HttpResponse response = new HttpResponse(new HttpInternalServerErrorException("Internal Server Exception"));
-        response.setHeader("Date", mockDateFormat.format(mockTimer.getCurrentTime()));
-        String expectedResponseMessage = new String(response.parse());
-
-        //when
-        socketHandler.run();
-
-        //then
-        assertTrue(mockSocket.isClosed());
-        assertEquals(expectedResponseMessage, mockSocket.getOutputData());
-    }
-
-    @Test
-    void whenHandlerThrowsException(){
-        //given
-        requestHandler.setThrowFlag(true);
-        HttpException httpException = new HttpInternalServerErrorException("Internal Server Exception");
-        HttpResponse response = new HttpResponse(httpException);
-        response.setHeader("Date", mockDateFormat.format(mockTimer.getCurrentTime()));
-        String expectedResponseMessage = new String(response.parse());
-
-        //when
-        socketHandler.run();
-
-        //then
-        assertTrue(mockSocket.isClosed());
-        assertEquals(expectedResponseMessage,mockSocket.getOutputData());
-    }
-
-    @Test
-    void socketExceptionWithWriteOutputStream() {
-        //given
-        mockSocket.setOutputStreamException(true);
-
-        //when
-        socketHandler.run();
-
-        //then
-        assertEquals(0, mockSocket.getOutputStreamSize());
     }
 }

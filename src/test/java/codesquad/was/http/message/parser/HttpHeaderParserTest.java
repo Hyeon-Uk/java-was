@@ -2,6 +2,7 @@ package codesquad.was.http.message.parser;
 
 import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.vo.HttpHeader;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,171 +15,167 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("HttpHeaderParser 테스트")
 class HttpHeaderParserTest {
-    private final HttpHeaderParser parser = new HttpHeaderParser();
+    private HttpHeaderParser parser;
+
+    @BeforeEach
+    void setUp() {
+        parser = new HttpHeaderParser();
+    }
 
     @Nested
-    @DisplayName("with string")
-    class WithString {
+    @DisplayName("문자열 입력으로 파싱할 때")
+    class ParseFromString {
         @Test
-        void withSingleValue() {
-            //given
-            String[] headerLine = {"hello: world", "welcome: java"};
+        @DisplayName("단일 값을 가진 헤더를 파싱한다")
+        void parseSingleValueHeaders() {
+            // Given
+            String[] headerLines = {"hello: world", "welcome: java"};
 
-            //when
-            HttpHeader parse = parser.parse(headerLine);
+            // When
+            HttpHeader header = parser.parse(headerLines);
 
-            //then
-            assertAll("singleValue",
-                    () -> assertTrue(parse.getHeaders("hello").contains("world")),
-                    () -> assertTrue(parse.getHeaders("welcome").contains("java"))
+            // Then
+            assertAll(
+                    () -> assertEquals(List.of("world"), header.getHeaders("hello")),
+                    () -> assertEquals(List.of("java"), header.getHeaders("welcome"))
             );
         }
 
         @Test
-        void withMultiValues() {
-            //given
-            String[] headerLine = {"hello: world, and, java"};
+        @DisplayName("다중 값을 가진 헤더를 파싱한다")
+        void parseMultiValueHeaders() {
+            // Given
+            String[] headerLines = {"hello: world, and, java"};
 
-            //when
-            HttpHeader parse = parser.parse(headerLine);
+            // When
+            HttpHeader header = parser.parse(headerLines);
 
-            //then
-            assertAll("multiValue",
-                    () -> assertTrue(parse.getHeaders("hello").contains("world")),
-                    () -> assertTrue(parse.getHeaders("hello").contains("and")),
-                    () -> assertTrue(parse.getHeaders("hello").contains("java"))
+            // Then
+            assertEquals(List.of("world", "and", "java"), header.getHeaders("hello"));
+        }
+
+        @Test
+        @DisplayName("모든 헤더를 파싱하고 반환한다")
+        void parseAllHeaders() {
+            // Given
+            String[] headerLines = {"id: secret", "hello: world, and, java"};
+
+            // When
+            HttpHeader header = parser.parse(headerLines);
+            Map<String, List<String>> headers = header.allHeaders();
+
+            // Then
+            assertAll(
+                    () -> assertEquals(List.of("secret"), headers.get("id")),
+                    () -> assertEquals(List.of("world", "and", "java"), headers.get("hello"))
             );
         }
 
         @Test
-        void allHeadersTest() {
-            //given
-            String[] headerLine = {"id: secret", "hello: world, and, java"};
+        @DisplayName("빈 값을 가진 헤더를 파싱한다")
+        void parseEmptyValueHeader() {
+            // Given
+            String[] headerLines = {"hello: "};
 
-            //when
-            HttpHeader parse = parser.parse(headerLine);
+            // When
+            HttpHeader header = parser.parse(headerLines);
 
-            Map<String, List<String>> headers = parse.allHeaders();
-
-            //then
-            assertAll("multiValue",
-                    () -> assertTrue(headers.get("hello").contains("world")),
-                    () -> assertTrue(headers.get("hello").contains("and")),
-                    () -> assertTrue(headers.get("hello").contains("java")),
-                    () -> assertTrue(headers.get("id").contains("secret"))
-            );
+            // Then
+            assertTrue(header.getHeaders("hello").isEmpty());
         }
 
         @Test
-        void withEmptyValue() {
-            //given
-            String[] headerLine = {"hello: "};
+        @DisplayName("존재하지 않는 키로 헤더를 조회한다")
+        void getNotExistingHeader() {
+            // Given
+            HttpHeader header = parser.parse(new String[]{});
 
-            //when
-            HttpHeader parse = parser.parse(headerLine);
-
-            //then
-            assertEquals(0, parse.getHeaders("hello").size());
-        }
-
-        @Test
-        void getHeaderWithNotExistedKey() {
-            //given
-
-            //when
-            HttpHeader parse = parser.parse(new String[]{});
-
-            //then
-            assertEquals(0, parse.getHeaders("notExistsKey").size());
+            // When & Then
+            assertTrue(header.getHeaders("notExistsKey").isEmpty());
         }
     }
 
     @Nested
-    @DisplayName("with input stream")
-    class WithInputStream {
+    @DisplayName("InputStream 입력으로 파싱할 때")
+    class ParseFromInputStream {
         @Test
-        void withSingleValue() {
-            //given
-            String headerLine = "hello: world\r\nwelcome: java\r\n\r\n";
-            InputStream is = new ByteArrayInputStream(headerLine.getBytes());
+        @DisplayName("단일 값을 가진 헤더를 파싱한다")
+        void parseSingleValueHeaders() {
+            // Given
+            InputStream is = createInputStream("hello: world\r\nwelcome: java\r\n\r\n");
 
-            //when
-            HttpHeader parse = parser.parse(is);
+            // When
+            HttpHeader header = parser.parse(is);
 
-            //then
-            assertAll("singleValue",
-                    () -> assertTrue(parse.getHeaders("hello").contains("world")),
-                    () -> assertTrue(parse.getHeaders("welcome").contains("java"))
+            // Then
+            assertAll(
+                    () -> assertEquals(List.of("world"), header.getHeaders("hello")),
+                    () -> assertEquals(List.of("java"), header.getHeaders("welcome"))
             );
         }
 
         @Test
-        void withMultiValues() {
-            //given
-            String headerLine = "hello: world, and, java\r\nwelcome: java\r\n\r\n";
-            InputStream is = new ByteArrayInputStream(headerLine.getBytes());
+        @DisplayName("다중 값을 가진 헤더를 파싱한다")
+        void parseMultiValueHeaders() {
+            // Given
+            InputStream is = createInputStream("hello: world, and, java\r\nwelcome: java\r\n\r\n");
 
-            //when
-            HttpHeader parse = parser.parse(is);
+            // When
+            HttpHeader header = parser.parse(is);
 
-            //then
-            assertAll("multiValue",
-                    () -> assertTrue(parse.getHeaders("hello").contains("world")),
-                    () -> assertTrue(parse.getHeaders("hello").contains("and")),
-                    () -> assertTrue(parse.getHeaders("hello").contains("java"))
+            // Then
+            assertEquals(List.of("world", "and", "java"), header.getHeaders("hello"));
+        }
+
+        @Test
+        @DisplayName("모든 헤더를 파싱하고 반환한다")
+        void parseAllHeaders() {
+            // Given
+            InputStream is = createInputStream("id: secret\r\nhello: world, and, java\r\n\r\n");
+
+            // When
+            HttpHeader header = parser.parse(is);
+            Map<String, List<String>> headers = header.allHeaders();
+
+            // Then
+            assertAll(
+                    () -> assertEquals(List.of("secret"), headers.get("id")),
+                    () -> assertEquals(List.of("world", "and", "java"), headers.get("hello"))
             );
         }
 
         @Test
-        void allHeadersTest() {
-            //given
-            String headerLine = "id: secret\r\nhello: world, and, java\r\n\r\n";
-            InputStream is = new ByteArrayInputStream(headerLine.getBytes());
+        @DisplayName("빈 값을 가진 헤더를 파싱한다")
+        void parseEmptyValueHeader() {
+            // Given
+            InputStream is = createInputStream("hello: \r\n\r\n");
 
-            //when
-            HttpHeader parse = parser.parse(is);
+            // When
+            HttpHeader header = parser.parse(is);
 
-            Map<String, List<String>> headers = parse.allHeaders();
-
-            //then
-            assertAll("multiValue",
-                    () -> assertTrue(headers.get("hello").contains("world")),
-                    () -> assertTrue(headers.get("hello").contains("and")),
-                    () -> assertTrue(headers.get("hello").contains("java")),
-                    () -> assertTrue(headers.get("id").contains("secret"))
-            );
+            // Then
+            assertTrue(header.getHeaders("hello").isEmpty());
         }
 
         @Test
-        void withEmptyValue() {
-            //given
-            String headerLine = "hello: \r\n\r\n";
-            InputStream is = new ByteArrayInputStream(headerLine.getBytes());
+        @DisplayName("존재하지 않는 키로 헤더를 조회한다")
+        void getNotExistingHeader() {
+            // Given
+            InputStream is = createInputStream("hello: world\r\n");
 
-            //when
-            HttpHeader parse = parser.parse(is);
+            // When
+            HttpHeader header = parser.parse(is);
 
-            //then
-            assertEquals(0, parse.getHeaders("hello").size());
+            // Then
+            assertTrue(header.getHeaders("notExistsKey").isEmpty());
         }
 
         @Test
-        void getHeaderWithNotExistedKey() {
-            //given
-            String headerLine = "hello: world\r\n";
-            InputStream is = new ByteArrayInputStream(headerLine.getBytes());
-
-            //when
-            HttpHeader parse = parser.parse(is);
-
-            //then
-            assertEquals(0, parse.getHeaders("notExistsKey").size());
-        }
-
-        @Test
-        void throwIOExceptionTest(){
-            //given
+        @DisplayName("IOException 발생 시 InvalidRequestFormatException을 던진다")
+        void throwInvalidRequestFormatExceptionOnIOException() {
+            // Given
             InputStream is = new InputStream() {
                 @Override
                 public int read() throws IOException {
@@ -186,10 +183,12 @@ class HttpHeaderParserTest {
                 }
             };
 
-            //when & then
-            assertThrows(InvalidRequestFormatException.class,()->{
-                parser.parse(is);
-            });
+            // When & Then
+            assertThrows(InvalidRequestFormatException.class, () -> parser.parse(is));
+        }
+
+        private InputStream createInputStream(String content) {
+            return new ByteArrayInputStream(content.getBytes());
         }
     }
 }

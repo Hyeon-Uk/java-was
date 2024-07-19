@@ -19,6 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("HttpRequestParser 클래스")
 class HttpRequestParsingTest {
     private String testGetMessage =
             "GET /index.html HTTP/1.1"+"\r\n"+
@@ -55,9 +56,10 @@ class HttpRequestParsingTest {
         }
     }
     @Nested
-    @DisplayName("multipart/form-data")
+    @DisplayName("multipart/form-data 요청을")
     class MultipartFormDataTest{
         @Test
+        @DisplayName("File 도 정상적으로 처리할 수 있다.")
         void withFileData(){
             //given
             String boundary = "----WebKitFormBoundaryABC123";
@@ -97,9 +99,10 @@ class HttpRequestParsingTest {
     }
 
     @Nested
-    @DisplayName("Request Cookies")
+    @DisplayName("Cookie 들의 요청을 받으면")
     class RequestCookies {
         @Test
+        @DisplayName("여러개의 쿠키도 잘 받아올 수 있다.")
         void multipleCookieTest() {
             //given
             String getMessage =
@@ -117,6 +120,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("쿠키의 값이 비어있으면 파싱을 하지 않는다")
         void blankCookieTest() {
             //given
             String getMessage =
@@ -132,6 +136,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("쿠키 헤더가 없으면 파싱을 하지 않는다.")
         void emptyCookieTest() {
             //given
             String getMessage =
@@ -148,9 +153,10 @@ class HttpRequestParsingTest {
     }
 
     @Nested
-    @DisplayName("with string")
+    @DisplayName("request message가 string 형태이면")
     class WithStringTest {
         @Test
+        @DisplayName("제대로 된 포멧을 잘 파싱한다.")
         public void parseGetMessage() throws InvalidRequestFormatException {
             //given
             HttpRequest req = requestParser.parse(testGetMessage);
@@ -172,6 +178,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("잘못된 포멧은 exception을 던진다.")
         public void parseWrongMessage(){
             assertThrows(InvalidRequestFormatException.class,()->{
                 HttpRequest req = requestParser.parse(wrongMessage);
@@ -179,6 +186,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("URI의 쿼리 스트링을 파싱할 수 있다.")
         public void queryStringMessage(){
             //given
             String queryStringMessage =
@@ -202,6 +210,7 @@ class HttpRequestParsingTest {
                     );
         }
         @Test
+        @DisplayName("URI의 쿼리스트링이 비어있으면 값을 파싱하지 않는다.")
         public void emptyQueryStringMessage(){
             //given
             String queryStringMessage =
@@ -225,6 +234,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("URI에 쿼리스트링이 없으면 쿼리스트링이 비어있다.")
         public void nullQueryStringMessage(){
             //given
             String queryStringMessage =
@@ -247,6 +257,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("URL Encoding된 쿼리스트링을 decoding하여 받을 수 있다.")
         public void urlEncodingQueryString(){
             //given
             //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
@@ -269,6 +280,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("Body에 쿼리스트링 요청이 들어와도 쿼리스트링을 파싱할 수 있다.")
         public void bodyQueryStringTest(){
             //given
             //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
@@ -291,9 +303,10 @@ class HttpRequestParsingTest {
     }
 
     @Nested
-    @DisplayName("with inputStream")
+    @DisplayName("InputStream으로 파싱 요청이 들어오면")
     class WithInputStream {
         @Test
+        @DisplayName("제대로된 포멧을 파싱할 수 있다.")
         public void parseGetMessage() throws InvalidRequestFormatException {
             //given
             InputStream is = new ByteArrayInputStream(testGetMessage.getBytes());
@@ -316,6 +329,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("포멧이 깨지면 exception을 던진다.")
         public void parseWrongMessage() {
             assertThrows(InvalidRequestFormatException.class, () -> {
                 HttpRequest req = requestParser.parse(new ByteArrayInputStream(wrongMessage.getBytes()));
@@ -323,6 +337,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("URI의 쿼리 스트링을 파싱할 수 있다.")
         public void queryStringMessage() {
             //given
             String queryStringMessage =
@@ -348,6 +363,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("URI의 쿼리스트링 벨류가 비어있으면 값을 파싱하지 않는다.")
         public void emptyQueryStringMessage() {
             //given
             String queryStringMessage =
@@ -371,6 +387,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("URI에 쿼리스트링이 없으면 없다.")
         public void nullQueryStringMessage() {
             //given
             String queryStringMessage =
@@ -393,6 +410,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("URL 인코딩된 쿼리스트링을 디코딩하여 받을 수 있다.")
         public void urlEncodingQueryString() {
             //given
             //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
@@ -415,6 +433,7 @@ class HttpRequestParsingTest {
         }
 
         @Test
+        @DisplayName("Body에도 인코딩된 쿼리스트링을 파싱할 수 있다.")
         public void bodyQueryStringTest() {
             //given
             //안녕하세요 url 인코딩 = %ec%95%88%eb%85%95%ed%95%98%ec%84%b8%ec%9a%94
