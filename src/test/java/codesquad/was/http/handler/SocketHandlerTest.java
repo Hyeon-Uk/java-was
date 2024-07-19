@@ -9,8 +9,10 @@ import codesquad.was.http.message.InvalidRequestFormatException;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.http.message.request.HttpMethod;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.message.request.Request;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.response.HttpStatus;
+import codesquad.was.http.message.response.Response;
 import codesquad.was.http.message.vo.HttpBody;
 import codesquad.was.http.message.vo.HttpHeader;
 import codesquad.was.http.message.vo.HttpRequestStartLine;
@@ -142,7 +144,7 @@ class SocketHandlerTest {
         }
 
         @Override
-        public void handle(HttpRequest req, HttpResponse res) {
+        public void handle(Request req, Response res) {
             if(throwFlag) throw new HttpNotFoundException("NotFound");
         }
     }
