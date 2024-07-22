@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Coffee
@@ -45,6 +46,14 @@ public class HttpRequestParser implements RequestParser{
     public HttpRequest parse(InputStream is){
         HttpRequestStartLine startLine = httpRequestStartLineParser.parse(is);
         HttpHeader headers = httpHeaderParser.parse(is);
+        List<String> contentLength = headers.getHeaders("Content-Length");
+        if(!contentLength.isEmpty()){
+            long size = Long.parseLong(contentLength.get(0));
+            if(size > 10485760){
+                throw new InvalidRequestFormatException("데이터의 크기는 10MB를 넘을 수 없습니다.");
+            }
+        }
+
         HttpBody body = httpBodyParser.parse(headers, is);
 
         Map<String,String> queryString = startLine.getQueryString();
