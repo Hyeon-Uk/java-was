@@ -7,4 +7,7 @@ public class InvalidRequestFormatException extends RuntimeException{
     public InvalidRequestFormatException() {
         super("Invalid request format");
     }
+    public InvalidRequestFormatException(String message) {
+        super(message);
+    }
 }
