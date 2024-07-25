@@ -4,6 +4,7 @@ import codesquad.was.http.cookie.Cookie;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
 import codesquad.was.http.message.parser.RequestParser;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.message.request.XssRequestWrapper;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.session.Session;
 import codesquad.was.utils.CustomDateFormatter;
@@ -53,8 +54,9 @@ public class SocketHandler implements Runnable {
                 Session session = request.getSession(false);
                 response.addCookie(new Cookie("SID", session.getId()));
             }
+            XssRequestWrapper xssWrapper = new XssRequestWrapper(request);
 
-            requestHandler.handle(request,response);
+            requestHandler.handle(xssWrapper,response);
 
             sendResponse(response, socket);
         } catch (IOException ioException) {

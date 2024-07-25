@@ -7,6 +7,7 @@ import codesquad.was.http.exception.HttpException;
 import codesquad.was.http.exception.HttpInternalServerErrorException;
 import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.message.request.Request;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.response.HttpStatus;
 import codesquad.was.utils.FileUtil;
@@ -41,7 +42,7 @@ public class MvcHandler implements RequestHandler {
     }
 
     @Override
-    public void handle(HttpRequest req, HttpResponse res) {
+    public void handle(Request req, HttpResponse res) {
         try{
             Model model = new Model();
             Object[] arguments = argumentResolver.resolveArguments(method,req,res,model);

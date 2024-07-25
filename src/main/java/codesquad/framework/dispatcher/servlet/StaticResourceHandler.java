@@ -5,6 +5,7 @@ import codesquad.middleware.FileDatabase;
 import codesquad.middleware.FileSystemDatabase;
 import codesquad.was.http.handler.RequestHandler;
 import codesquad.was.http.message.request.HttpRequest;
+import codesquad.was.http.message.request.Request;
 import codesquad.was.http.message.response.HttpResponse;
 import codesquad.was.http.message.response.HttpStatus;
 import codesquad.was.utils.FileUtil;
@@ -20,7 +21,7 @@ public class StaticResourceHandler implements RequestHandler {
     }
 
     @Override
-    public void handle(HttpRequest req, HttpResponse res) {
+    public void handle(Request req, HttpResponse res) {
         String uri = req.getUri();
         byte[] data = null;
         if(uri.contains("/images")){
