@@ -5,7 +5,9 @@ import codesquad.framework.coffee.annotation.Controller;
 import codesquad.framework.coffee.annotation.RequestMapping;
 import codesquad.framework.dispatcher.servlet.MvcHandler;
 import codesquad.framework.dispatcher.servlet.RequestHandlerMapper;
+import codesquad.framework.dispatcher.servlet.ResponseBodyHandler;
 import codesquad.framework.resolver.ArgumentResolver;
+import codesquad.framework.resolver.annotation.ResponseBody;
 import codesquad.was.Server;
 import codesquad.was.http.engine.HttpTemplateEngine;
 import codesquad.was.utils.FileUtil;
@@ -31,17 +33,35 @@ public class Cafe {
         FileUtil fileUtil = coffeeShop.getBean(FileUtil.class);
         List<?> controllerClasses = coffeeShop.getAllBeansOfAnnotation(Controller.class);
         ArgumentResolver argResolver = coffeeShop.getBean(ArgumentResolver.class);
-
+        ObjectMapper objectMapper = coffeeShop.getBean(ObjectMapper.class);
         for (Object controllerClass : controllerClasses) {
             Arrays.stream(controllerClass.getClass().getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(RequestMapping.class))
                     .forEach(method -> {
                         RequestMapping annotation = method.getAnnotation(RequestMapping.class);
-                        requestHandlerMapper.setRequestHandler(
-                                annotation.path(),
-                                annotation.method(),
-                                new MvcHandler(controllerClass, method,annotation.status(),fileUtil,engine,argResolver)
-                        );
+                        if(method.isAnnotationPresent(ResponseBody.class)){
+                            requestHandlerMapper.setRequestHandler(
+                                    annotation.path(),
+                                    annotation.method(),
+                                    new ResponseBodyHandler(controllerClass,
+                                            method,
+                                            annotation.status(),
+                                            argResolver,
+                                            objectMapper)
+                            );
+                        }
+                        else {
+                            requestHandlerMapper.setRequestHandler(
+                                    annotation.path(),
+                                    annotation.method(),
+                                    new MvcHandler(controllerClass,
+                                            method,
+                                            annotation.status(),
+                                            fileUtil,
+                                            engine,
+                                            argResolver)
+                            );
+                        }
                     });
         }
     }

@@ -1,9 +1,12 @@
 package codesquad.framework;
 
+import codesquad.framework.coffee.annotation.Coffee;
+
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 
+@Coffee
 public class ObjectMapper {
 
     public String toJson(Object obj) {
