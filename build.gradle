@@ -1,5 +1,10 @@
 plugins {
     id 'java'
+    id 'jacoco'
+}
+
+jacoco{
+    toolVersion="0.8.11"
 }
 
 group = 'codesquad'
@@ -10,10 +15,78 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.slf4j:slf4j-simple:2.0.13'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'com.h2database:h2:2.3.230'
 }
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport{
+    reports{
+        xml.required = false
+        csv.required = false
+        html.outputLocation=layout.buildDirectory.dir('jacocoHtml')
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect{
+            fileTree(dir: it, exclude: [
+//                     패키지나 클래스 제외
+                    'com/example/excluded/**',
+                    '**/ExcludedClass.class',
+                    'codesquad/Main.class',
+                    // 특정 메서드 제외
+                    '**/*$*.class',
+                    '**/*$*$*.class',
+                    '**//*_.class',
+                    // toString, hashCode, equals 메서드 제외
+                    '**/*.class.!**/toString',
+                    '**/*.class.!**/hashCode',
+                    '**/*.class.!**/equals',
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+//        rule {
+//            limit {
+//                minimum = 0.8
+//            }
+//        }
+
+        rule {
+            element = 'CLASS'
+            excludes = ['*.test.*', '*.Kotlin*','codesquad.Main']
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+//                minimum = 0.8
+            }
+        }
+
+        rule {
+            element = 'METHOD'
+            excludes = [
+                    'toString',
+                    'equals',
+                    'hashCode'
+            ]
+        }
+    }
+}
+
+jar{
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from configurations.runtimeClasspath.collect {
+        it.isDirectory() ? it : zipTree(it)
+    }
+    manifest{
+        attributes 'Main-Class' : 'codesquad.Main'
+    }
 }

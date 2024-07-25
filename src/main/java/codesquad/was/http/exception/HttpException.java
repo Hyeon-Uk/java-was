@@ -1,0 +1,25 @@
+package codesquad.was.http.exception;
+
+import codesquad.was.http.message.response.HttpStatus;
+
+public class HttpException extends RuntimeException {
+    private final HttpStatus status;
+    private final String errorMessage;
+    public HttpException(HttpStatus status,String errorMessage){
+        this.status = status;
+        this.errorMessage = errorMessage;
+    }
+
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    @Override
+    public String getMessage(){
+        return getErrorMessage();
+    }
+}
