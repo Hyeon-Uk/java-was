@@ -19,14 +19,14 @@ import java.util.Map;
 
 public class MvcHandler implements RequestHandler {
     private final Logger logger = LoggerFactory.getLogger(MvcHandler.class);
-    private final Class<?> controller;
+    private final Object controller;
     private final Method method;
     private final HttpStatus status;
     private final FileUtil fileUtil;
     private final HttpTemplateEngine templateEngine;
     private final ArgumentResolver argumentResolver;
 
-    public MvcHandler(Class<?> controller,
+    public MvcHandler(Object controller,
                       Method method,
                       HttpStatus status,
                       FileUtil fileUtil,
